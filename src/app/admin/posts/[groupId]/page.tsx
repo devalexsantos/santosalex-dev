@@ -33,6 +33,10 @@ export default async function EditPostPage({
 
   const representative = ptVersion ?? versions[0];
 
+  // Use the EN row's translationStatus as the form's initial value.
+  // EN row is the one that gets translated; PT row is always the source.
+  const enTranslationStatus = enVersion?.translationStatus ?? "draft";
+
   const defaultValues: Partial<PostFormValues> = {
     translationGroupId: decodedGroupId,
     category: representative.category as PostFormValues["category"],
@@ -41,6 +45,8 @@ export default async function EditPostPage({
     publishedAt: formatDate(representative.publishedAt),
     readingTime: representative.readingTime ?? null,
     coverImage: representative.coverImage ?? "",
+    translationStatus: enTranslationStatus as PostFormValues["translationStatus"],
+    markReviewed: false,
     "pt-BR": ptVersion
       ? {
           slug: ptVersion.slug,
@@ -79,7 +85,7 @@ export default async function EditPostPage({
       </div>
 
       <div className="rounded-2xl border border-white/[0.07] bg-white/[0.02] p-6">
-        <PostForm defaultValues={defaultValues} />
+        <PostForm defaultValues={defaultValues} groupId={decodedGroupId} />
       </div>
     </div>
   );

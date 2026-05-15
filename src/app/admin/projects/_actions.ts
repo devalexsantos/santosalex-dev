@@ -5,6 +5,7 @@ import { revalidatePath } from "next/cache";
 import { requireAdminSession } from "@/lib/auth/admin-session";
 import { prisma } from "@/lib/prisma";
 import { projectSchema, type ProjectFormValues } from "@/lib/validators/project";
+import { translateProjectFields } from "@/lib/ai/translate";
 
 // ---------------------------------------------------------------------------
 // saveProject — create or update a project with all relations
@@ -28,6 +29,57 @@ export async function saveProject(
   const demoUrl = data.demoUrl || null;
   const githubUrl = data.githubUrl || null;
 
+  // ── Determine the translation status to persist ──
+  // Priority order:
+  // 1. If markReviewed is true → reviewed (user explicitly confirmed)
+  // 2. If PT content changed since last save AND previous status was
+  //    translated or reviewed → needs_translation (source diverged)
+  // 3. Otherwise, keep the incoming status from the form
+  let translationStatus = data.translationStatus;
+
+  if (data.markReviewed) {
+    translationStatus = "reviewed";
+  } else if (projectId) {
+    // Detect PT diff: compare new PT fields against what's in the DB
+    const existing = await prisma.project.findUnique({
+      where: { id: projectId },
+      select: {
+        content: true,
+        architecture: true,
+        challenges: true,
+        translationStatus: true,
+      },
+    });
+
+    if (existing) {
+      const prevStatus = existing.translationStatus;
+
+      if (prevStatus === "translated" || prevStatus === "reviewed") {
+        // Compare PT-BR content snapshot
+        type RawContent = { "pt-BR"?: Record<string, string> };
+        const prevContent = existing.content as RawContent | null;
+        const prevArch = existing.architecture as { "pt-BR"?: string } | null;
+        const prevChallenges = existing.challenges as { "pt-BR"?: string } | null;
+
+        const ptPrev = JSON.stringify({
+          ...prevContent?.["pt-BR"],
+          architecture: prevArch?.["pt-BR"] ?? "",
+          challenges: prevChallenges?.["pt-BR"] ?? "",
+        });
+
+        const ptNew = JSON.stringify({
+          ...data.content["pt-BR"],
+          architecture: data.architecture["pt-BR"],
+          challenges: data.challenges["pt-BR"],
+        });
+
+        if (ptPrev !== ptNew) {
+          translationStatus = "needs_translation";
+        }
+      }
+    }
+  }
+
   try {
     if (projectId) {
       // --- UPDATE ---
@@ -40,6 +92,7 @@ export async function saveProject(
             shortDescription: data.shortDescription,
             category: data.category,
             status: data.status,
+            translationStatus,
             year: data.year ?? null,
             featured: data.featured,
             order: data.order,
@@ -101,6 +154,7 @@ export async function saveProject(
             shortDescription: data.shortDescription,
             category: data.category,
             status: data.status,
+            translationStatus: "draft", // always draft on creation
             year: data.year ?? null,
             featured: data.featured,
             order: data.order,
@@ -163,6 +217,119 @@ export async function saveProject(
   }
 
   redirect("/admin/projects");
+}
+
+// ---------------------------------------------------------------------------
+// translateProjectToEn — AI-assisted EN translation
+//
+// Design: Returns the translated EN fields so the client can prefill form
+// values without a full page reload. The form still requires an explicit
+// "Salvar" to persist. This avoids the awkward "page refreshed under you"
+// UX. The status is immediately committed to the DB (translated), but the
+// EN form fields are populated client-side for the human to review + save.
+// ---------------------------------------------------------------------------
+
+export type TranslateProjectResult =
+  | { ok: true; enFields: { content: Record<string, string>; architecture: string; challenges: string }; translationStatus: "translated" }
+  | { ok: false; error: string };
+
+export async function translateProjectToEn(projectId: string): Promise<TranslateProjectResult> {
+  await requireAdminSession();
+
+  const project = await prisma.project.findUnique({
+    where: { id: projectId },
+    select: {
+      content: true,
+      architecture: true,
+      challenges: true,
+      slug: true,
+    },
+  });
+
+  if (!project) {
+    return { ok: false, error: "Projeto não encontrado." };
+  }
+
+  type RawContent = { "pt-BR"?: Record<string, string>; en?: Record<string, string> };
+  const rawContent = project.content as RawContent | null;
+  const ptContent = rawContent?.["pt-BR"] ?? {};
+  const ptArch = (project.architecture as { "pt-BR"?: string } | null)?.["pt-BR"] ?? "";
+  const ptChallenges = (project.challenges as { "pt-BR"?: string } | null)?.["pt-BR"] ?? "";
+
+  // Build the translation input — include only non-empty fields
+  const input = {
+    ...(ptContent.fullDescription ? { fullDescription: ptContent.fullDescription } : {}),
+    ...(ptContent.problem ? { problem: ptContent.problem } : {}),
+    ...(ptContent.hypothesis ? { hypothesis: ptContent.hypothesis } : {}),
+    ...(ptContent.targetAudience ? { targetAudience: ptContent.targetAudience } : {}),
+    ...(ptContent.technicalDecisions ? { technicalDecisions: ptContent.technicalDecisions } : {}),
+    ...(ptContent.learnings ? { learnings: ptContent.learnings } : {}),
+    ...(ptContent.nextSteps ? { nextSteps: ptContent.nextSteps } : {}),
+    ...(ptArch ? { architecture: ptArch } : {}),
+    ...(ptChallenges ? { challenges: ptChallenges } : {}),
+  };
+
+  let translated;
+  try {
+    translated = await translateProjectFields(input);
+  } catch (err) {
+    return {
+      ok: false,
+      error: err instanceof Error ? err.message : "Erro ao traduzir.",
+    };
+  }
+
+  // Merge translated content into existing EN JSON (preserve existing PT side)
+  const existingEnContent = rawContent?.en ?? {};
+  const newEnContent: Record<string, string> = {
+    ...existingEnContent,
+    ...(translated.fullDescription !== undefined ? { fullDescription: translated.fullDescription } : {}),
+    ...(translated.problem !== undefined ? { problem: translated.problem } : {}),
+    ...(translated.hypothesis !== undefined ? { hypothesis: translated.hypothesis } : {}),
+    ...(translated.targetAudience !== undefined ? { targetAudience: translated.targetAudience } : {}),
+    ...(translated.technicalDecisions !== undefined ? { technicalDecisions: translated.technicalDecisions } : {}),
+    ...(translated.learnings !== undefined ? { learnings: translated.learnings } : {}),
+    ...(translated.nextSteps !== undefined ? { nextSteps: translated.nextSteps } : {}),
+  };
+
+  const newArchitecture = translated.architecture ?? ptArch;
+  const newChallenges = translated.challenges ?? ptChallenges;
+
+  // Persist to DB with translationStatus: translated
+  // This means: AI drafted EN, awaiting human review. Never auto-publishes.
+  await prisma.project.update({
+    where: { id: projectId },
+    data: {
+      content: {
+        "pt-BR": ptContent,
+        en: newEnContent,
+      },
+      architecture: {
+        "pt-BR": ptArch,
+        en: newArchitecture,
+      },
+      challenges: {
+        "pt-BR": ptChallenges,
+        en: newChallenges,
+      },
+      translationStatus: "translated",
+    },
+  });
+
+  // Revalidate public pages
+  for (const locale of ["pt-BR", "en"]) {
+    revalidatePath(`/${locale}/projects/${project.slug}`, "page");
+  }
+
+  return {
+    ok: true,
+    enFields: {
+      content: newEnContent,
+      architecture: newArchitecture,
+      challenges: newChallenges,
+    },
+    translationStatus: "translated",
+  };
 }
 
 // ---------------------------------------------------------------------------

@@ -255,8 +255,10 @@
         "decisionReason": "Motivo"
       },
       "translationStatus": {
-        "translated": "traduzido",
-        "pending": "pendente"
+        "draft": "Rascunho",
+        "needs_translation": "Tradução desatualizada",
+        "translated": "Traduzido (não revisado)",
+        "reviewed": "Revisado"
       }
     },
     "posts": {
@@ -295,9 +297,26 @@
         "seoDescription": "SEO Description"
       },
       "translationStatus": {
-        "translated": "traduzido",
-        "pending": "pendente"
+        "draft": "Rascunho",
+        "needs_translation": "Tradução desatualizada",
+        "translated": "Traduzido (não revisado)",
+        "reviewed": "Revisado"
       }
+    },
+    "translation": {
+      "status": {
+        "draft": "Rascunho",
+        "needs_translation": "Tradução desatualizada",
+        "translated": "Traduzido (não revisado)",
+        "reviewed": "Revisado"
+      },
+      "generateButton": "Gerar tradução com IA",
+      "translating": "Traduzindo...",
+      "generateError": "Erro ao traduzir com a OpenAI. Tente novamente.",
+      "generateSuccess": "Tradução gerada! Revise e salve quando estiver pronto.",
+      "markReviewed": "Marcar como revisado ao salvar",
+      "reviewedHint": "o status será atualizado para Revisado",
+      "disabledNew": "Salve o projeto primeiro para habilitar a tradução."
     }
   },
   "buildNotes": {

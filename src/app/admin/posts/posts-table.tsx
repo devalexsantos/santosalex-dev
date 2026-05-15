@@ -25,6 +25,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { deletePostGroup } from "./_actions";
 import { cn } from "@/lib/utils";
+import { TranslationStatusBadge, type TranslationStatus } from "@/components/admin/translation-status-badge";
 
 type PostVersion = {
   id: string;
@@ -36,6 +37,7 @@ type PostVersion = {
   published: boolean;
   publishedAt: Date | null;
   readingTime: number | null;
+  translationStatus: TranslationStatus;
 };
 
 type PostGroup = {
@@ -93,6 +95,7 @@ export function PostsTable({ groups }: { groups: PostGroup[] }) {
               <TableHead className="text-xs text-white/40 font-medium">Categoria</TableHead>
               <TableHead className="text-xs text-white/40 font-medium">Locales</TableHead>
               <TableHead className="text-xs text-white/40 font-medium">Status</TableHead>
+              <TableHead className="text-xs text-white/40 font-medium">Tradução EN</TableHead>
               <TableHead className="text-xs text-white/40 font-medium">Publicado em</TableHead>
               <TableHead className="text-xs text-white/40 font-medium text-right">Ações</TableHead>
             </TableRow>
@@ -147,6 +150,11 @@ export function PostsTable({ groups }: { groups: PostGroup[] }) {
                     )}>
                       {isPublished ? `${publishedCount}/2 publicado` : "Rascunho"}
                     </span>
+                  </TableCell>
+                  <TableCell>
+                    <TranslationStatusBadge
+                      status={enVersion?.translationStatus ?? "draft"}
+                    />
                   </TableCell>
                   <TableCell className="text-sm text-white/40">
                     {publishedDate ?? "—"}

@@ -25,6 +25,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { deleteProject } from "./_actions";
 import { cn } from "@/lib/utils";
+import { TranslationStatusBadge, type TranslationStatus } from "@/components/admin/translation-status-badge";
 
 type Project = {
   id: string;
@@ -32,6 +33,7 @@ type Project = {
   title: string;
   category: string;
   status: string;
+  translationStatus: TranslationStatus;
   year: number | null;
   featured: boolean;
   order: number;
@@ -83,6 +85,7 @@ export function ProjectsTable({ projects }: { projects: Project[] }) {
               <TableHead className="text-xs text-white/40 font-medium">Status</TableHead>
               <TableHead className="text-xs text-white/40 font-medium">Ano</TableHead>
               <TableHead className="text-xs text-white/40 font-medium">Destaque</TableHead>
+              <TableHead className="text-xs text-white/40 font-medium">Tradução EN</TableHead>
               <TableHead className="text-xs text-white/40 font-medium text-right">Ações</TableHead>
             </TableRow>
           </TableHeader>
@@ -116,6 +119,9 @@ export function ProjectsTable({ projects }: { projects: Project[] }) {
                     {project.featured && (
                       <Star className="h-3.5 w-3.5 fill-amber-400 text-amber-400" />
                     )}
+                  </TableCell>
+                  <TableCell>
+                    <TranslationStatusBadge status={project.translationStatus} />
                   </TableCell>
                   <TableCell className="text-right">
                     <div className="flex items-center justify-end gap-1">

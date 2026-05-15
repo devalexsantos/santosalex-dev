@@ -71,6 +71,8 @@ export default async function EditProjectPage({
     shortDescription: project.shortDescription,
     category: project.category as ProjectFormValues["category"],
     status: project.status as ProjectFormValues["status"],
+    translationStatus: project.translationStatus as ProjectFormValues["translationStatus"],
+    markReviewed: false,
     year: project.year,
     featured: project.featured,
     order: project.order,

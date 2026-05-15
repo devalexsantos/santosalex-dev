@@ -24,6 +24,13 @@ model UserAdmin {
 // Public content
 // ----------------------------------------------------------------------------
 
+enum TranslationStatus {
+  draft
+  needs_translation
+  translated
+  reviewed
+}
+
 enum ProjectStatus {
   draft
   in_progress
@@ -58,6 +65,10 @@ model Project {
   demoUrl          String?
   githubUrl        String?
   status           ProjectStatus   @default(draft)
+  /// Translation status of the EN content relative to the PT-BR source.
+  /// draft = EN never touched; needs_translation = PT was edited after last AI pass;
+  /// translated = AI drafted EN, awaiting human review; reviewed = human confirmed.
+  translationStatus TranslationStatus @default(draft)
   category         ProjectCategory
   year             Int?
   featured         Boolean         @default(false)
@@ -184,6 +195,9 @@ model Post {
   readingTime        Int?
   published          Boolean      @default(false)
   publishedAt        DateTime?
+  /// Translation status. Meaningful on the EN row; PT rows are the source and
+  /// are set to `reviewed` automatically on save (they don't need translation).
+  translationStatus  TranslationStatus @default(draft)
   seoTitle           String?
   seoDescription     String?
   createdAt          DateTime     @default(now())

@@ -18,7 +18,19 @@ export const decisionSchema = z.object({
   order: z.number().int().min(0),
 });
 
+export const translationStatusSchema = z.enum([
+  "draft",
+  "needs_translation",
+  "translated",
+  "reviewed",
+]);
+
 export const projectSchema = z.object({
+  // Translation
+  translationStatus: translationStatusSchema.default("draft"),
+  /// When true, saving will commit `reviewed` status regardless of other logic.
+  markReviewed: z.boolean().default(false),
+
   // General (locale-agnostic)
   slug: z
     .string()

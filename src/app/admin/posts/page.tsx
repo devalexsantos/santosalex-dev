@@ -23,6 +23,7 @@ export default async function AdminPostsPage() {
       published: true,
       publishedAt: true,
       readingTime: true,
+      translationStatus: true,
     },
   });
 

@@ -18,6 +18,7 @@ export default async function AdminProjectsPage() {
       title: true,
       category: true,
       status: true,
+      translationStatus: true,
       year: true,
       featured: true,
       order: true,

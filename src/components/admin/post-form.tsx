@@ -4,8 +4,9 @@ import { useState, useTransition } from "react";
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
+import { Sparkles, Loader2 } from "lucide-react";
 import { postSchema, type PostFormValues } from "@/lib/validators/post";
-import { savePost } from "@/app/admin/posts/_actions";
+import { savePost, translatePostToEn } from "@/app/admin/posts/_actions";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -20,27 +21,25 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
+import { TranslationStatusBadge, type TranslationStatus } from "./translation-status-badge";
 
 interface PostFormProps {
   defaultValues: Partial<PostFormValues>;
+  /** translationGroupId of the existing post group (null when creating new) */
+  groupId: string | null;
 }
 
-function TranslationChip({ filled }: { filled: boolean }) {
-  return (
-    <span
-      className={cn(
-        "inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-semibold",
-        filled
-          ? "bg-emerald-500/10 text-emerald-400"
-          : "bg-amber-500/10 text-amber-400"
-      )}
-    >
-      {filled ? "✓ traduzido" : "⚠ pendente"}
-    </span>
-  );
-}
-
-function FieldRow({ label, children, required, hint }: { label: string; children: React.ReactNode; required?: boolean; hint?: string }) {
+function FieldRow({
+  label,
+  children,
+  required,
+  hint,
+}: {
+  label: string;
+  children: React.ReactNode;
+  required?: boolean;
+  hint?: string;
+}) {
   return (
     <div className="space-y-1.5">
       <Label className="text-xs font-medium text-white/60">
@@ -53,18 +52,35 @@ function FieldRow({ label, children, required, hint }: { label: string; children
   );
 }
 
-const inputClass = "border-white/[0.08] bg-white/[0.03] text-white/90 placeholder:text-white/20 focus-visible:ring-violet-500/50";
+const inputClass =
+  "border-white/[0.08] bg-white/[0.03] text-white/90 placeholder:text-white/20 focus-visible:ring-violet-500/50";
 const textareaClass = cn(inputClass, "min-h-[120px] resize-y");
-const bigTextareaClass = cn(inputClass, "min-h-[400px] resize-y font-mono text-sm");
+const bigTextareaClass = cn(
+  inputClass,
+  "min-h-[400px] resize-y font-mono text-sm"
+);
 
 const POST_CATEGORIES = [
-  "architecture","ai","saas","frontend","backend",
-  "infra","product","experiment","deploy","performance",
+  "architecture",
+  "ai",
+  "saas",
+  "frontend",
+  "backend",
+  "infra",
+  "product",
+  "experiment",
+  "deploy",
+  "performance",
 ] as const;
 
-export function PostForm({ defaultValues }: PostFormProps) {
+export function PostForm({ defaultValues, groupId }: PostFormProps) {
   const [isPending, startTransition] = useTransition();
+  const [isTranslating, setIsTranslating] = useState(false);
   const [activeTab, setActiveTab] = useState("general");
+
+  const [translationStatus, setTranslationStatus] = useState<TranslationStatus>(
+    (defaultValues.translationStatus as TranslationStatus) ?? "draft"
+  );
 
   const {
     register,
@@ -77,6 +93,8 @@ export function PostForm({ defaultValues }: PostFormProps) {
   } = useForm<PostFormValues, any, PostFormValues>({
     resolver: zodResolver(postSchema) as never,
     defaultValues: {
+      translationStatus: "draft",
+      markReviewed: false,
       translationGroupId: "",
       category: "architecture",
       tags: "",
@@ -84,21 +102,34 @@ export function PostForm({ defaultValues }: PostFormProps) {
       publishedAt: null,
       readingTime: null,
       coverImage: "",
-      "pt-BR": { slug: "", title: "", excerpt: "", content: "", seoTitle: "", seoDescription: "" },
-      en: { slug: "", title: "", excerpt: "", content: "", seoTitle: "", seoDescription: "" },
+      "pt-BR": {
+        slug: "",
+        title: "",
+        excerpt: "",
+        content: "",
+        seoTitle: "",
+        seoDescription: "",
+      },
+      en: {
+        slug: "",
+        title: "",
+        excerpt: "",
+        content: "",
+        seoTitle: "",
+        seoDescription: "",
+      },
       ...defaultValues,
     },
   });
 
   const watchedPtTitle = watch("pt-BR.title");
-  const watchedEnTitle = watch("en.title");
   const watchedPtContent = watch("pt-BR.content");
-  const watchedEnContent = watch("en.content");
+  const markReviewedValue = watch("markReviewed");
 
   // Auto-fill translationGroupId from PT-BR title slug if empty
   function handlePtTitleBlur() {
-    const groupId = watch("translationGroupId");
-    if (!groupId && watchedPtTitle) {
+    const currentGroupId = watch("translationGroupId");
+    if (!currentGroupId && watchedPtTitle) {
       const slug = watchedPtTitle
         .toLowerCase()
         .normalize("NFD")
@@ -110,8 +141,35 @@ export function PostForm({ defaultValues }: PostFormProps) {
     }
   }
 
-  const isPtFilled = !!(watchedPtTitle && watchedPtContent);
-  const isEnFilled = !!(watchedEnTitle && watchedEnContent);
+  const ptHasContent = !!(watchedPtTitle?.trim() && watchedPtContent?.trim());
+  // AI button only active when a saved group exists
+  const canTranslate = !!groupId && ptHasContent;
+
+  // ── AI translate handler ──
+  async function handleTranslate() {
+    if (!groupId) return;
+    setIsTranslating(true);
+    try {
+      const result = await translatePostToEn(groupId);
+      if (!result.ok) {
+        toast.error(result.error);
+        return;
+      }
+      const { enFields } = result;
+      setValue("en.slug", enFields.slug);
+      setValue("en.title", enFields.title);
+      setValue("en.excerpt", enFields.excerpt);
+      setValue("en.content", enFields.content);
+      setValue("en.seoTitle", enFields.seoTitle);
+      setValue("en.seoDescription", enFields.seoDescription);
+      setValue("translationStatus", result.translationStatus);
+      setTranslationStatus(result.translationStatus);
+      setActiveTab("en");
+      toast.success("Tradução gerada! Revise e salve quando estiver pronto.");
+    } finally {
+      setIsTranslating(false);
+    }
+  }
 
   function onSubmit(values: PostFormValues) {
     startTransition(async () => {
@@ -130,8 +188,26 @@ export function PostForm({ defaultValues }: PostFormProps) {
         <TabsList className="mb-6 w-full justify-start gap-1 rounded-xl border border-white/[0.07] bg-white/[0.03] p-1">
           {[
             { value: "general", label: "Geral" },
-            { value: "pt-BR", label: <span className="flex items-center gap-1.5">PT-BR <TranslationChip filled={isPtFilled} /></span> },
-            { value: "en", label: <span className="flex items-center gap-1.5">EN <TranslationChip filled={isEnFilled} /></span> },
+            {
+              value: "pt-BR",
+              label: (
+                <span className="flex items-center gap-1.5">
+                  PT-BR
+                  <span className="rounded-full bg-emerald-500/10 px-1.5 py-0.5 text-[9px] font-semibold text-emerald-400">
+                    fonte
+                  </span>
+                </span>
+              ),
+            },
+            {
+              value: "en",
+              label: (
+                <span className="flex items-center gap-1.5">
+                  EN
+                  <TranslationStatusBadge status={translationStatus} />
+                </span>
+              ),
+            },
           ].map(({ value, label }) => (
             <TabsTrigger
               key={value}
@@ -145,9 +221,21 @@ export function PostForm({ defaultValues }: PostFormProps) {
 
         {/* ── TAB: GERAL ── */}
         <TabsContent value="general" className="space-y-5">
-          <FieldRow label="ID do grupo (slug base)" required hint="Agrupa as versões PT-BR e EN do mesmo post. Auto-preenchido pelo título PT-BR.">
-            <Input className={inputClass} placeholder="my-post-slug" {...register("translationGroupId")} />
-            {errors.translationGroupId && <p className="text-xs text-red-400">{errors.translationGroupId.message}</p>}
+          <FieldRow
+            label="ID do grupo (slug base)"
+            required
+            hint="Agrupa as versões PT-BR e EN do mesmo post. Auto-preenchido pelo título PT-BR."
+          >
+            <Input
+              className={inputClass}
+              placeholder="my-post-slug"
+              {...register("translationGroupId")}
+            />
+            {errors.translationGroupId && (
+              <p className="text-xs text-red-400">
+                {errors.translationGroupId.message}
+              </p>
+            )}
           </FieldRow>
 
           <div className="grid grid-cols-2 gap-4">
@@ -162,7 +250,9 @@ export function PostForm({ defaultValues }: PostFormProps) {
                     </SelectTrigger>
                     <SelectContent className="border-white/[0.08] bg-[#111118] text-white">
                       {POST_CATEGORIES.map((v) => (
-                        <SelectItem key={v} value={v}>{v}</SelectItem>
+                        <SelectItem key={v} value={v}>
+                          {v}
+                        </SelectItem>
                       ))}
                     </SelectContent>
                   </Select>
@@ -180,16 +270,28 @@ export function PostForm({ defaultValues }: PostFormProps) {
           </div>
 
           <FieldRow label="Tags (separadas por vírgula)">
-            <Input className={inputClass} placeholder="nextjs, deploy, saas" {...register("tags")} />
+            <Input
+              className={inputClass}
+              placeholder="nextjs, deploy, saas"
+              {...register("tags")}
+            />
           </FieldRow>
 
           <FieldRow label="URL da capa">
-            <Input className={inputClass} placeholder="https://..." {...register("coverImage")} />
+            <Input
+              className={inputClass}
+              placeholder="https://..."
+              {...register("coverImage")}
+            />
           </FieldRow>
 
           <div className="grid grid-cols-2 gap-4">
             <FieldRow label="Data de publicação">
-              <Input className={inputClass} type="datetime-local" {...register("publishedAt")} />
+              <Input
+                className={inputClass}
+                type="datetime-local"
+                {...register("publishedAt")}
+              />
             </FieldRow>
             <FieldRow label="Publicado">
               <div className="flex h-9 items-center">
@@ -211,10 +313,24 @@ export function PostForm({ defaultValues }: PostFormProps) {
 
         {/* ── TAB: PT-BR ── */}
         <TabsContent value="pt-BR" className="space-y-5">
+          <div className="rounded-lg border border-white/[0.05] bg-white/[0.02] px-4 py-3">
+            <p className="text-[11px] text-white/40">
+              Este é o conteúdo fonte. Edite primeiro em pt-BR, depois gere a
+              tradução na aba EN.
+            </p>
+          </div>
           <div className="grid grid-cols-2 gap-4">
             <FieldRow label="Slug" required>
-              <Input className={inputClass} placeholder="meu-post" {...register("pt-BR.slug")} />
-              {errors["pt-BR"]?.slug && <p className="text-xs text-red-400">{errors["pt-BR"].slug.message}</p>}
+              <Input
+                className={inputClass}
+                placeholder="meu-post"
+                {...register("pt-BR.slug")}
+              />
+              {errors["pt-BR"]?.slug && (
+                <p className="text-xs text-red-400">
+                  {errors["pt-BR"].slug.message}
+                </p>
+              )}
             </FieldRow>
             <FieldRow label="Título" required>
               <Input
@@ -222,53 +338,197 @@ export function PostForm({ defaultValues }: PostFormProps) {
                 placeholder="Meu post"
                 {...register("pt-BR.title", { onBlur: handlePtTitleBlur })}
               />
-              {errors["pt-BR"]?.title && <p className="text-xs text-red-400">{errors["pt-BR"].title.message}</p>}
+              {errors["pt-BR"]?.title && (
+                <p className="text-xs text-red-400">
+                  {errors["pt-BR"].title.message}
+                </p>
+              )}
             </FieldRow>
           </div>
           <FieldRow label="Resumo" required>
-            <Textarea className={textareaClass} placeholder="Uma frase que descreve o post..." {...register("pt-BR.excerpt")} />
-            {errors["pt-BR"]?.excerpt && <p className="text-xs text-red-400">{errors["pt-BR"].excerpt.message}</p>}
+            <Textarea
+              className={textareaClass}
+              placeholder="Uma frase que descreve o post..."
+              {...register("pt-BR.excerpt")}
+            />
+            {errors["pt-BR"]?.excerpt && (
+              <p className="text-xs text-red-400">
+                {errors["pt-BR"].excerpt.message}
+              </p>
+            )}
           </FieldRow>
           <FieldRow label="Conteúdo (Markdown)" required>
-            <Textarea className={bigTextareaClass} placeholder="# Meu post..." {...register("pt-BR.content")} />
-            {errors["pt-BR"]?.content && <p className="text-xs text-red-400">{errors["pt-BR"].content.message}</p>}
+            <Textarea
+              className={bigTextareaClass}
+              placeholder="# Meu post..."
+              {...register("pt-BR.content")}
+            />
+            {errors["pt-BR"]?.content && (
+              <p className="text-xs text-red-400">
+                {errors["pt-BR"].content.message}
+              </p>
+            )}
           </FieldRow>
           <FieldRow label="SEO Title">
-            <Input className={inputClass} placeholder="Título para SEO (opcional)" {...register("pt-BR.seoTitle")} />
+            <Input
+              className={inputClass}
+              placeholder="Título para SEO (opcional)"
+              {...register("pt-BR.seoTitle")}
+            />
           </FieldRow>
           <FieldRow label="SEO Description">
-            <Textarea className={cn(inputClass, "min-h-[80px] resize-none")} placeholder="Descrição para SEO (opcional)" {...register("pt-BR.seoDescription")} />
+            <Textarea
+              className={cn(inputClass, "min-h-[80px] resize-none")}
+              placeholder="Descrição para SEO (opcional)"
+              {...register("pt-BR.seoDescription")}
+            />
           </FieldRow>
         </TabsContent>
 
         {/* ── TAB: EN ── */}
         <TabsContent value="en" className="space-y-5">
+          {/* AI Translation panel */}
+          <div className="rounded-xl border border-violet-500/20 bg-violet-500/[0.04] p-4">
+            <div className="flex items-start justify-between gap-4">
+              <div className="space-y-1">
+                <div className="flex items-center gap-2">
+                  <p className="text-sm font-medium text-white/80">
+                    Tradução automática com IA
+                  </p>
+                  <TranslationStatusBadge status={translationStatus} />
+                </div>
+                <p className="text-[11px] text-white/40">
+                  {!groupId
+                    ? "Salve o post primeiro para habilitar a tradução."
+                    : !ptHasContent
+                    ? "Preencha o título e conteúdo em pt-BR para habilitar."
+                    : "Gera título, resumo, conteúdo e SEO em inglês. Revise antes de salvar."}
+                </p>
+              </div>
+              <Button
+                type="button"
+                disabled={!canTranslate || isTranslating}
+                onClick={handleTranslate}
+                className={cn(
+                  "shrink-0 gap-1.5 text-xs font-medium transition-all",
+                  canTranslate
+                    ? "bg-gradient-to-r from-violet-600 to-violet-500 text-white shadow-lg shadow-violet-500/20 hover:from-violet-500 hover:to-violet-400"
+                    : "border border-white/[0.06] bg-transparent text-white/25"
+                )}
+              >
+                {isTranslating ? (
+                  <>
+                    <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                    Traduzindo...
+                  </>
+                ) : (
+                  <>
+                    <Sparkles className="h-3.5 w-3.5" />
+                    Gerar tradução com IA
+                  </>
+                )}
+              </Button>
+            </div>
+
+            {/* Mark as reviewed switch */}
+            {translationStatus === "translated" && (
+              <div className="mt-4 flex items-center gap-3 border-t border-white/[0.06] pt-4">
+                <Controller
+                  control={control}
+                  name="markReviewed"
+                  render={({ field }) => (
+                    <Switch
+                      id="postMarkReviewed"
+                      checked={field.value}
+                      onCheckedChange={field.onChange}
+                      className="data-[state=checked]:bg-emerald-600"
+                    />
+                  )}
+                />
+                <label
+                  htmlFor="postMarkReviewed"
+                  className="cursor-pointer text-xs text-white/60"
+                >
+                  Marcar como revisado ao salvar
+                  {markReviewedValue && (
+                    <span className="ml-1.5 text-emerald-400">
+                      — o status será atualizado para <strong>Revisado</strong>
+                    </span>
+                  )}
+                </label>
+              </div>
+            )}
+          </div>
+
           <div className="grid grid-cols-2 gap-4">
             <FieldRow label="Slug" required>
-              <Input className={inputClass} placeholder="my-post" {...register("en.slug")} />
-              {errors["en"]?.slug && <p className="text-xs text-red-400">{errors["en"].slug.message}</p>}
+              <Input
+                className={inputClass}
+                placeholder="my-post"
+                {...register("en.slug")}
+              />
+              {errors["en"]?.slug && (
+                <p className="text-xs text-red-400">
+                  {errors["en"].slug.message}
+                </p>
+              )}
             </FieldRow>
             <FieldRow label="Title" required>
-              <Input className={inputClass} placeholder="My post" {...register("en.title")} />
-              {errors["en"]?.title && <p className="text-xs text-red-400">{errors["en"].title.message}</p>}
+              <Input
+                className={inputClass}
+                placeholder="My post"
+                {...register("en.title")}
+              />
+              {errors["en"]?.title && (
+                <p className="text-xs text-red-400">
+                  {errors["en"].title.message}
+                </p>
+              )}
             </FieldRow>
           </div>
           <FieldRow label="Excerpt" required>
-            <Textarea className={textareaClass} placeholder="One sentence describing the post..." {...register("en.excerpt")} />
-            {errors["en"]?.excerpt && <p className="text-xs text-red-400">{errors["en"].excerpt.message}</p>}
+            <Textarea
+              className={textareaClass}
+              placeholder="One sentence describing the post..."
+              {...register("en.excerpt")}
+            />
+            {errors["en"]?.excerpt && (
+              <p className="text-xs text-red-400">
+                {errors["en"].excerpt.message}
+              </p>
+            )}
           </FieldRow>
           <FieldRow label="Content (Markdown)" required>
-            <Textarea className={bigTextareaClass} placeholder="# My post..." {...register("en.content")} />
-            {errors["en"]?.content && <p className="text-xs text-red-400">{errors["en"].content.message}</p>}
+            <Textarea
+              className={bigTextareaClass}
+              placeholder="# My post..."
+              {...register("en.content")}
+            />
+            {errors["en"]?.content && (
+              <p className="text-xs text-red-400">
+                {errors["en"].content.message}
+              </p>
+            )}
           </FieldRow>
           <FieldRow label="SEO Title">
-            <Input className={inputClass} placeholder="SEO title (optional)" {...register("en.seoTitle")} />
+            <Input
+              className={inputClass}
+              placeholder="SEO title (optional)"
+              {...register("en.seoTitle")}
+            />
           </FieldRow>
           <FieldRow label="SEO Description">
-            <Textarea className={cn(inputClass, "min-h-[80px] resize-none")} placeholder="SEO description (optional)" {...register("en.seoDescription")} />
+            <Textarea
+              className={cn(inputClass, "min-h-[80px] resize-none")}
+              placeholder="SEO description (optional)"
+              {...register("en.seoDescription")}
+            />
           </FieldRow>
         </TabsContent>
       </Tabs>
+
+      {/* hidden field synced to form state */}
+      <input type="hidden" {...register("translationStatus")} />
 
       <div className="flex items-center justify-between border-t border-white/[0.06] pt-5">
         <Button

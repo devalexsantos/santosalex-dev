@@ -1,5 +1,12 @@
 import { z } from "zod";
 
+export const translationStatusSchema = z.enum([
+  "draft",
+  "needs_translation",
+  "translated",
+  "reviewed",
+]);
+
 const localeVersionSchema = z.object({
   slug: z.string().min(1, "Slug obrigatório"),
   title: z.string().min(1, "Título obrigatório"),
@@ -10,6 +17,13 @@ const localeVersionSchema = z.object({
 });
 
 export const postSchema = z.object({
+  // Translation
+  /// EN row translation status. Set by the AI translate action; flipped to
+  /// `needs_translation` when PT content changes after a prior AI pass.
+  translationStatus: translationStatusSchema.default("draft"),
+  /// When true, saving will commit `reviewed` status for the EN row.
+  markReviewed: z.boolean().default(false),
+
   // General
   translationGroupId: z.string().min(1, "Group ID obrigatório"),
   category: z.enum([

@@ -23,7 +23,7 @@ export default async function NewPostPage() {
       </div>
 
       <div className="rounded-2xl border border-white/[0.07] bg-white/[0.02] p-6">
-        <PostForm defaultValues={{}} />
+        <PostForm defaultValues={{}} groupId={null} />
       </div>
     </div>
   );
