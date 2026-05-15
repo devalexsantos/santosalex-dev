@@ -5,6 +5,14 @@ import { BentoSection } from "@/components/home/bento-section";
 import { FeaturedProjectsSection } from "@/components/home/featured-projects-section";
 import { AnimatedGridBackgroundLazy } from "@/components/animations/animated-grid-background-lazy";
 
+type Bilingual = { "pt-BR"?: string; en?: string };
+
+function pickLocalized(field: unknown, locale: string): string | null {
+  if (!field || typeof field !== "object") return null;
+  const f = field as Bilingual;
+  return f[locale as keyof Bilingual] ?? f["pt-BR"] ?? f.en ?? null;
+}
+
 export default async function HomePage({
   params,
 }: {
@@ -23,6 +31,19 @@ export default async function HomePage({
     featuredProjects = [];
   }
 
+  // ── Profile-driven hero copy (admin can edit without redeploy) ─
+  let profileTagline: string | null = null;
+  let profileAvailability: string | null = null;
+  try {
+    const profile = await prisma.profile.findUnique({ where: { id: "singleton" } });
+    if (profile) {
+      profileTagline = pickLocalized(profile.tagline, locale);
+      profileAvailability = profile.availability ?? null;
+    }
+  } catch {
+    // Profile not seeded / DB down — hero falls back to i18n strings
+  }
+
   const firstFeatured = featuredProjects[0] ?? null;
 
   return (
@@ -31,7 +52,10 @@ export default async function HomePage({
       <AnimatedGridBackgroundLazy />
 
       {/* Hero */}
-      <HeroSection />
+      <HeroSection
+        taglineOverride={profileTagline}
+        availabilityOverride={profileAvailability}
+      />
 
       {/* Bento grid overview */}
       <BentoSection

@@ -7,7 +7,17 @@ import { Button } from "@/components/ui/button";
 import { GradientText } from "@/components/ui/gradient-text";
 import { Link } from "@/i18n/navigation";
 
-export function HeroSection() {
+export interface HeroSectionProps {
+  /** Live tagline from Profile (admin-editable). Falls back to i18n string. */
+  taglineOverride?: string | null;
+  /** Live availability label from Profile. Falls back to i18n string. */
+  availabilityOverride?: string | null;
+}
+
+export function HeroSection({
+  taglineOverride,
+  availabilityOverride,
+}: HeroSectionProps = {}) {
   const t = useTranslations("home");
 
   const fadeUp = {
@@ -35,7 +45,7 @@ export function HeroSection() {
           <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-400" />
         </span>
         <span className="text-xs font-medium text-muted-foreground">
-          {t("statusLabel")}
+          {availabilityOverride?.trim() || t("statusLabel")}
         </span>
       </motion.div>
 
@@ -63,7 +73,7 @@ export function HeroSection() {
         <GradientText>{t("titleAccent")}</GradientText>
       </motion.h1>
 
-      {/* Subtitle */}
+      {/* Subtitle — prefers Profile.tagline (admin-editable) over i18n */}
       <motion.p
         custom={0.2}
         variants={fadeUp}
@@ -71,7 +81,7 @@ export function HeroSection() {
         animate="visible"
         className="max-w-2xl text-base leading-relaxed text-muted-foreground sm:text-lg"
       >
-        {t("subtitle")}
+        {taglineOverride?.trim() || t("subtitle")}
       </motion.p>
 
       {/* CTA buttons */}
