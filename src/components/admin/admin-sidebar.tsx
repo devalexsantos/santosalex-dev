@@ -2,13 +2,16 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { LayoutDashboard, FolderKanban, FileText, LogOut } from "lucide-react";
+import { LayoutDashboard, FolderKanban, FileText, Cpu, Database, MessagesSquare, LogOut } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const NAV_LINKS = [
-  { href: "/admin",          label: "Dashboard", icon: LayoutDashboard },
-  { href: "/admin/projects", label: "Projetos",  icon: FolderKanban },
-  { href: "/admin/posts",    label: "Posts",     icon: FileText },
+  { href: "/admin",              label: "Dashboard",   icon: LayoutDashboard },
+  { href: "/admin/projects",     label: "Projetos",    icon: FolderKanban },
+  { href: "/admin/posts",        label: "Posts",       icon: FileText },
+  { href: "/admin/technologies", label: "Tecnologias", icon: Cpu },
+  { href: "/admin/ai-documents", label: "AI Documents",icon: Database },
+  { href: "/admin/chat-logs",    label: "Chat Logs",   icon: MessagesSquare },
 ];
 
 export function AdminSidebar() {

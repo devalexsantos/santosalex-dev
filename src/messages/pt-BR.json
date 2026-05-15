@@ -317,6 +317,89 @@
       "markReviewed": "Marcar como revisado ao salvar",
       "reviewedHint": "o status será atualizado para Revisado",
       "disabledNew": "Salve o projeto primeiro para habilitar a tradução."
+    },
+    "tech": {
+      "title": "Tecnologias",
+      "new": "Nova tecnologia",
+      "edit": "Editar tecnologia",
+      "saveSuccess": "Tecnologia salva com sucesso.",
+      "deleteSuccess": "Tecnologia excluída.",
+      "deleteConfirm": "Tem certeza que deseja excluir esta tecnologia? Projetos vinculados perderão o vínculo.",
+      "fields": {
+        "slug": "Slug",
+        "name": "Nome",
+        "category": "Categoria",
+        "experienceLevel": "Nível de experiência",
+        "icon": "Ícone",
+        "description": "Descrição"
+      },
+      "categories": {
+        "frontend": "Frontend",
+        "backend": "Backend",
+        "database": "Banco de Dados",
+        "ai": "IA",
+        "devops": "DevOps",
+        "infra": "Infraestrutura",
+        "automation": "Automação",
+        "payments": "Pagamentos",
+        "email": "Email",
+        "testing": "Testes",
+        "other": "Outros"
+      },
+      "levels": {
+        "learning": "Aprendendo",
+        "intermediate": "Intermediário",
+        "advanced": "Avançado",
+        "expert": "Expert"
+      }
+    },
+    "aiDocuments": {
+      "title": "AI Documents",
+      "new": "Novo documento",
+      "edit": "Editar documento",
+      "saveSuccess": "Documento salvo com sucesso.",
+      "deleteSuccess": "Documento excluído.",
+      "deleteConfirm": "Tem certeza que deseja excluir este documento? Todos os chunks e embeddings associados serão removidos.",
+      "reindex": "Marcar para re-indexação",
+      "reindexAll": "Re-indexar todos pendentes",
+      "reindexHint": "A pipeline de embeddings será executada na Fase 5. Marcar como pendente já agora deixa o documento na fila correta.",
+      "fields": {
+        "title": "Título",
+        "sourceType": "Tipo de fonte",
+        "sourceId": "Source ID",
+        "locale": "Locale",
+        "content": "Conteúdo (Markdown)",
+        "metadata": "Metadata (JSON)"
+      },
+      "sourceTypes": {
+        "project": "Projeto",
+        "post": "Post",
+        "profile": "Perfil",
+        "experience": "Experiência",
+        "faq": "FAQ",
+        "page": "Página"
+      },
+      "locales": {
+        "pt-BR": "Português (pt-BR)",
+        "en": "English (en)"
+      },
+      "indexedStatus": {
+        "indexed": "Indexado",
+        "pending": "Pendente"
+      }
+    },
+    "chatLogs": {
+      "title": "Chat Logs",
+      "empty": "Nenhuma conversa registrada ainda — a fase 5 (RAG / chat público) ainda não foi implementada.",
+      "messageCount": "mensagens",
+      "firstMessage": "Primeira mensagem",
+      "feedbackCount": "Feedbacks",
+      "sessionTranscript": "Transcrição",
+      "role": {
+        "user": "Usuário",
+        "assistant": "Assistente",
+        "system": "Sistema"
+      }
     }
   },
   "buildNotes": {
