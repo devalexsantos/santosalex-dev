@@ -26,7 +26,15 @@ import React, {
 import { useTranslations, useLocale } from "next-intl";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
-import { Sparkles, Send, Trash2, X, Loader2 } from "lucide-react";
+import {
+  Sparkles,
+  Send,
+  Trash2,
+  X,
+  Loader2,
+  ThumbsUp,
+  ThumbsDown,
+} from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -44,6 +52,10 @@ export type ChatMessage = {
   content: string;
   isError?: boolean;
   isLoading?: boolean;
+  /** Persisted AiChatMessage.id — only set for assistant turns. Enables feedback. */
+  messageId?: string | null;
+  /** Local UI state: which feedback the user submitted (null = none). */
+  feedback?: 1 | -1 | null;
 };
 
 export type PortfolioChatProps = {
@@ -113,7 +125,7 @@ function getOrCreateSessionId(): string {
 
 type StreamCallbacks = {
   onChunk: (chunk: string) => void;
-  onDone: () => void;
+  onDone: (messageId: string | null) => void;
   onError: (msg: string) => void;
 };
 
@@ -135,7 +147,7 @@ async function streamChatResponse(
       (data as { error?: string }).error ??
         "Rate limit exceeded. Please wait a moment.",
     );
-    callbacks.onDone();
+    callbacks.onDone(null);
     return;
   }
 
@@ -144,14 +156,14 @@ async function streamChatResponse(
     callbacks.onError(
       (data as { error?: string }).error ?? "Request failed.",
     );
-    callbacks.onDone();
+    callbacks.onDone(null);
     return;
   }
 
   const reader = res.body?.getReader();
   if (!reader) {
     callbacks.onError("No response body.");
-    callbacks.onDone();
+    callbacks.onDone(null);
     return;
   }
 
@@ -176,6 +188,7 @@ async function streamChatResponse(
           chunk?: string;
           done?: boolean;
           error?: string;
+          messageId?: string | null;
         };
         if (event.chunk) {
           callbacks.onChunk(event.chunk);
@@ -184,7 +197,7 @@ async function streamChatResponse(
           callbacks.onError(event.error);
         }
         if (event.done) {
-          callbacks.onDone();
+          callbacks.onDone(event.messageId ?? null);
           return;
         }
       } catch {
@@ -193,7 +206,79 @@ async function streamChatResponse(
     }
   }
 
-  callbacks.onDone();
+  callbacks.onDone(null);
+}
+
+// ---------------------------------------------------------------------------
+// Feedback widget
+// ---------------------------------------------------------------------------
+
+function FeedbackButtons({
+  messageId,
+  current,
+  onSubmit,
+}: {
+  messageId: string;
+  current: 1 | -1 | null | undefined;
+  onSubmit: (rating: 1 | -1) => void;
+}) {
+  const [submitting, setSubmitting] = useState<1 | -1 | null>(null);
+
+  async function handle(rating: 1 | -1) {
+    if (current || submitting) return;
+    setSubmitting(rating);
+    try {
+      const res = await fetch("/api/chat/feedback", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ messageId, rating }),
+      });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      onSubmit(rating);
+    } catch (err) {
+      console.warn("[chat] Feedback failed:", err);
+    } finally {
+      setSubmitting(null);
+    }
+  }
+
+  if (current) {
+    return (
+      <div className="mt-1.5 flex items-center gap-1 text-[10px] text-muted-foreground/40">
+        {current === 1 ? (
+          <ThumbsUp className="h-3 w-3 text-emerald-400/80" />
+        ) : (
+          <ThumbsDown className="h-3 w-3 text-rose-400/80" />
+        )}
+        <span>obrigado pelo feedback</span>
+      </div>
+    );
+  }
+
+  return (
+    <div className="mt-1.5 flex items-center gap-1">
+      {([1, -1] as const).map((r) => {
+        const Icon = r === 1 ? ThumbsUp : ThumbsDown;
+        const isSubmitting = submitting === r;
+        return (
+          <button
+            key={r}
+            type="button"
+            disabled={!!submitting}
+            onClick={() => void handle(r)}
+            aria-label={r === 1 ? "Útil" : "Pouco útil"}
+            className="rounded-md p-1 text-muted-foreground/40 transition-colors hover:bg-white/[0.05] hover:text-foreground/80 disabled:cursor-not-allowed disabled:opacity-40"
+          >
+            {isSubmitting ? (
+              <Loader2 className="h-3 w-3 animate-spin" />
+            ) : (
+              <Icon className="h-3 w-3" />
+            )}
+          </button>
+        );
+      })}
+    </div>
+  );
 }
 
 // ---------------------------------------------------------------------------
@@ -230,7 +315,13 @@ function SuggestionChips({
 // Message bubble
 // ---------------------------------------------------------------------------
 
-function MessageBubble({ msg }: { msg: ChatMessage }) {
+function MessageBubble({
+  msg,
+  onFeedback,
+}: {
+  msg: ChatMessage;
+  onFeedback?: (rating: 1 | -1) => void;
+}) {
   const isUser = msg.role === "user";
 
   if (msg.isLoading) {
@@ -259,10 +350,11 @@ function MessageBubble({ msg }: { msg: ChatMessage }) {
         </div>
       )}
 
-      {/* Bubble */}
+      {/* Bubble + feedback column */}
+      <div className="flex max-w-[82%] flex-col">
       <div
         className={cn(
-          "max-w-[82%] rounded-2xl px-4 py-2.5 text-sm leading-relaxed",
+          "rounded-2xl px-4 py-2.5 text-sm leading-relaxed",
           isUser
             ? "rounded-tr-sm bg-primary/20 text-foreground"
             : msg.isError
@@ -309,6 +401,16 @@ function MessageBubble({ msg }: { msg: ChatMessage }) {
             {msg.content}
           </ReactMarkdown>
         )}
+      </div>
+
+      {/* Feedback — only on real assistant turns (not user, error or no-context) */}
+      {!isUser && !msg.isError && msg.messageId && onFeedback && (
+        <FeedbackButtons
+          messageId={msg.messageId}
+          current={msg.feedback}
+          onSubmit={onFeedback}
+        />
+      )}
       </div>
     </div>
   );
@@ -430,8 +532,16 @@ function ChatPanel({
                 return next;
               });
             },
-            onDone: () => {
-              // Already handled in onChunk / onError
+            onDone: (messageId) => {
+              if (!messageId) return;
+              setMessages((prev) => {
+                const next = [...prev];
+                const lastIdx = next.length - 1;
+                if (next[lastIdx]?.role === "assistant" && !next[lastIdx].isError) {
+                  next[lastIdx] = { ...next[lastIdx], messageId };
+                }
+                return next;
+              });
             },
           },
           controller.signal,
@@ -546,7 +656,17 @@ function ChatPanel({
         ) : (
           <div className="space-y-4">
             {messages.map((msg, i) => (
-              <MessageBubble key={i} msg={msg} />
+              <MessageBubble
+                key={i}
+                msg={msg}
+                onFeedback={(rating) => {
+                  setMessages((prev) => {
+                    const next = [...prev];
+                    if (next[i]) next[i] = { ...next[i], feedback: rating };
+                    return next;
+                  });
+                }}
+              />
             ))}
             {/* Suggestions after last assistant message */}
             {!isStreaming && messages[messages.length - 1]?.role === "assistant" && (

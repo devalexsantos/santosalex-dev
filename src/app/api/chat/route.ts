@@ -169,6 +169,8 @@ export async function POST(req: NextRequest) {
           new TextEncoder().encode(sseChunk({ chunk: noContextMsg })),
         );
         controller.enqueue(
+          // No assistantMessageId on the no-context path: feedback is only
+          // useful for AI-generated answers, not for the canned fallback.
           new TextEncoder().encode(sseChunk({ done: true })),
         );
         controller.close();
@@ -248,22 +250,28 @@ export async function POST(req: NextRequest) {
           }
         }
 
-        controller.enqueue(encoder.encode(sseChunk({ done: true })));
-        controller.close();
-
-        // 9. Persist assistant turn after stream completes
-        await prisma.aiChatMessage
-          .create({
+        // 9. Persist assistant turn BEFORE closing the stream so we can ship
+        //    the message ID in the done event for the feedback widget.
+        let assistantMessageId: string | null = null;
+        try {
+          const persisted = await prisma.aiChatMessage.create({
             data: {
               sessionId,
               role: "assistant",
               content: fullText,
               locale,
             },
-          })
-          .catch((err) =>
-            console.error("[chat] Failed to persist assistant message:", err),
-          );
+            select: { id: true },
+          });
+          assistantMessageId = persisted.id;
+        } catch (err) {
+          console.error("[chat] Failed to persist assistant message:", err);
+        }
+
+        controller.enqueue(
+          encoder.encode(sseChunk({ done: true, messageId: assistantMessageId })),
+        );
+        controller.close();
       } catch (err) {
         console.error("[chat] LLM streaming error:", err);
 
