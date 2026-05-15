@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { FolderKanban, FileText, Eye, Cpu, Database, MessagesSquare } from "lucide-react";
+import { FolderKanban, FileText, Eye, Cpu, Database, MessagesSquare, UserCircle } from "lucide-react";
 import { requireAdminSession } from "@/lib/auth/admin-session";
 import { prisma } from "@/lib/prisma";
 
@@ -17,6 +17,8 @@ export default async function AdminDashboardPage() {
     aiDocIndexed,
     aiDocPending,
     chatSessionCount,
+    profileDocIndexed,
+    profileDocPending,
   ] = await Promise.all([
     prisma.project.count(),
     prisma.post.count({ where: { published: true } }),
@@ -28,6 +30,12 @@ export default async function AdminDashboardPage() {
       distinct: ["sessionId"],
       select: { sessionId: true },
     }).then((rows) => rows.length),
+    prisma.aiDocument.count({
+      where: { sourceType: { in: ["profile", "experience", "faq"] }, indexed: true },
+    }),
+    prisma.aiDocument.count({
+      where: { sourceType: { in: ["profile", "experience", "faq"] }, indexed: false },
+    }),
   ]);
 
   const stats = [
@@ -85,6 +93,18 @@ export default async function AdminDashboardPage() {
       color: "text-fuchsia-400",
       bg: "bg-fuchsia-500/10",
       border: "border-fuchsia-500/20",
+    },
+    {
+      label: "Perfil (docs RAG)",
+      value: profileDocIndexed,
+      href: "/admin/profile",
+      icon: UserCircle,
+      color: "text-violet-400",
+      bg: "bg-violet-500/10",
+      border: "border-violet-500/20",
+      sub: profileDocPending > 0
+        ? `${profileDocPending} pendente${profileDocPending !== 1 ? "s" : ""}`
+        : undefined,
     },
   ] as const;
 

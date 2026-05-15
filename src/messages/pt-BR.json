@@ -400,6 +400,72 @@
         "assistant": "Assistente",
         "system": "Sistema"
       }
+    },
+    "profile": {
+      "title": "Perfil",
+      "subtitle": "Bio, tipos de vaga, experiência e FAQs — conteúdo que alimenta o assistente de IA.",
+      "tabs": {
+        "general": "Geral",
+        "ptBR": "PT-BR",
+        "en": "EN"
+      },
+      "sections": {
+        "about": "Sobre",
+        "roleTypes": "Tipos de vaga",
+        "experience": "Experiência profissional",
+        "faqs": "FAQs",
+        "generalInfo": "Informações gerais",
+        "experienceGeneral": "Experiência profissional — campos gerais"
+      },
+      "fields": {
+        "tagline": "Tagline",
+        "bio": "Bio",
+        "approach": "Abordagem / Como trabalho",
+        "location": "Localização",
+        "availability": "Disponibilidade",
+        "roleTitle": "Título da vaga",
+        "roleDescription": "Descrição",
+        "company": "Empresa",
+        "role": "Cargo",
+        "period": "Período",
+        "highlights": "Destaques",
+        "question": "Pergunta",
+        "answer": "Resposta"
+      },
+      "hints": {
+        "tagline": "Uma linha. Ex: Fullstack dev focado em produtos com IA.",
+        "bio": "1 a 3 parágrafos apresentando Alex.",
+        "approach": "Descreva o processo e mentalidade de trabalho.",
+        "location": "Ex: São Paulo, SP — Brasil",
+        "availability": "Ex: Disponível para freelance / Aberto a remoto",
+        "experienceGeneralNote": "Empresa e período são os mesmos em ambos os idiomas. Cargo e destaques ficam nas abas PT-BR / EN."
+      },
+      "buttons": {
+        "addRole": "Adicionar tipo de vaga",
+        "addExperience": "Adicionar experiência",
+        "addFaq": "Adicionar FAQ",
+        "save": "Salvar e re-indexar",
+        "saving": "Salvando e indexando...",
+        "remove": "Remover",
+        "moveUp": "Subir",
+        "moveDown": "Descer"
+      },
+      "toast": {
+        "success": "Perfil salvo — {chunks} chunk(s) gerado(s) em {processed} doc(s).",
+        "successPartial": "Perfil salvo, mas {failed} doc(s) falharam ao indexar. Verifique os logs.",
+        "error": "Erro ao salvar perfil. Tente novamente."
+      },
+      "completion": {
+        "ok": "ok",
+        "incomplete": "incompleto"
+      },
+      "notes": {
+        "generalTab": "Campos que não dependem de idioma. Textos bilíngues ficam nas abas PT-BR e EN.",
+        "ptBRTab": "Conteúdo fonte em português. Preencha aqui primeiro, depois espelhe na aba EN.",
+        "enTab": "Versão em inglês. Adapte naturalmente — não traduza palavra por palavra.",
+        "saveHint": "O perfil alimenta o assistente de IA diretamente — salvar re-indexa o conteúdo.",
+        "addInPtBR": "Adicione na aba PT-BR primeiro."
+      }
     }
   },
   "chat": {

@@ -277,6 +277,316 @@ export async function removeAiDocumentsForPost(postId: string): Promise<void> {
   });
 }
 
+// ---------------------------------------------------------------------------
+// Profile sync
+// ---------------------------------------------------------------------------
+
+type ProfileRow = {
+  id: string;
+  tagline: unknown;
+  bio: unknown;
+  approach: unknown;
+  location: string | null;
+  availability: string | null;
+};
+
+type RoleRow = {
+  id: string;
+  title: unknown;
+  description: unknown;
+  order: number;
+};
+
+type ExperienceRow = {
+  id: string;
+  company: string;
+  role: unknown;
+  period: string;
+  highlights: unknown;
+  order: number;
+};
+
+type FaqRow = {
+  id: string;
+  question: unknown;
+  answer: unknown;
+  order: number;
+};
+
+type AiDocumentSpec = {
+  title: string;
+  sourceType: "profile" | "experience" | "faq";
+  sourceId: string | null;
+  locale: Locale;
+  content: string;
+};
+
+/**
+ * Builds the set of AiDocument specs for one locale from all profile data.
+ * - 1 root "Perfil" doc (sourceType=profile, sourceId=null)
+ * - 1 doc per role (sourceType=experience, sourceId=role.id)
+ * - 1 doc per experience (sourceType=experience, sourceId=experience.id)
+ * - 1 doc per faq (sourceType=faq, sourceId=faq.id)
+ */
+export function buildProfileDocs(
+  profile: ProfileRow,
+  roles: RoleRow[],
+  experiences: ExperienceRow[],
+  faqs: FaqRow[],
+  locale: Locale,
+): AiDocumentSpec[] {
+  const docs: AiDocumentSpec[] = [];
+
+  // ── Root profile document ──
+  const tagline = pickLocale(profile.tagline, locale);
+  const bio = pickLocale(profile.bio, locale);
+  const approach = pickLocale(profile.approach, locale);
+
+  const profileLines: string[] = [];
+  profileLines.push(
+    locale === "pt-BR" ? "# Perfil — Alex Santos" : "# Profile — Alex Santos",
+  );
+  profileLines.push("");
+  if (tagline) {
+    profileLines.push(locale === "pt-BR" ? "## Tagline" : "## Tagline");
+    profileLines.push(tagline);
+    profileLines.push("");
+  }
+  if (bio) {
+    profileLines.push(locale === "pt-BR" ? "## Sobre" : "## About");
+    profileLines.push(bio);
+    profileLines.push("");
+  }
+  if (approach) {
+    profileLines.push(
+      locale === "pt-BR" ? "## Como trabalho" : "## How I work",
+    );
+    profileLines.push(approach);
+    profileLines.push("");
+  }
+  if (profile.location) {
+    profileLines.push(
+      locale === "pt-BR" ? `**Localização:** ${profile.location}` : `**Location:** ${profile.location}`,
+    );
+    profileLines.push("");
+  }
+  if (profile.availability) {
+    profileLines.push(
+      locale === "pt-BR" ? `**Disponibilidade:** ${profile.availability}` : `**Availability:** ${profile.availability}`,
+    );
+    profileLines.push("");
+  }
+
+  docs.push({
+    title: locale === "pt-BR" ? "Perfil — Alex Santos" : "Profile — Alex Santos",
+    sourceType: "profile",
+    sourceId: null,
+    locale,
+    content: profileLines.join("\n").trim(),
+  });
+
+  // ── Role type documents ──
+  for (const role of roles) {
+    const title = pickLocale(role.title, locale);
+    const description = pickLocale(role.description, locale);
+    if (!title && !description) continue;
+
+    const lines: string[] = [];
+    lines.push(`# ${title || "Tipo de vaga"}`);
+    if (description) {
+      lines.push("");
+      lines.push(description);
+    }
+
+    docs.push({
+      title: title || "Tipo de vaga",
+      sourceType: "experience",
+      sourceId: role.id,
+      locale,
+      content: lines.join("\n").trim(),
+    });
+  }
+
+  // ── Experience documents ──
+  for (const exp of experiences) {
+    const roleTitle = pickLocale(exp.role, locale);
+    const highlights = pickLocale(exp.highlights, locale);
+    const docTitle = `${exp.company}${roleTitle ? ` — ${roleTitle}` : ""}`;
+
+    const lines: string[] = [];
+    lines.push(`# ${docTitle}`);
+    if (exp.period) {
+      lines.push("");
+      lines.push(
+        locale === "pt-BR" ? `**Período:** ${exp.period}` : `**Period:** ${exp.period}`,
+      );
+    }
+    if (highlights) {
+      lines.push("");
+      lines.push(locale === "pt-BR" ? "## Destaques" : "## Highlights");
+      lines.push(highlights);
+    }
+
+    docs.push({
+      title: docTitle,
+      sourceType: "experience",
+      sourceId: exp.id,
+      locale,
+      content: lines.join("\n").trim(),
+    });
+  }
+
+  // ── FAQ documents ──
+  for (const faq of faqs) {
+    const question = pickLocale(faq.question, locale);
+    const answer = pickLocale(faq.answer, locale);
+    if (!question && !answer) continue;
+
+    const lines: string[] = [];
+    lines.push(`# FAQ: ${question}`);
+    lines.push("");
+    lines.push(
+      locale === "pt-BR" ? `**Pergunta:** ${question}` : `**Question:** ${question}`,
+    );
+    lines.push(
+      locale === "pt-BR" ? `**Resposta:** ${answer}` : `**Answer:** ${answer}`,
+    );
+
+    docs.push({
+      title: `FAQ: ${question}`,
+      sourceType: "faq",
+      sourceId: faq.id,
+      locale,
+      content: lines.join("\n").trim(),
+    });
+  }
+
+  return docs;
+}
+
+/**
+ * Full rebuild of all AiDocument rows for profile data (both locales).
+ *
+ * Strategy:
+ * 1. Load all profile data from DB.
+ * 2. Compute the desired set of (sourceType, sourceId, locale) tuples.
+ * 3. Delete orphaned AiDocument rows (roles/experiences/faqs that were removed).
+ * 4. Upsert the rest (all land with indexed=false for re-embedding).
+ *
+ * NOTE: This function only touches sourceType in {profile, experience, faq}.
+ * It never modifies project or post documents.
+ */
+export async function syncProfileToAiDocuments(): Promise<{
+  deleted: number;
+  upserted: number;
+}> {
+  // Load all profile data
+  const [profile, roles, experiences, faqs] = await Promise.all([
+    prisma.profile.findUnique({ where: { id: "singleton" } }),
+    prisma.profileRoleType.findMany({ orderBy: { order: "asc" } }),
+    prisma.profileExperience.findMany({ orderBy: { order: "asc" } }),
+    prisma.profileFaq.findMany({ orderBy: { order: "asc" } }),
+  ]);
+
+  if (!profile) {
+    return { deleted: 0, upserted: 0 };
+  }
+
+  // Build the desired set of docs for both locales
+  const desiredDocs: AiDocumentSpec[] = [];
+  for (const locale of LOCALES) {
+    const docs = buildProfileDocs(profile, roles, experiences, faqs, locale);
+    desiredDocs.push(...docs);
+  }
+
+  // Collect all sourceIds that should exist (for experience + faq types)
+  // Note: profile docs have sourceId=null — handled separately
+  const desiredExperienceIds = new Set(
+    desiredDocs
+      .filter((d) => d.sourceType === "experience")
+      .map((d) => d.sourceId)
+      .filter((id): id is string => id !== null),
+  );
+  const desiredFaqIds = new Set(
+    desiredDocs
+      .filter((d) => d.sourceType === "faq")
+      .map((d) => d.sourceId)
+      .filter((id): id is string => id !== null),
+  );
+
+  // Find all existing profile-managed AiDocument rows
+  const existing = await prisma.aiDocument.findMany({
+    where: {
+      sourceType: { in: ["profile", "experience", "faq"] },
+    },
+    select: { id: true, sourceType: true, sourceId: true, locale: true },
+  });
+
+  // Determine orphans: rows whose sourceId is no longer in the desired set
+  const orphanIds = existing
+    .filter((row) => {
+      if (row.sourceType === "profile") return false; // never orphan the root profile doc
+      if (row.sourceType === "experience") {
+        return row.sourceId !== null && !desiredExperienceIds.has(row.sourceId);
+      }
+      if (row.sourceType === "faq") {
+        return row.sourceId !== null && !desiredFaqIds.has(row.sourceId);
+      }
+      return false;
+    })
+    .map((row) => row.id);
+
+  let deleted = 0;
+  if (orphanIds.length > 0) {
+    const result = await prisma.aiDocument.deleteMany({
+      where: { id: { in: orphanIds } },
+    });
+    deleted = result.count;
+  }
+
+  // Upsert all desired docs
+  let upserted = 0;
+  for (const doc of desiredDocs) {
+    // AiDocument has @@unique([sourceType, sourceId, locale])
+    // sourceId is null for the root profile doc — Prisma requires a special
+    // workaround for null in unique constraints. We handle it with a
+    // findFirst + create/update pattern (same as the Prisma 7 compound upsert fix).
+    const existing = await prisma.aiDocument.findFirst({
+      where: {
+        sourceType: doc.sourceType,
+        sourceId: doc.sourceId,
+        locale: doc.locale,
+      },
+      select: { id: true },
+    });
+
+    if (existing) {
+      await prisma.aiDocument.update({
+        where: { id: existing.id },
+        data: {
+          title: doc.title,
+          content: doc.content,
+          indexed: false,
+        },
+      });
+    } else {
+      await prisma.aiDocument.create({
+        data: {
+          title: doc.title,
+          sourceType: doc.sourceType,
+          sourceId: doc.sourceId,
+          locale: doc.locale,
+          content: doc.content,
+          indexed: false,
+        },
+      });
+    }
+    upserted++;
+  }
+
+  return { deleted, upserted };
+}
+
 /**
  * One-shot backfill: walks every project + published post and (re)generates
  * their AiDocument rows. Safe to run repeatedly.

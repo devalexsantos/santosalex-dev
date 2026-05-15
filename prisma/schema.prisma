@@ -289,6 +289,64 @@ model AiFeedback {
 }
 
 // ----------------------------------------------------------------------------
+// Profile (singleton + related tables)
+// ----------------------------------------------------------------------------
+
+/// Singleton row — one Profile per portfolio. id is forced to "singleton".
+model Profile {
+  id           String   @id @default("singleton")
+  /// Bilingual tagline. Shape: { "pt-BR": string, "en": string }
+  tagline      Json
+  /// Bilingual long-form bio (1-3 paragraphs). Shape: { "pt-BR": string, "en": string }
+  bio          Json
+  /// Bilingual "how I work" / approach. Shape: { "pt-BR": string, "en": string }
+  approach     Json
+  /// Optional plain string — same for both locales
+  location     String?
+  /// Optional plain string — "Disponível para freelance/contrato/CLT", "Aberto a remoto", etc.
+  availability String?
+  updatedAt    DateTime @updatedAt
+  createdAt    DateTime @default(now())
+}
+
+model ProfileRoleType {
+  id          String   @id @default(cuid())
+  /// e.g. "Fullstack Developer" / { "pt-BR": "...", "en": "..." }
+  title       Json
+  /// Paragraph explaining why Alex fits this role. Bilingual.
+  description Json
+  order       Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model ProfileExperience {
+  id         String   @id @default(cuid())
+  /// Company name — same string in both locales
+  company    String
+  /// Bilingual role title
+  role       Json
+  /// Free-form period string, e.g. "2023 — atual" / "2023 — present"
+  period     String
+  /// Bilingual highlights paragraph
+  highlights Json
+  order      Int      @default(0)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+}
+
+model ProfileFaq {
+  id        String   @id @default(cuid())
+  /// Bilingual question
+  question  Json
+  /// Bilingual answer
+  answer    Json
+  order     Int      @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+// ----------------------------------------------------------------------------
 // Contact
 // ----------------------------------------------------------------------------
 
