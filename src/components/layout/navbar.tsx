@@ -20,12 +20,13 @@ interface NavLink {
 }
 
 const NAV_LINKS: NavLink[] = [
-  { labelKey: "projects",     href: "/projects" },
-  { labelKey: "buildNotes",   href: "/build-notes" },
-  { labelKey: "experiments",  href: "/experiments" },
-  { labelKey: "stack",        href: "/stack" },
-  { labelKey: "howIBuild",    href: "/how-i-build" },
-  { labelKey: "contact",      href: "/contact" },
+  { labelKey: "projects",      href: "/projects" },
+  { labelKey: "buildNotes",    href: "/build-notes" },
+  { labelKey: "experiments",   href: "/experiments" },
+  { labelKey: "stack",         href: "/stack" },
+  { labelKey: "howIBuild",     href: "/how-i-build" },
+  { labelKey: "recruiterMode", href: "/recruiter" },
+  { labelKey: "contact",       href: "/contact" },
 ];
 
 export function Navbar() {

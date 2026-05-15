@@ -9,6 +9,7 @@
     "experiments": "Experimentos",
     "stack": "Stack",
     "howIBuild": "Como Construo",
+    "recruiterMode": "Modo Recrutador",
     "contact": "Contato",
     "askAi": "Perguntar à IA"
   },
@@ -524,6 +525,45 @@
       "experiment": "Experimentos",
       "deploy": "Deploy",
       "performance": "Performance"
+    }
+  },
+  "recruiter": {
+    "eyebrow": "Recruiter Mode",
+    "title": "Veja Alex pela lente da",
+    "titleAccent": "vaga que você está contratando",
+    "subtitle": "Escolha um tipo de vaga e a IA gera um resumo personalizado do perfil do Alex — com pontos fortes, projetos relevantes e por que ele pode encaixar.",
+    "pickRole": "Escolha a vaga",
+    "pickRoleHint": "Selecione um tipo abaixo para começar.",
+    "generating": "Gerando resumo personalizado…",
+    "regenerate": "Trocar vaga",
+    "error": "Ocorreu um erro ao gerar o resumo. Tente novamente.",
+    "rateLimit": "Limite de uso atingido. Tente novamente em alguns minutos.",
+    "disclaimer": "Resumo gerado por IA usando RAG sobre o conteúdo cadastrado por Alex.",
+    "roles": {
+      "frontend-developer": {
+        "label": "Frontend Developer",
+        "description": "Interfaces modernas com React, Next.js, TypeScript e design system"
+      },
+      "fullstack-developer": {
+        "label": "Fullstack Developer",
+        "description": "Frontend + backend + banco + deploy em um único builder"
+      },
+      "product-engineer": {
+        "label": "Product Engineer",
+        "description": "Pensa produto, hipótese e métrica antes de codar"
+      },
+      "ai-engineer": {
+        "label": "AI Engineer",
+        "description": "RAG, embeddings, pgvector, LLMs e prompt engineering aplicado"
+      },
+      "saas-builder": {
+        "label": "SaaS Builder",
+        "description": "MVPs com Stripe, multi-tenant, billing e onboarding"
+      },
+      "startup-developer": {
+        "label": "Startup Developer",
+        "description": "Lean, scrappy, end-to-end ownership de produto"
+      }
     }
   }
 }
