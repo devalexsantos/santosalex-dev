@@ -9,6 +9,7 @@
     "experiments": "Experiments",
     "stack": "Stack",
     "howIBuild": "How I Build",
+    "about": "About",
     "recruiterMode": "Recruiter Mode",
     "contact": "Contact",
     "askAi": "Ask the AI"
@@ -280,5 +281,23 @@
         "description": "Lean, scrappy, end-to-end product ownership"
       }
     }
+  },
+  "about": {
+    "title": "About Alex Santos",
+    "description": "Fullstack developer with product mindset and applied AI focus — bio, role types, experience and FAQs.",
+    "eyebrow": "About",
+    "approachEyebrow": "Approach",
+    "approachTitle": "How I work",
+    "rolesEyebrow": "Role types",
+    "rolesTitle": "Where I usually fit",
+    "rolesDescription": "Types of roles where Alex's profile makes the most sense — defined by him in the admin.",
+    "experienceEyebrow": "Experience",
+    "experienceTitle": "Professional path",
+    "faqEyebrow": "FAQ",
+    "faqTitle": "Frequently asked",
+    "ctaTitle": "Want to build something together?",
+    "ctaDescription": "Open to freelance, contract and remote positions. Replies within 48 business hours.",
+    "ctaPrimary": "Get in touch",
+    "ctaSecondary": "Try Recruiter Mode"
   }
 }

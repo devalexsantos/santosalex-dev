@@ -9,6 +9,7 @@
     "experiments": "Experimentos",
     "stack": "Stack",
     "howIBuild": "Como Construo",
+    "about": "Sobre",
     "recruiterMode": "Modo Recrutador",
     "contact": "Contato",
     "askAi": "Perguntar à IA"
@@ -565,5 +566,23 @@
         "description": "Lean, scrappy, end-to-end ownership de produto"
       }
     }
+  },
+  "about": {
+    "title": "Sobre Alex Santos",
+    "description": "Fullstack developer com mentalidade de produto e foco em IA aplicada — bio, perfis de vaga, experiência e perguntas frequentes.",
+    "eyebrow": "Sobre",
+    "approachEyebrow": "Abordagem",
+    "approachTitle": "Como eu trabalho",
+    "rolesEyebrow": "Tipos de vaga",
+    "rolesTitle": "Onde costumo me encaixar",
+    "rolesDescription": "Tipos de posições para os quais o perfil do Alex faz mais sentido — definidos por ele mesmo no admin do site.",
+    "experienceEyebrow": "Experiência",
+    "experienceTitle": "Trajetória profissional",
+    "faqEyebrow": "FAQ",
+    "faqTitle": "Perguntas frequentes",
+    "ctaTitle": "Vamos construir algo juntos?",
+    "ctaDescription": "Disponível para freelance, contrato e posições remotas. Responda em até 48 horas úteis.",
+    "ctaPrimary": "Entrar em contato",
+    "ctaSecondary": "Ver Recruiter Mode"
   }
 }

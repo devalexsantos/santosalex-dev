@@ -25,6 +25,7 @@ const NAV_LINKS: NavLink[] = [
   { labelKey: "experiments",   href: "/experiments" },
   { labelKey: "stack",         href: "/stack" },
   { labelKey: "howIBuild",     href: "/how-i-build" },
+  { labelKey: "about",         href: "/about" },
   { labelKey: "recruiterMode", href: "/recruiter" },
   { labelKey: "contact",       href: "/contact" },
 ];
