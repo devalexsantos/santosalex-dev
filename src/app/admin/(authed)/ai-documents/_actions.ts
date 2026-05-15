@@ -6,6 +6,7 @@ import { Prisma } from "@prisma/client";
 import { requireAdminSession } from "@/lib/auth/admin-session";
 import { prisma } from "@/lib/prisma";
 import { aiDocumentSchema, type AiDocumentFormValues } from "@/lib/validators/ai-document";
+import { syncAllAiDocuments } from "@/lib/ai/sync";
 
 // ---------------------------------------------------------------------------
 // saveAiDocument — create or update
@@ -145,5 +146,32 @@ export async function markAllForReindex(): Promise<{ error?: string; count?: num
   } catch (err) {
     console.error("markAllForReindex error:", err);
     return { error: "Erro ao marcar documentos para re-indexação." };
+  }
+}
+
+// ---------------------------------------------------------------------------
+// syncFromEditorial — regenerates AiDocument rows from Project + published Post.
+//
+// Use case: after manual DB tweaks, after content imports, or as a one-shot
+// backfill. Idempotent — re-running is safe.
+//
+// Mirrors live automatically on every project/post save via syncProjectToAi
+// Documents / syncPostToAiDocument. This action is the manual backfill.
+// ---------------------------------------------------------------------------
+
+export async function syncFromEditorial(): Promise<{
+  error?: string;
+  projects?: number;
+  posts?: number;
+}> {
+  await requireAdminSession();
+
+  try {
+    const result = await syncAllAiDocuments();
+    revalidatePath("/admin/ai-documents");
+    return result;
+  } catch (err) {
+    console.error("syncFromEditorial error:", err);
+    return { error: "Erro ao sincronizar com projetos e posts." };
   }
 }

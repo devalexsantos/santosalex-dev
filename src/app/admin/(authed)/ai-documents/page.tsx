@@ -5,6 +5,7 @@ import { requireAdminSession } from "@/lib/auth/admin-session";
 import { prisma } from "@/lib/prisma";
 import { AiDocumentsTable } from "./ai-documents-table";
 import { ReindexAllButton } from "./reindex-all-button";
+import { SyncFromEditorialButton } from "./sync-button";
 
 export const metadata: Metadata = { title: "AI Documents" };
 
@@ -40,6 +41,7 @@ export default async function AdminAiDocumentsPage() {
           </p>
         </div>
         <div className="flex items-center gap-2">
+          <SyncFromEditorialButton />
           <ReindexAllButton />
           <Link
             href="/admin/ai-documents/new"

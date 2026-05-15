@@ -236,8 +236,8 @@ model AiDocument {
 
   chunks AiChunk[]
 
+  @@unique([sourceType, sourceId, locale])
   @@index([indexed])
-  @@index([sourceType, sourceId])
 }
 
 model AiChunk {

@@ -6,6 +6,7 @@ import { requireAdminSession } from "@/lib/auth/admin-session";
 import { prisma } from "@/lib/prisma";
 import { postSchema, type PostFormValues } from "@/lib/validators/post";
 import { translatePostFields } from "@/lib/ai/translate";
+import { syncPostToAiDocument, removeAiDocumentsForPost } from "@/lib/ai/sync";
 
 // ---------------------------------------------------------------------------
 // savePost — upsert both locale rows in a transaction
@@ -66,6 +67,8 @@ export async function savePost(rawData: PostFormValues): Promise<{ error?: strin
     }
   }
 
+  const savedPostIds: string[] = [];
+
   try {
     await prisma.$transaction(async (tx) => {
       for (const locale of locales) {
@@ -79,7 +82,7 @@ export async function savePost(rawData: PostFormValues): Promise<{ error?: strin
         });
 
         if (existing) {
-          await tx.post.update({
+          const updated = await tx.post.update({
             where: { id: existing.id },
             data: {
               slug: version.slug,
@@ -98,8 +101,9 @@ export async function savePost(rawData: PostFormValues): Promise<{ error?: strin
               translationStatus: rowTranslationStatus,
             },
           });
+          savedPostIds.push(updated.id);
         } else {
-          await tx.post.create({
+          const created = await tx.post.create({
             data: {
               slug: version.slug,
               locale,
@@ -118,6 +122,7 @@ export async function savePost(rawData: PostFormValues): Promise<{ error?: strin
               translationStatus: rowTranslationStatus,
             },
           });
+          savedPostIds.push(created.id);
         }
       }
     });
@@ -127,6 +132,15 @@ export async function savePost(rawData: PostFormValues): Promise<{ error?: strin
       return { error: "Esse slug já está em uso para este locale." };
     }
     return { error: "Erro ao salvar post. Tente novamente." };
+  }
+
+  // Sync each saved post into the RAG mirror (handles unpublished → delete).
+  for (const id of savedPostIds) {
+    try {
+      await syncPostToAiDocument(id);
+    } catch (err) {
+      console.error("syncPostToAiDocument error:", err);
+    }
   }
 
   // Revalidate public pages in both locales
@@ -213,8 +227,9 @@ export async function translatePostToEn(groupId: string): Promise<TranslatePostR
     where: { translationGroupId: groupId, locale: "en" },
   });
 
+  let enPostId: string;
   if (existingEn) {
-    await prisma.post.update({
+    const updated = await prisma.post.update({
       where: { id: existingEn.id },
       data: {
         slug: enData.slug,
@@ -227,8 +242,9 @@ export async function translatePostToEn(groupId: string): Promise<TranslatePostR
         // published stays as-is — we never auto-publish
       },
     });
+    enPostId = updated.id;
   } else {
-    await prisma.post.create({
+    const created = await prisma.post.create({
       data: {
         slug: enData.slug,
         locale: "en",
@@ -247,6 +263,14 @@ export async function translatePostToEn(groupId: string): Promise<TranslatePostR
         translationStatus: "translated",
       },
     });
+    enPostId = created.id;
+  }
+
+  // Sync the EN AiDocument (will no-op delete since published=false).
+  try {
+    await syncPostToAiDocument(enPostId);
+  } catch (err) {
+    console.error("syncPostToAiDocument error (after translate):", err);
   }
 
   // Revalidate
@@ -269,6 +293,11 @@ export async function deletePostGroup(translationGroupId: string): Promise<{ err
 
   try {
     const posts = await prisma.post.findMany({ where: { translationGroupId } });
+
+    // Remove mirrored AiDocuments first (loose FK on sourceId)
+    for (const post of posts) {
+      await removeAiDocumentsForPost(post.id);
+    }
 
     await prisma.post.deleteMany({ where: { translationGroupId } });
 

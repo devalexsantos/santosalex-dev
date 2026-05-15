@@ -6,6 +6,7 @@ import { requireAdminSession } from "@/lib/auth/admin-session";
 import { prisma } from "@/lib/prisma";
 import { projectSchema, type ProjectFormValues } from "@/lib/validators/project";
 import { translateProjectFields } from "@/lib/ai/translate";
+import { syncProjectToAiDocuments, removeAiDocumentsForProject } from "@/lib/ai/sync";
 
 // ---------------------------------------------------------------------------
 // saveProject — create or update a project with all relations
@@ -80,6 +81,8 @@ export async function saveProject(
     }
   }
 
+  let savedProjectId: string | null = projectId;
+
   try {
     if (projectId) {
       // --- UPDATE ---
@@ -146,7 +149,7 @@ export async function saveProject(
       });
     } else {
       // --- CREATE ---
-      await prisma.$transaction(async (tx) => {
+      const created = await prisma.$transaction(async (tx) => {
         const project = await tx.project.create({
           data: {
             slug: data.slug,
@@ -200,7 +203,10 @@ export async function saveProject(
             })),
           });
         }
+
+        return project.id;
       });
+      savedProjectId = created;
     }
   } catch (err) {
     console.error("saveProject error:", err);
@@ -208,6 +214,16 @@ export async function saveProject(
       return { error: "Esse slug já está em uso." };
     }
     return { error: "Erro ao salvar projeto. Tente novamente." };
+  }
+
+  // Sync the AiDocument mirror so the RAG sees the latest content.
+  // Best-effort: failure here doesn't block the save — log and continue.
+  if (savedProjectId) {
+    try {
+      await syncProjectToAiDocuments(savedProjectId);
+    } catch (err) {
+      console.error("syncProjectToAiDocuments error:", err);
+    }
   }
 
   // Revalidate public pages in both locales
@@ -316,6 +332,13 @@ export async function translateProjectToEn(projectId: string): Promise<Translate
     },
   });
 
+  // Re-sync AiDocument now that EN content has been (re)generated
+  try {
+    await syncProjectToAiDocuments(projectId);
+  } catch (err) {
+    console.error("syncProjectToAiDocuments error (after translate):", err);
+  }
+
   // Revalidate public pages
   for (const locale of ["pt-BR", "en"]) {
     revalidatePath(`/${locale}/projects/${project.slug}`, "page");
@@ -340,6 +363,9 @@ export async function deleteProject(projectId: string): Promise<{ error?: string
   await requireAdminSession();
 
   try {
+    // Remove mirrored AiDocuments first — they hold sourceId as a loose FK
+    await removeAiDocumentsForProject(projectId);
+
     // Cascade deletes handle features/decisions/stack via schema onDelete: Cascade
     const project = await prisma.project.delete({ where: { id: projectId } });
 
