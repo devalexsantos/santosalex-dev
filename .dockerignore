@@ -1,0 +1,13 @@
+node_modules
+.next
+.git
+.env
+.env.*
+!.env.example
+.DS_Store
+README.md
+plano-portfolio-dev-ai.md
+*.log
+.vscode
+.idea
+coverage

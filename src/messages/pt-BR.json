@@ -1,0 +1,18 @@
+{
+  "common": {
+    "siteName": "Alex Santos",
+    "tagline": "Fullstack Developer com mentalidade de produto e foco em IA"
+  },
+  "home": {
+    "badge": "Em construção",
+    "title": "Construindo produtos digitais com Next.js, IA e mentalidade de produto",
+    "subtitle": "Transformo ideias em produtos reais usando Next.js, TypeScript, Node.js, Postgres, pgvector, Docker e integrações inteligentes com IA.",
+    "ctaProjects": "Ver projetos",
+    "ctaChat": "Perguntar para a IA",
+    "ctaContact": "Entrar em contato",
+    "soon": "Em breve."
+  },
+  "footer": {
+    "rights": "Todos os direitos reservados."
+  }
+}

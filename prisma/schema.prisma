@@ -1,0 +1,279 @@
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["postgresqlExtensions"]
+}
+
+datasource db {
+  provider   = "postgresql"
+  extensions = [vector]
+}
+
+// ----------------------------------------------------------------------------
+// Admin
+// ----------------------------------------------------------------------------
+
+model UserAdmin {
+  id           String   @id @default(cuid())
+  email        String   @unique
+  passwordHash String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+// ----------------------------------------------------------------------------
+// Public content
+// ----------------------------------------------------------------------------
+
+enum ProjectStatus {
+  draft
+  in_progress
+  shipped
+  archived
+}
+
+enum ProjectCategory {
+  saas
+  ai
+  frontend
+  fullstack
+  automation
+  infra
+  experiment
+}
+
+model Project {
+  id               String          @id @default(cuid())
+  slug             String          @unique
+  title            String
+  shortDescription String
+  /// Localized rich content. Shape: { "pt-BR": {...}, "en": {...} }
+  /// where each locale carries { fullDescription, problem, hypothesis,
+  /// targetAudience, technicalDecisions, learnings, nextSteps }.
+  content          Json?
+  coverImage       String?
+  demoUrl          String?
+  githubUrl        String?
+  status           ProjectStatus   @default(draft)
+  category         ProjectCategory
+  year             Int?
+  featured         Boolean         @default(false)
+  order            Int             @default(0)
+  createdAt        DateTime        @default(now())
+  updatedAt        DateTime        @updatedAt
+
+  features  ProjectFeature[]
+  decisions ProjectDecision[]
+  stack     ProjectStack[]
+
+  @@index([featured, order])
+  @@index([category])
+}
+
+model ProjectFeature {
+  id          String  @id @default(cuid())
+  projectId   String
+  title       String
+  description String
+  order       Int     @default(0)
+
+  project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  @@index([projectId, order])
+}
+
+model ProjectDecision {
+  id          String  @id @default(cuid())
+  projectId   String
+  title       String
+  description String
+  reason      String
+  order       Int     @default(0)
+
+  project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  @@index([projectId, order])
+}
+
+model ProjectStack {
+  id           String @id @default(cuid())
+  projectId    String
+  technologyId String
+
+  project    Project    @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  technology Technology @relation(fields: [technologyId], references: [id], onDelete: Cascade)
+
+  @@unique([projectId, technologyId])
+}
+
+enum TechnologyCategory {
+  frontend
+  backend
+  database
+  ai
+  devops
+  infra
+  automation
+  payments
+  email
+  testing
+  other
+}
+
+enum ExperienceLevel {
+  learning
+  intermediate
+  advanced
+  expert
+}
+
+model Technology {
+  id              String             @id @default(cuid())
+  slug            String             @unique
+  name            String
+  category        TechnologyCategory
+  icon            String?
+  description     String?
+  experienceLevel ExperienceLevel    @default(intermediate)
+  createdAt       DateTime           @default(now())
+  updatedAt       DateTime           @updatedAt
+
+  projects ProjectStack[]
+}
+
+// ----------------------------------------------------------------------------
+// Blog / Build Notes
+// ----------------------------------------------------------------------------
+
+enum PostCategory {
+  architecture
+  ai
+  saas
+  frontend
+  backend
+  infra
+  product
+  experiment
+  deploy
+  performance
+}
+
+model Post {
+  id                 String       @id @default(cuid())
+  slug               String       @unique
+  /// Locale code: "pt-BR" or "en"
+  locale             String
+  /// Groups translated versions of the same post
+  translationGroupId String
+  title              String
+  excerpt            String
+  content            String
+  category           PostCategory
+  tags               String[]
+  coverImage         String?
+  readingTime        Int?
+  published          Boolean      @default(false)
+  publishedAt        DateTime?
+  seoTitle           String?
+  seoDescription     String?
+  createdAt          DateTime     @default(now())
+  updatedAt          DateTime     @updatedAt
+
+  @@unique([locale, slug])
+  @@index([translationGroupId])
+  @@index([published, publishedAt])
+}
+
+// ----------------------------------------------------------------------------
+// RAG
+// ----------------------------------------------------------------------------
+
+enum AiDocumentSourceType {
+  project
+  post
+  profile
+  experience
+  faq
+  page
+}
+
+model AiDocument {
+  id         String               @id @default(cuid())
+  title      String
+  sourceType AiDocumentSourceType
+  sourceId   String?
+  /// Locale of the document content
+  locale     String
+  content    String
+  metadata   Json?
+  indexed    Boolean              @default(false)
+  createdAt  DateTime             @default(now())
+  updatedAt  DateTime             @updatedAt
+
+  chunks AiChunk[]
+
+  @@index([indexed])
+  @@index([sourceType, sourceId])
+}
+
+model AiChunk {
+  id         String                       @id @default(cuid())
+  documentId String
+  content    String
+  /// Vector dimension must match AI_EMBEDDING_DIMENSIONS (default 1536)
+  embedding  Unsupported("vector(1536)")?
+  metadata   Json?
+  locale     String
+  createdAt  DateTime                     @default(now())
+
+  document AiDocument @relation(fields: [documentId], references: [id], onDelete: Cascade)
+
+  @@index([documentId])
+  @@index([locale])
+}
+
+enum ChatRole {
+  user
+  assistant
+  system
+}
+
+model AiChatMessage {
+  id        String   @id @default(cuid())
+  sessionId String
+  role      ChatRole
+  content   String
+  ipHash    String?
+  locale    String?
+  createdAt DateTime @default(now())
+
+  feedback AiFeedback[]
+
+  @@index([sessionId, createdAt])
+}
+
+model AiFeedback {
+  id        String   @id @default(cuid())
+  messageId String
+  rating    Int
+  comment   String?
+  createdAt DateTime @default(now())
+
+  message AiChatMessage @relation(fields: [messageId], references: [id], onDelete: Cascade)
+
+  @@index([messageId])
+}
+
+// ----------------------------------------------------------------------------
+// Contact
+// ----------------------------------------------------------------------------
+
+model ContactMessage {
+  id        String   @id @default(cuid())
+  name      String
+  email     String
+  subject   String?
+  message   String
+  createdAt DateTime @default(now())
+
+  @@index([createdAt])
+}

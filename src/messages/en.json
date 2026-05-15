@@ -1,0 +1,18 @@
+{
+  "common": {
+    "siteName": "Alex Santos",
+    "tagline": "Fullstack Developer with product mindset and an AI focus"
+  },
+  "home": {
+    "badge": "Work in progress",
+    "title": "Building digital products with Next.js, AI and product mindset",
+    "subtitle": "I turn ideas into real products with Next.js, TypeScript, Node.js, Postgres, pgvector, Docker and smart AI integrations.",
+    "ctaProjects": "View projects",
+    "ctaChat": "Ask the AI",
+    "ctaContact": "Get in touch",
+    "soon": "Coming soon."
+  },
+  "footer": {
+    "rights": "All rights reserved."
+  }
+}
