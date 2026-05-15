@@ -6,7 +6,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
 import { Plus, Trash2, ChevronUp, ChevronDown, Sparkles, Loader2 } from "lucide-react";
 import { projectSchema, type ProjectFormValues } from "@/lib/validators/project";
-import { saveProject, translateProjectToEn } from "@/app/admin/projects/_actions";
+import { saveProject, translateProjectToEn } from "@/app/admin/(authed)/projects/_actions";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";

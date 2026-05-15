@@ -7,8 +7,7 @@ export const metadata: Metadata = {
 
 export default function AdminLoginPage() {
   return (
-    // fixed inset-0 covers the sidebar — login has no chrome
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-[#0a0a0f] px-4">
+    <div className="flex min-h-screen items-center justify-center bg-[#0a0a0f] px-4">
       <div className="w-full max-w-sm">
         {/* Logo / title */}
         <div className="mb-8 text-center">
