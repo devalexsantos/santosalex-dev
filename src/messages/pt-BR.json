@@ -157,5 +157,58 @@
     "contactTitle": "Contato",
     "contactText": "Quer trabalhar juntos ou tem uma ideia para discutir?",
     "builtWith": "Construído com Next.js, Tailwind e muito café."
+  },
+  "caseStudy": {
+    "title": "Estudo de Caso",
+    "notFound": "Projeto não encontrado.",
+    "sections": {
+      "overview": "Visão geral",
+      "problem": "Problema",
+      "hypothesis": "Hipótese",
+      "targetAudience": "Público-alvo",
+      "stack": "Stack utilizada",
+      "architecture": "Arquitetura",
+      "decisions": "Decisões técnicas",
+      "features": "Principais funcionalidades",
+      "challenges": "Desafios encontrados",
+      "aiRole": "Como a IA entra no projeto",
+      "demos": "Demo e código-fonte",
+      "learnings": "Resultados e aprendizados",
+      "nextSteps": "Próximos passos",
+      "askAi": "Pergunte à IA sobre {projectTitle}",
+      "askAiPlaceholder": "O que você gostaria de saber sobre este projeto?",
+      "askAiSoon": "Disponível na Fase 5",
+      "relatedProjects": "Outros projetos",
+      "viewDemo": "Ver demo",
+      "viewSource": "Ver código"
+    }
+  },
+  "buildNotes": {
+    "eyebrow": "Build Notes",
+    "title": "Notas de construção",
+    "description": "Raciocínio técnico, decisões de arquitetura e lições aprendidas na construção de produtos reais.",
+    "notFound": "Post não encontrado.",
+    "empty": "Nenhum post publicado ainda.",
+    "readMore": "Ler post",
+    "readingTime": "{minutes} min de leitura",
+    "minutes": "min",
+    "publishedOn": "Publicado em",
+    "tags": "Tags",
+    "translatedTo": "Traduzido para",
+    "viewIn": "Ver em",
+    "related": "Posts relacionados",
+    "filters": {
+      "all": "Todos",
+      "architecture": "Arquitetura",
+      "ai": "IA",
+      "saas": "SaaS",
+      "frontend": "Frontend",
+      "backend": "Backend",
+      "infra": "Infra",
+      "product": "Produto",
+      "experiment": "Experimentos",
+      "deploy": "Deploy",
+      "performance": "Performance"
+    }
   }
 }

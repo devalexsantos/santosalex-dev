@@ -698,6 +698,86 @@ const POSTS = [
 ] as const;
 
 // ---------------------------------------------------------------------------
+// ProjectFeature and ProjectDecision data (pt-BR only for now — the long-form
+// translated copy lives in Project.content JSON per plan section 5.4).
+// Translation of these shorter strings can be deferred to Phase 4 admin work.
+// ---------------------------------------------------------------------------
+
+const PROJECT_FEATURES: Record<string, Array<{ title: string; description: string; order: number }>> = {
+  advlink: [
+    {
+      title: "Subdomínios multi-tenant dinâmicos",
+      description: "Cada advogado recebe um subdomínio dedicado (ex: joao.advlink.com.br) servido pelo mesmo servidor via middleware do Next.js e wildcard DNS no Cloudflare.",
+      order: 1,
+    },
+    {
+      title: "SEO local automático",
+      description: "Metadata dinâmica gerada por tenant com cidade, especialidade e nome do advogado. Schema.org LocalBusiness + LegalService embutidos. Sitemap por tenant gerado programaticamente.",
+      order: 2,
+    },
+    {
+      title: "Analytics por escritório",
+      description: "Dashboard de métricas embutido no painel do advogado — visitas, cliques em contato, origem do tráfego — sem depender de integrações externas.",
+      order: 3,
+    },
+  ],
+  zerochat: [
+    {
+      title: "Inbox unificado multicanal",
+      description: "Centraliza conversas do WhatsApp, Instagram Direct e email em uma única interface. O agente alterna entre canais sem perder o contexto da conversa.",
+      order: 1,
+    },
+    {
+      title: "Automações baseadas em IA",
+      description: "Fluxos configuráveis que classificam mensagens, sugerem respostas e escalam automaticamente para o agente certo com base no conteúdo e histórico.",
+      order: 2,
+    },
+    {
+      title: "Filas e tempo real com Redis",
+      description: "Pub/sub com Redis para entregas instantâneas e BullMQ para filas de processamento resilientes — mensagens nunca se perdem mesmo sob alta carga.",
+      order: 3,
+    },
+  ],
+};
+
+const PROJECT_DECISIONS: Record<string, Array<{ title: string; description: string; reason: string; order: number }>> = {
+  advlink: [
+    {
+      title: "VPS sobre Vercel",
+      description: "O deploy é feito em VPS com EasyPanel e Docker em vez da Vercel. Um único servidor serve todos os tenants com custo fixo previsível.",
+      reason: "A Vercel não suporta subdominios dinâmicos de forma nativa e seu custo escala por request. Para um SaaS com N tenants, VPS tem custo 5-10x menor com controle total.",
+      order: 1,
+    },
+    {
+      title: "Arquitetura multi-tenant via middleware",
+      description: "O Next.js middleware lê o header Host, resolve o tenantId e injeta no contexto da requisição — sem rotas separadas por tenant.",
+      reason: "Uma rota por tenant seria insustentável à medida que a base cresce. Middleware centraliza a lógica e mantém o código limpo independente do número de clientes.",
+      order: 2,
+    },
+    {
+      title: "Blog separado da aplicação principal",
+      description: "O blog de cada advogado é um domínio ou subpath separado, servido por uma instância Next.js independente com renderização estática.",
+      reason: "Separar o blog garante que atualizações de conteúdo frequentes não afetem a performance do site principal. ISR no blog mantém posts sempre frescos sem custo de SSR.",
+      order: 3,
+    },
+  ],
+  zerochat: [
+    {
+      title: "Websockets com Redis Pub/Sub",
+      description: "As mensagens em tempo real são distribuídas via Redis channels — qualquer instância do servidor pode receber uma mensagem de entrada e notificar o frontend correto.",
+      reason: "Next.js stateless não gerencia estado de conexão. Redis como broker desacopla a camada de transporte da aplicação, permitindo escalar horizontalmente sem perder mensagens.",
+      order: 1,
+    },
+    {
+      title: "Arquitetura orientada a eventos com BullMQ",
+      description: "Cada canal de mensagem (WhatsApp, Instagram, email) publica eventos em filas BullMQ. Workers independentes processam, normalizam e persistem as mensagens.",
+      reason: "Integrar APIs de terceiros síncronamente causaria gargalos e timeouts sob picos. Eventos assíncronos garantem que nenhuma mensagem se perde e o sistema degrada graciosamente.",
+      order: 2,
+    },
+  ],
+};
+
+// ---------------------------------------------------------------------------
 // Main
 // ---------------------------------------------------------------------------
 
@@ -749,37 +829,74 @@ async function main() {
   }
   console.log("  " + PROJECTS.length + " projects upserted");
 
+  // ── ProjectFeatures & ProjectDecisions ───────────────────────────────────
+  console.log("Upserting project features and decisions...");
+  for (const [projectSlug, features] of Object.entries(PROJECT_FEATURES)) {
+    const project = await prisma.project.findUnique({ where: { slug: projectSlug } });
+    if (!project) continue;
+
+    // Idempotent: delete all and recreate so order is always fresh
+    await prisma.projectFeature.deleteMany({ where: { projectId: project.id } });
+    await prisma.projectFeature.createMany({
+      data: features.map((f) => ({ ...f, projectId: project.id })),
+    });
+  }
+
+  for (const [projectSlug, decisions] of Object.entries(PROJECT_DECISIONS)) {
+    const project = await prisma.project.findUnique({ where: { slug: projectSlug } });
+    if (!project) continue;
+
+    await prisma.projectDecision.deleteMany({ where: { projectId: project.id } });
+    await prisma.projectDecision.createMany({
+      data: decisions.map((d) => ({ ...d, projectId: project.id })),
+    });
+  }
+
+  const totalFeatures = Object.values(PROJECT_FEATURES).reduce((a, b) => a + b.length, 0);
+  const totalDecisions = Object.values(PROJECT_DECISIONS).reduce((a, b) => a + b.length, 0);
+  console.log("  " + totalFeatures + " features and " + totalDecisions + " decisions upserted");
+
   // ── Posts ─────────────────────────────────────────────────────────────────
+  // NOTE: Prisma 7 + pg adapter has a known issue with compound unique upserts
+  // on some Postgres configs. We use findFirst + update/create as a workaround.
   console.log("Upserting posts...");
   for (const post of POSTS) {
     for (const [locale, version] of Object.entries(post.versions)) {
-      await prisma.post.upsert({
-        where: { locale_slug: { locale, slug: version.slug } },
-        update: {
-          title: version.title,
-          excerpt: version.excerpt,
-          content: version.content,
-          tags: version.tags as string[],
-          category: post.category,
-          published: post.published,
-          publishedAt: post.publishedAt,
-          readingTime: post.readingTime,
-          translationGroupId: post.translationGroupId,
-        },
-        create: {
-          slug: version.slug,
-          locale,
-          translationGroupId: post.translationGroupId,
-          title: version.title,
-          excerpt: version.excerpt,
-          content: version.content,
-          tags: version.tags as string[],
-          category: post.category,
-          published: post.published,
-          publishedAt: post.publishedAt,
-          readingTime: post.readingTime,
-        },
+      const existing = await prisma.post.findFirst({
+        where: { locale, slug: version.slug },
       });
+      if (existing) {
+        await prisma.post.update({
+          where: { id: existing.id },
+          data: {
+            title: version.title,
+            excerpt: version.excerpt,
+            content: version.content,
+            tags: version.tags as string[],
+            category: post.category,
+            published: post.published,
+            publishedAt: post.publishedAt,
+            readingTime: post.readingTime,
+            translationGroupId: post.translationGroupId,
+          },
+        });
+      } else {
+        await prisma.post.create({
+          data: {
+            slug: version.slug,
+            locale,
+            translationGroupId: post.translationGroupId,
+            title: version.title,
+            excerpt: version.excerpt,
+            content: version.content,
+            tags: version.tags as string[],
+            category: post.category,
+            published: post.published,
+            publishedAt: post.publishedAt,
+            readingTime: post.readingTime,
+          },
+        });
+      }
     }
   }
   console.log("  " + (POSTS.length * 2) + " post records upserted (" + POSTS.length + " posts x 2 locales)");

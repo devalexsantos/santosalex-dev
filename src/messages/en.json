@@ -157,5 +157,58 @@
     "contactTitle": "Contact",
     "contactText": "Want to work together or have an idea to discuss?",
     "builtWith": "Built with Next.js, Tailwind and a lot of coffee."
+  },
+  "caseStudy": {
+    "title": "Case Study",
+    "notFound": "Project not found.",
+    "sections": {
+      "overview": "Overview",
+      "problem": "Problem",
+      "hypothesis": "Hypothesis",
+      "targetAudience": "Target audience",
+      "stack": "Tech stack",
+      "architecture": "Architecture",
+      "decisions": "Technical decisions",
+      "features": "Key features",
+      "challenges": "Challenges",
+      "aiRole": "How AI fits in",
+      "demos": "Demo & source code",
+      "learnings": "Results & learnings",
+      "nextSteps": "Next steps",
+      "askAi": "Ask the AI about {projectTitle}",
+      "askAiPlaceholder": "What would you like to know about this project?",
+      "askAiSoon": "Available in Phase 5",
+      "relatedProjects": "Other projects",
+      "viewDemo": "View demo",
+      "viewSource": "View source"
+    }
+  },
+  "buildNotes": {
+    "eyebrow": "Build Notes",
+    "title": "Build Notes",
+    "description": "Technical reasoning, architecture decisions and lessons learned building real products.",
+    "notFound": "Post not found.",
+    "empty": "No posts published yet.",
+    "readMore": "Read post",
+    "readingTime": "{minutes} min read",
+    "minutes": "min",
+    "publishedOn": "Published on",
+    "tags": "Tags",
+    "translatedTo": "Translated to",
+    "viewIn": "View in",
+    "related": "Related posts",
+    "filters": {
+      "all": "All",
+      "architecture": "Architecture",
+      "ai": "AI",
+      "saas": "SaaS",
+      "frontend": "Frontend",
+      "backend": "Backend",
+      "infra": "Infra",
+      "product": "Product",
+      "experiment": "Experiments",
+      "deploy": "Deploy",
+      "performance": "Performance"
+    }
   }
 }
