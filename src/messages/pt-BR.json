@@ -3,16 +3,50 @@
     "siteName": "Alex Santos",
     "tagline": "Fullstack Developer com mentalidade de produto e foco em IA"
   },
+  "nav": {
+    "projects": "Projetos",
+    "buildNotes": "Build Notes",
+    "stack": "Stack",
+    "howIBuild": "Como Construo",
+    "contact": "Contato",
+    "askAi": "Perguntar à IA"
+  },
   "home": {
-    "badge": "Em construção",
-    "title": "Construindo produtos digitais com Next.js, IA e mentalidade de produto",
+    "badge": "Disponível para projetos",
+    "eyebrow": "Fullstack Developer",
+    "title": "Eu construo produtos digitais com",
+    "titleAccent": "Next.js, IA e mentalidade de produto",
     "subtitle": "Transformo ideias em produtos reais usando Next.js, TypeScript, Node.js, Postgres, pgvector, Docker e integrações inteligentes com IA.",
     "ctaProjects": "Ver projetos",
-    "ctaChat": "Perguntar para a IA",
+    "ctaChat": "Perguntar à IA",
     "ctaContact": "Entrar em contato",
-    "soon": "Em breve."
+    "ctaBuildNotes": "Ler Build Notes",
+    "statusLabel": "Disponível para novos projetos",
+    "statusDot": "Aberto a oportunidades",
+    "bento": {
+      "aiAssistant": "AI Assistant",
+      "aiAssistantDesc": "Pergunte qualquer coisa sobre minha stack, projetos e forma de trabalho.",
+      "featuredProject": "Projeto em Destaque",
+      "stackSnapshot": "Stack Principal",
+      "stackSnapshotDesc": "As tecnologias que uso no dia a dia para construir produtos reais.",
+      "buildNotes": "Build Notes",
+      "buildNotesDesc": "Raciocínio técnico, arquitetura e decisões de produto.",
+      "fullstack": "Fullstack",
+      "fullstackDesc": "Frontend, backend, banco de dados, deploy — o pacote completo.",
+      "openToWork": "Aberto a projetos",
+      "openToWorkDesc": "Disponível para freelance, contrato ou posição fulltime.",
+      "comingSoon": "Em breve"
+    },
+    "sections": {
+      "featuredProjects": "Projetos em Destaque",
+      "featuredProjectsDesc": "Produtos reais que construí do zero — com stack moderna, arquitetura pensada e mentalidade de produto."
+    }
   },
   "footer": {
-    "rights": "Todos os direitos reservados."
+    "rights": "Todos os direitos reservados.",
+    "navigation": "Navegação",
+    "contactTitle": "Contato",
+    "contactText": "Quer trabalhar juntos ou tem uma ideia para discutir?",
+    "builtWith": "Construído com Next.js, Tailwind e muito café."
   }
 }

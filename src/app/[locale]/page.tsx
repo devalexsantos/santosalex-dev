@@ -1,6 +1,9 @@
-import { getTranslations, setRequestLocale } from "next-intl/server";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
+import { setRequestLocale } from "next-intl/server";
+import { prisma } from "@/lib/prisma";
+import { HeroSection } from "@/components/home/hero-section";
+import { BentoSection } from "@/components/home/bento-section";
+import { FeaturedProjectsSection } from "@/components/home/featured-projects-section";
+import { AnimatedGridBackgroundLazy } from "@/components/animations/animated-grid-background-lazy";
 
 export default async function HomePage({
   params,
@@ -9,53 +12,81 @@ export default async function HomePage({
 }) {
   const { locale } = await params;
   setRequestLocale(locale);
-  const t = await getTranslations("home");
-  const tFooter = await getTranslations("footer");
-  const tCommon = await getTranslations("common");
+
+  // ── Fetch featured projects from DB ──────────────────────
+  // Gracefully handle DB unavailability during build/dev
+  let featuredProjects: Awaited<ReturnType<typeof getFeaturedProjects>> = [];
+  try {
+    featuredProjects = await getFeaturedProjects();
+  } catch {
+    // DB not available (build time, no DB, etc.) — render without projects
+    featuredProjects = [];
+  }
+
+  const firstFeatured = featuredProjects[0] ?? null;
 
   return (
     <>
-      <main className="relative flex-1">
-        <div
-          aria-hidden
-          className="pointer-events-none absolute inset-0 -z-10 overflow-hidden"
-        >
-          <div className="absolute -top-32 left-1/2 h-[480px] w-[820px] -translate-x-1/2 rounded-full bg-primary/20 blur-[140px]" />
-          <div className="absolute bottom-0 right-1/3 h-[360px] w-[600px] rounded-full bg-accent/10 blur-[140px]" />
-        </div>
+      {/* Decorative animated grid background */}
+      <AnimatedGridBackgroundLazy />
 
-        <section className="mx-auto flex max-w-4xl flex-col items-start gap-8 px-6 py-32 sm:py-40">
-          <Badge variant="outline" className="border-primary/40 text-primary">
-            {t("badge")}
-          </Badge>
-          <h1 className="text-4xl font-semibold leading-tight tracking-tight sm:text-6xl">
-            {t("title")}
-          </h1>
-          <p className="max-w-2xl text-lg text-muted-foreground sm:text-xl">
-            {t("subtitle")}
-          </p>
-          <div className="flex flex-wrap gap-3">
-            <Button size="lg" disabled>
-              {t("ctaProjects")}
-            </Button>
-            <Button size="lg" variant="outline" disabled>
-              {t("ctaChat")}
-            </Button>
-            <Button size="lg" variant="ghost" disabled>
-              {t("ctaContact")}
-            </Button>
-          </div>
-          <p className="text-sm text-muted-foreground">{t("soon")}</p>
-        </section>
-      </main>
-      <footer className="border-t border-border/60 px-6 py-8 text-sm text-muted-foreground">
-        <div className="mx-auto flex max-w-4xl flex-wrap items-center justify-between gap-2">
-          <span>
-            © {new Date().getFullYear()} {tCommon("siteName")}
-          </span>
-          <span>{tFooter("rights")}</span>
-        </div>
-      </footer>
+      {/* Hero */}
+      <HeroSection />
+
+      {/* Bento grid overview */}
+      <BentoSection
+        featuredProject={
+          firstFeatured
+            ? {
+                title: firstFeatured.title,
+                shortDescription: firstFeatured.shortDescription,
+                slug: firstFeatured.slug,
+                category: firstFeatured.category,
+                status: firstFeatured.status,
+              }
+            : null
+        }
+      />
+
+      {/* Featured projects */}
+      <FeaturedProjectsSection projects={featuredProjects} />
     </>
   );
+}
+
+// ── Data fetching ─────────────────────────────────────────
+
+async function getFeaturedProjects() {
+  const projects = await prisma.project.findMany({
+    where: { featured: true },
+    orderBy: { order: "asc" },
+    take: 6,
+    include: {
+      stack: {
+        include: {
+          technology: {
+            select: { name: true, category: true },
+          },
+        },
+      },
+    },
+  });
+
+  return projects.map((p) => ({
+    id: p.id,
+    slug: p.slug,
+    title: p.title,
+    shortDescription: p.shortDescription,
+    status: p.status as "draft" | "in_progress" | "shipped" | "archived",
+    category: p.category as "saas" | "ai" | "frontend" | "fullstack" | "automation" | "infra" | "experiment",
+    year: p.year,
+    coverImage: p.coverImage,
+    demoUrl: p.demoUrl,
+    githubUrl: p.githubUrl,
+    featured: p.featured,
+    stack: p.stack.map((s) => ({
+      name: s.technology.name,
+      category: s.technology.category as "frontend" | "backend" | "database" | "ai" | "devops" | "infra" | "automation" | "payments" | "email" | "testing" | "other",
+    })),
+  }));
 }

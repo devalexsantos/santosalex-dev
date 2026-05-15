@@ -4,6 +4,8 @@ import { NextIntlClientProvider, hasLocale } from "next-intl";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { notFound } from "next/navigation";
 import { routing } from "@/i18n/routing";
+import { Navbar } from "@/components/layout/navbar";
+import { Footer } from "@/components/layout/footer";
 import "../globals.css";
 
 const poppins = Poppins({
@@ -59,7 +61,11 @@ export default async function LocaleLayout({
       className={`dark ${poppins.variable} ${geistMono.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col bg-background text-foreground">
-        <NextIntlClientProvider>{children}</NextIntlClientProvider>
+        <NextIntlClientProvider>
+          <Navbar />
+          <main className="relative flex-1 pt-16">{children}</main>
+          <Footer />
+        </NextIntlClientProvider>
       </body>
     </html>
   );

@@ -85,6 +85,33 @@
   --sidebar-ring: #8b5cf6;
 }
 
+/* ─── Extended design tokens ─────────────────────────────── */
+:root,
+.dark {
+  /* Glow shadows */
+  --glow-primary: 0 0 40px rgba(139, 92, 246, 0.35), 0 0 80px rgba(139, 92, 246, 0.15);
+  --glow-accent:  0 0 40px rgba(34, 211, 238, 0.30), 0 0 80px rgba(34, 211, 238, 0.12);
+  --glow-sm:      0 0 20px rgba(139, 92, 246, 0.25);
+  --glow-card:    0 0 0 1px rgba(139, 92, 246, 0.25), 0 0 30px rgba(139, 92, 246, 0.12);
+
+  /* Gradient stops */
+  --gradient-brand: linear-gradient(135deg, #8b5cf6 0%, #a855f7 50%, #22d3ee 100%);
+  --gradient-subtle: linear-gradient(135deg, rgba(139,92,246,0.15) 0%, rgba(34,211,238,0.08) 100%);
+  --gradient-hero: radial-gradient(ellipse 80% 60% at 50% -10%, rgba(139,92,246,0.25) 0%, transparent 70%);
+
+  /* Glassmorphism */
+  --glass-bg: rgba(255, 255, 255, 0.03);
+  --glass-border: rgba(255, 255, 255, 0.08);
+  --glass-hover: rgba(255, 255, 255, 0.06);
+
+  /* Blur radii */
+  --blur-glass: 12px;
+  --blur-heavy: 80px;
+
+  /* Navbar */
+  --navbar-height: 64px;
+}
+
 @layer base {
   * {
     @apply border-border outline-ring/50;
@@ -92,8 +119,82 @@
   html {
     @apply font-sans;
     color-scheme: dark;
+    scroll-behavior: smooth;
   }
   body {
     @apply bg-background text-foreground antialiased;
+  }
+  ::selection {
+    background: rgba(139, 92, 246, 0.35);
+    color: #f8fafc;
+  }
+}
+
+/* ─── Utility classes ────────────────────────────────────── */
+@layer utilities {
+  .glass {
+    background: var(--glass-bg);
+    backdrop-filter: blur(var(--blur-glass));
+    -webkit-backdrop-filter: blur(var(--blur-glass));
+    border: 1px solid var(--glass-border);
+  }
+
+  .glow-primary {
+    box-shadow: var(--glow-primary);
+  }
+  .glow-sm {
+    box-shadow: var(--glow-sm);
+  }
+  .glow-card {
+    box-shadow: var(--glow-card);
+  }
+
+  .gradient-text {
+    background: var(--gradient-brand);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .gradient-border {
+    position: relative;
+  }
+  .gradient-border::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    padding: 1px;
+    background: var(--gradient-brand);
+    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    opacity: 0.5;
+    pointer-events: none;
+  }
+
+  /* Animated grid background */
+  .animated-grid {
+    background-image:
+      linear-gradient(rgba(139, 92, 246, 0.06) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(139, 92, 246, 0.06) 1px, transparent 1px);
+    background-size: 48px 48px;
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .animated-grid {
+      animation: grid-shift 20s linear infinite;
+    }
+  }
+
+  @keyframes grid-shift {
+    0%   { background-position: 0 0; }
+    100% { background-position: 48px 48px; }
+  }
+
+  /* Mask that fades the grid out toward the bottom */
+  .grid-fade-mask {
+    -webkit-mask-image: radial-gradient(ellipse 100% 70% at 50% 0%, black 40%, transparent 100%);
+    mask-image: radial-gradient(ellipse 100% 70% at 50% 0%, black 40%, transparent 100%);
   }
 }

@@ -3,16 +3,50 @@
     "siteName": "Alex Santos",
     "tagline": "Fullstack Developer with product mindset and an AI focus"
   },
+  "nav": {
+    "projects": "Projects",
+    "buildNotes": "Build Notes",
+    "stack": "Stack",
+    "howIBuild": "How I Build",
+    "contact": "Contact",
+    "askAi": "Ask the AI"
+  },
   "home": {
-    "badge": "Work in progress",
-    "title": "Building digital products with Next.js, AI and product mindset",
+    "badge": "Available for projects",
+    "eyebrow": "Fullstack Developer",
+    "title": "I build digital products with",
+    "titleAccent": "Next.js, AI and product mindset",
     "subtitle": "I turn ideas into real products with Next.js, TypeScript, Node.js, Postgres, pgvector, Docker and smart AI integrations.",
     "ctaProjects": "View projects",
     "ctaChat": "Ask the AI",
     "ctaContact": "Get in touch",
-    "soon": "Coming soon."
+    "ctaBuildNotes": "Read Build Notes",
+    "statusLabel": "Available for new projects",
+    "statusDot": "Open to opportunities",
+    "bento": {
+      "aiAssistant": "AI Assistant",
+      "aiAssistantDesc": "Ask anything about my stack, projects and the way I work.",
+      "featuredProject": "Featured Project",
+      "stackSnapshot": "Core Stack",
+      "stackSnapshotDesc": "The technologies I use daily to build real products.",
+      "buildNotes": "Build Notes",
+      "buildNotesDesc": "Technical reasoning, architecture and product decisions.",
+      "fullstack": "Fullstack",
+      "fullstackDesc": "Frontend, backend, database, deploy — the full package.",
+      "openToWork": "Open to projects",
+      "openToWorkDesc": "Available for freelance, contract or full-time roles.",
+      "comingSoon": "Coming soon"
+    },
+    "sections": {
+      "featuredProjects": "Featured Projects",
+      "featuredProjectsDesc": "Real products I built from scratch — modern stack, thoughtful architecture and product mindset."
+    }
   },
   "footer": {
-    "rights": "All rights reserved."
+    "rights": "All rights reserved.",
+    "navigation": "Navigation",
+    "contactTitle": "Contact",
+    "contactText": "Want to work together or have an idea to discuss?",
+    "builtWith": "Built with Next.js, Tailwind and a lot of coffee."
   }
 }
