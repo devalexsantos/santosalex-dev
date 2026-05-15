@@ -159,7 +159,9 @@ enum PostCategory {
 
 model Post {
   id                 String       @id @default(cuid())
-  slug               String       @unique
+  /// Uniqueness is enforced together with locale via @@unique([locale, slug])
+  /// so pt-BR and en versions can share the same slug string.
+  slug               String
   /// Locale code: "pt-BR" or "en"
   locale             String
   /// Groups translated versions of the same post

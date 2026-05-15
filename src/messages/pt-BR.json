@@ -6,6 +6,7 @@
   "nav": {
     "projects": "Projetos",
     "buildNotes": "Build Notes",
+    "experiments": "Experimentos",
     "stack": "Stack",
     "howIBuild": "Como Construo",
     "contact": "Contato",
@@ -41,6 +42,114 @@
       "featuredProjects": "Projetos em Destaque",
       "featuredProjectsDesc": "Produtos reais que construí do zero — com stack moderna, arquitetura pensada e mentalidade de produto."
     }
+  },
+  "projects": {
+    "eyebrow": "Portfolio",
+    "title": "Projetos",
+    "description": "Produtos reais, experimentos técnicos e estudos de caso. Cada projeto reflete uma decisão de produto e uma escolha de arquitetura.",
+    "filters": {
+      "all": "Todos",
+      "saas": "SaaS",
+      "ai": "IA",
+      "frontend": "Frontend",
+      "fullstack": "Fullstack",
+      "automation": "Automação",
+      "infra": "Infra",
+      "experiment": "Experimentos",
+      "featured": "Destaques"
+    },
+    "empty": "Nada encontrado nessa categoria."
+  },
+  "stack": {
+    "eyebrow": "Tecnologias",
+    "title": "Minha Stack",
+    "description": "As ferramentas que uso para construir produtos reais — escolhidas por produtividade, confiabilidade e capacidade de ir do MVP à produção.",
+    "categories": {
+      "frontend": "Frontend",
+      "backend": "Backend",
+      "database": "Banco de Dados",
+      "ai": "IA & LLMs",
+      "devops": "DevOps",
+      "infra": "Infraestrutura",
+      "automation": "Automação",
+      "payments": "Pagamentos",
+      "email": "Email",
+      "testing": "Testes",
+      "other": "Outros"
+    },
+    "levels": {
+      "learning": "Aprendendo",
+      "intermediate": "Intermediário",
+      "advanced": "Avançado",
+      "expert": "Expert"
+    }
+  },
+  "howIBuild": {
+    "eyebrow": "Processo",
+    "title": "Como eu construo produtos",
+    "description": "Não sou apenas um dev que escreve código. Penso produto, arquitetura e negócio — do problema à solução em produção.",
+    "cta": "Vamos trabalhar juntos?",
+    "ctaLink": "Entrar em contato",
+    "steps": {
+      "1": {
+        "title": "Descoberta do problema",
+        "description": "Antes de escrever uma linha de código, entendo o problema real. Converso com usuários, analiso o contexto de mercado e defino qual dor precisa ser resolvida — e se vale a pena resolver."
+      },
+      "2": {
+        "title": "Hipótese de produto",
+        "description": "Transformo o problema em uma hipótese testável: 'Se construirmos X para Y, o resultado Z vai acontecer.' Essa hipótese guia todas as decisões de escopo e prioridade."
+      },
+      "3": {
+        "title": "Definição do MVP",
+        "description": "Corto tudo que não é essencial para validar a hipótese. O MVP tem que ser pequeno o suficiente para lançar rápido e grande o suficiente para gerar aprendizado real."
+      },
+      "4": {
+        "title": "Arquitetura técnica",
+        "description": "Escolho a stack e defino a estrutura antes de codar. Penso em escalabilidade, manutenibilidade e custo operacional — não apenas no que funciona agora."
+      },
+      "5": {
+        "title": "Design system",
+        "description": "Crio ou adapto um design system antes de construir as telas. Componentes consistentes economizam tempo, reduzem bugs de UI e tornam o produto mais coeso visualmente."
+      },
+      "6": {
+        "title": "Desenvolvimento frontend",
+        "description": "Construo interfaces com Next.js, TypeScript e TailwindCSS. Priorizo performance, acessibilidade e experiência do usuário — não apenas aparência."
+      },
+      "7": {
+        "title": "Desenvolvimento backend",
+        "description": "Implemento a lógica de negócio, APIs, autenticação e banco de dados. Uso Prisma, PostgreSQL e Redis para ter controle total sobre os dados e o estado da aplicação."
+      },
+      "8": {
+        "title": "Integração com IA",
+        "description": "Quando faz sentido, adiciono camadas de IA: RAG para busca contextual, LLMs para geração de conteúdo, embeddings para recomendação. A IA entra como alavanca, não como hype."
+      },
+      "9": {
+        "title": "Deploy e observabilidade",
+        "description": "Deploy em VPS com Docker e EasyPanel. Configuro logs, métricas e alertas para ter visibilidade real sobre o que acontece em produção — sem surpresas."
+      },
+      "10": {
+        "title": "Iteração com base em feedback",
+        "description": "Após o lançamento, monitoro métricas, coleto feedback e itero. Um produto lançado que aprende vale muito mais do que um produto perfeito que nunca sai."
+      }
+    }
+  },
+  "experiments": {
+    "eyebrow": "Lab",
+    "title": "Experimentos",
+    "description": "Ideias, protótipos e explorações técnicas. Aqui vivo sem a pressão de produção — o objetivo é aprender, testar hipóteses e brincar com tecnologia de verdade.",
+    "marker": "Experimento"
+  },
+  "contact": {
+    "eyebrow": "Contato",
+    "title": "Vamos conversar",
+    "description": "Aberto a projetos freelance, posições fulltime e conversas sobre produto, arquitetura e IA. Se tem algo interessante em mente, me manda uma mensagem.",
+    "emailCta": "Ou me manda um email",
+    "copyEmail": "Copiar email",
+    "copyEmailDone": "Copiado!",
+    "emailMe": "Enviar email",
+    "openProfile": "Ver perfil",
+    "availability": "Disponibilidade",
+    "availabilityBody": "Atualmente disponível para projetos freelance e posições remotas como Fullstack Developer, Product Engineer ou AI Engineer. Prefiro trabalhar com produtos que têm visão clara, stack moderna e cultura de qualidade."
   },
   "footer": {
     "rights": "Todos os direitos reservados.",

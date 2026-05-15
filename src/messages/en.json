@@ -6,6 +6,7 @@
   "nav": {
     "projects": "Projects",
     "buildNotes": "Build Notes",
+    "experiments": "Experiments",
     "stack": "Stack",
     "howIBuild": "How I Build",
     "contact": "Contact",
@@ -41,6 +42,114 @@
       "featuredProjects": "Featured Projects",
       "featuredProjectsDesc": "Real products I built from scratch — modern stack, thoughtful architecture and product mindset."
     }
+  },
+  "projects": {
+    "eyebrow": "Portfolio",
+    "title": "Projects",
+    "description": "Real products, technical experiments and case studies. Each project reflects a product decision and an architecture choice.",
+    "filters": {
+      "all": "All",
+      "saas": "SaaS",
+      "ai": "AI",
+      "frontend": "Frontend",
+      "fullstack": "Fullstack",
+      "automation": "Automation",
+      "infra": "Infra",
+      "experiment": "Experiments",
+      "featured": "Featured"
+    },
+    "empty": "Nothing found in this category."
+  },
+  "stack": {
+    "eyebrow": "Technologies",
+    "title": "My Stack",
+    "description": "The tools I use to build real products — chosen for productivity, reliability and the ability to go from MVP to production.",
+    "categories": {
+      "frontend": "Frontend",
+      "backend": "Backend",
+      "database": "Database",
+      "ai": "AI & LLMs",
+      "devops": "DevOps",
+      "infra": "Infrastructure",
+      "automation": "Automation",
+      "payments": "Payments",
+      "email": "Email",
+      "testing": "Testing",
+      "other": "Other"
+    },
+    "levels": {
+      "learning": "Learning",
+      "intermediate": "Intermediate",
+      "advanced": "Advanced",
+      "expert": "Expert"
+    }
+  },
+  "howIBuild": {
+    "eyebrow": "Process",
+    "title": "How I build products",
+    "description": "I'm not just a dev who writes code. I think product, architecture and business — from problem to production-ready solution.",
+    "cta": "Want to work together?",
+    "ctaLink": "Get in touch",
+    "steps": {
+      "1": {
+        "title": "Problem discovery",
+        "description": "Before writing a single line of code, I understand the real problem. I talk to users, analyze market context and define which pain needs to be solved — and whether it's worth solving."
+      },
+      "2": {
+        "title": "Product hypothesis",
+        "description": "I turn the problem into a testable hypothesis: 'If we build X for Y, outcome Z will happen.' This hypothesis guides all scope and priority decisions."
+      },
+      "3": {
+        "title": "MVP definition",
+        "description": "I cut everything not essential to validate the hypothesis. The MVP needs to be small enough to ship fast and large enough to generate real learning."
+      },
+      "4": {
+        "title": "Technical architecture",
+        "description": "I choose the stack and define the structure before coding. I think about scalability, maintainability and operational cost — not just what works right now."
+      },
+      "5": {
+        "title": "Design system",
+        "description": "I create or adapt a design system before building screens. Consistent components save time, reduce UI bugs and make the product more visually cohesive."
+      },
+      "6": {
+        "title": "Frontend development",
+        "description": "I build interfaces with Next.js, TypeScript and TailwindCSS. I prioritize performance, accessibility and user experience — not just appearance."
+      },
+      "7": {
+        "title": "Backend development",
+        "description": "I implement business logic, APIs, authentication and database. I use Prisma, PostgreSQL and Redis to have full control over data and application state."
+      },
+      "8": {
+        "title": "AI integration",
+        "description": "When it makes sense, I add AI layers: RAG for contextual search, LLMs for content generation, embeddings for recommendations. AI enters as a lever, not as hype."
+      },
+      "9": {
+        "title": "Deploy and observability",
+        "description": "Deployment on VPS with Docker and EasyPanel. I configure logs, metrics and alerts to have real visibility into what happens in production — no surprises."
+      },
+      "10": {
+        "title": "Iteration based on feedback",
+        "description": "After launch, I monitor metrics, collect feedback and iterate. A launched product that learns is worth far more than a perfect product that never ships."
+      }
+    }
+  },
+  "experiments": {
+    "eyebrow": "Lab",
+    "title": "Experiments",
+    "description": "Ideas, prototypes and technical explorations. Here I work without production pressure — the goal is to learn, test hypotheses and genuinely play with technology.",
+    "marker": "Experiment"
+  },
+  "contact": {
+    "eyebrow": "Contact",
+    "title": "Let's talk",
+    "description": "Open to freelance projects, full-time positions and conversations about product, architecture and AI. If you have something interesting in mind, send me a message.",
+    "emailCta": "Or send me an email",
+    "copyEmail": "Copy email",
+    "copyEmailDone": "Copied!",
+    "emailMe": "Send email",
+    "openProfile": "View profile",
+    "availability": "Availability",
+    "availabilityBody": "Currently available for freelance projects and remote positions as a Fullstack Developer, Product Engineer or AI Engineer. I prefer working with products that have a clear vision, a modern stack and a culture of quality."
   },
   "footer": {
     "rights": "All rights reserved.",
