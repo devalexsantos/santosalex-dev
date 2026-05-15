@@ -6,6 +6,7 @@ import { notFound } from "next/navigation";
 import { routing } from "@/i18n/routing";
 import { Navbar } from "@/components/layout/navbar";
 import { Footer } from "@/components/layout/footer";
+import { PortfolioChatTrigger } from "@/components/chat/portfolio-chat-trigger";
 import "../globals.css";
 
 const poppins = Poppins({
@@ -65,6 +66,7 @@ export default async function LocaleLayout({
           <Navbar />
           <main className="relative flex-1 pt-16">{children}</main>
           <Footer />
+          <PortfolioChatTrigger />
         </NextIntlClientProvider>
       </body>
     </html>

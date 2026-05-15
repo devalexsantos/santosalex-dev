@@ -183,6 +183,36 @@
       "viewSource": "View source"
     }
   },
+  "chat": {
+    "title": "Ask the AI",
+    "disclaimer": "Powered by AI · Always review the answers",
+    "emptyTitle": "Hi! I'm Alex's portfolio assistant.",
+    "emptySubtitle": "Ask me about projects, tech stack, experience, or anything you'd like to know.",
+    "send": "Send",
+    "clear": "Clear conversation",
+    "loading": "Thinking...",
+    "error": "An error occurred. Please try again.",
+    "rateLimit": "You've reached the usage limit. Please try again shortly.",
+    "sourceHint": "Asking about this project",
+    "placeholder": "Ask a question about Alex...",
+    "suggestions": {
+      "1": "Which project uses AI?",
+      "2": "What's the tech stack like?",
+      "3": "Tell me about AdvLink",
+      "4": "What type of role does he fit?"
+    }
+  },
+  "projectIntelligence": {
+    "title": "Ask the AI about this project",
+    "subtitle": "Ask technical questions about this project — stack, decisions, challenges and more.",
+    "suggestions": {
+      "1": "What was the biggest technical challenge?",
+      "2": "How does this project scale?",
+      "3": "Why was this stack chosen?",
+      "4": "How is AI used here?",
+      "5": "What future improvements would be made?"
+    }
+  },
   "buildNotes": {
     "eyebrow": "Build Notes",
     "title": "Build Notes",

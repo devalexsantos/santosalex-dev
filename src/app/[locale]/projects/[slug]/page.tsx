@@ -24,6 +24,7 @@ import { GlowCard } from "@/components/ui/glow-card";
 import { StackBadge } from "@/components/ui/stack-badge";
 import { Badge } from "@/components/ui/badge";
 import { ProjectCard } from "@/components/ui/project-card";
+import { ProjectIntelligence } from "@/components/projects/project-intelligence";
 import { cn } from "@/lib/utils";
 
 // ---------------------------------------------------------------------------
@@ -467,31 +468,12 @@ export default async function ProjectDetailPage({
           </CaseSection>
         )}
 
-        {/* ── 15. Ask the AI (Phase 5 placeholder) ────────────────────────── */}
-        {/* NOTE: This section is a placeholder. Phase 5 will wire lib/ai/rag.ts
-            into this component — the RAG pipeline will scope the query to this
-            project's chunks only (filtered by sourceId = project.id). */}
+        {/* ── 15. Project Intelligence (Phase 5) ──────────────────────────── */}
         <CaseSection title={t("sections.askAi", { projectTitle: project.title })}>
-          <GlowCard noHover glowColor="primary" className="p-6">
-            <div className="mb-4 flex items-center gap-3">
-              <div className="rounded-xl bg-primary/20 p-2.5">
-                <Sparkles className="h-5 w-5 text-primary" />
-              </div>
-              <div>
-                <p className="text-sm font-semibold">
-                  {t("sections.askAi", { projectTitle: project.title })}
-                </p>
-                <p className="text-xs text-muted-foreground">
-                  {t("sections.askAiSoon")}
-                </p>
-              </div>
-            </div>
-            <div className="rounded-xl border border-white/[0.08] bg-white/[0.02] px-4 py-3">
-              <p className="text-sm text-muted-foreground/60">
-                {t("sections.askAiPlaceholder")}
-              </p>
-            </div>
-          </GlowCard>
+          <ProjectIntelligence
+            projectId={project.id}
+            projectTitle={project.title}
+          />
         </CaseSection>
 
       </div>

@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { Plus, Info } from "lucide-react";
+import { Plus, Cpu } from "lucide-react";
 import { requireAdminSession } from "@/lib/auth/admin-session";
 import { prisma } from "@/lib/prisma";
 import { AiDocumentsTable } from "./ai-documents-table";
@@ -53,13 +53,13 @@ export default async function AdminAiDocumentsPage() {
         </div>
       </div>
 
-      {/* Phase 5 notice */}
-      <div className="mb-6 flex items-start gap-2 rounded-lg border border-white/[0.05] bg-white/[0.02] px-4 py-3">
-        <Info className="mt-0.5 h-4 w-4 shrink-0 text-white/30" />
-        <p className="text-xs leading-relaxed text-white/30">
-          A pipeline de embeddings (chunking + OpenAI + pgvector) será implementada na{" "}
-          <strong className="text-white/50">Fase 5</strong>. Marcar documentos como pendentes
-          agora já os coloca na fila correta — nenhuma chamada de IA é feita ainda.
+      {/* Pipeline status */}
+      <div className="mb-6 flex items-start gap-2 rounded-lg border border-violet-500/[0.10] bg-violet-500/[0.03] px-4 py-3">
+        <Cpu className="mt-0.5 h-4 w-4 shrink-0 text-violet-400/60" />
+        <p className="text-xs leading-relaxed text-white/40">
+          Pipeline ativa —{" "}
+          <strong className="text-white/60">text-embedding-3-small · 1536 dim</strong>
+          {" · "}Re-index é manual (botão acima). Cron automático chega na Fase 7.
         </p>
       </div>
 

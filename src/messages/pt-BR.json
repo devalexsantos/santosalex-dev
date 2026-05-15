@@ -402,6 +402,36 @@
       }
     }
   },
+  "chat": {
+    "title": "Pergunte à IA",
+    "disclaimer": "Powered by AI · Sempre revise as respostas",
+    "emptyTitle": "Olá! Sou o assistente do portfólio do Alex.",
+    "emptySubtitle": "Pergunte sobre projetos, stack, experiências ou qualquer coisa que queira saber.",
+    "send": "Enviar",
+    "clear": "Limpar conversa",
+    "loading": "Pensando...",
+    "error": "Ocorreu um erro. Tente novamente.",
+    "rateLimit": "Você atingiu o limite de uso. Tente novamente em breve.",
+    "sourceHint": "Perguntando sobre este projeto",
+    "placeholder": "Faça uma pergunta sobre o Alex...",
+    "suggestions": {
+      "1": "Qual projeto usa IA?",
+      "2": "Como é a stack técnica?",
+      "3": "Conte sobre o AdvLink",
+      "4": "Para qual tipo de vaga ele se encaixa?"
+    }
+  },
+  "projectIntelligence": {
+    "title": "Pergunte à IA sobre este projeto",
+    "subtitle": "Faça perguntas técnicas sobre este projeto — stack, decisões, desafios e mais.",
+    "suggestions": {
+      "1": "Qual foi o maior desafio técnico?",
+      "2": "Como esse projeto escala?",
+      "3": "Por que essa stack foi escolhida?",
+      "4": "Como a IA é usada aqui?",
+      "5": "Que melhorias futuras seriam feitas?"
+    }
+  },
   "buildNotes": {
     "eyebrow": "Build Notes",
     "title": "Notas de construção",

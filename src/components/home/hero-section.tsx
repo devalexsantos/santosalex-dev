@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Sparkles, ArrowRight, BookOpen, Mail } from "lucide-react";
+import { Sparkles, ArrowRight, BookOpen } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
 import { GradientText } from "@/components/ui/gradient-text";
@@ -82,37 +82,36 @@ export function HeroSection() {
         animate="visible"
         className="flex flex-wrap gap-3"
       >
-        <Button
-          size="lg"
-          className="gap-2 bg-primary/90 text-white hover:bg-primary shadow-[0_0_24px_rgba(139,92,246,0.35)] hover:shadow-[0_0_32px_rgba(139,92,246,0.5)] transition-all duration-200"
-          disabled
-          aria-disabled="true"
-        >
-          {t("ctaProjects")}
-          <ArrowRight className="h-4 w-4" />
-        </Button>
+        <Link href="/projects">
+          <Button
+            size="lg"
+            className="gap-2 bg-primary/90 text-white hover:bg-primary shadow-[0_0_24px_rgba(139,92,246,0.35)] hover:shadow-[0_0_32px_rgba(139,92,246,0.5)] transition-all duration-200"
+          >
+            {t("ctaProjects")}
+            <ArrowRight className="h-4 w-4" />
+          </Button>
+        </Link>
 
         <Button
           size="lg"
           variant="outline"
           className="gap-2 border-white/[0.12] bg-white/[0.03] text-foreground hover:bg-white/[0.07] hover:border-primary/30 transition-all duration-200"
-          disabled
-          aria-disabled="true"
+          onClick={() => window.dispatchEvent(new CustomEvent("portfolio-chat:open"))}
         >
           <Sparkles className="h-4 w-4 text-primary" />
           {t("ctaChat")}
         </Button>
 
-        <Button
-          size="lg"
-          variant="ghost"
-          className="gap-2 text-muted-foreground hover:text-foreground"
-          disabled
-          aria-disabled="true"
-        >
-          <BookOpen className="h-4 w-4" />
-          {t("ctaBuildNotes")}
-        </Button>
+        <Link href="/build-notes">
+          <Button
+            size="lg"
+            variant="ghost"
+            className="gap-2 text-muted-foreground hover:text-foreground"
+          >
+            <BookOpen className="h-4 w-4" />
+            {t("ctaBuildNotes")}
+          </Button>
+        </Link>
       </motion.div>
 
       {/* Scroll hint — decorative */}

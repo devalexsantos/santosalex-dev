@@ -23,7 +23,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { deleteAiDocument, markForReindex } from "./_actions";
+import { deleteAiDocument, reindexDocument } from "./_actions";
 import { cn } from "@/lib/utils";
 
 type AiDocument = {
@@ -93,12 +93,16 @@ export function AiDocumentsTable({ documents }: { documents: AiDocument[] }) {
 
   function handleReindex(doc: AiDocument) {
     setReindexingId(doc.id);
+    toast.loading("Indexando...", { id: `reindex-${doc.id}` });
     startReindexTransition(async () => {
-      const result = await markForReindex(doc.id);
+      const result = await reindexDocument(doc.id);
       if (result?.error) {
-        toast.error(result.error);
+        toast.error(result.error, { id: `reindex-${doc.id}` });
       } else {
-        toast.success("Documento marcado como pendente. Será re-indexado na Fase 5.");
+        toast.success(
+          `${result.chunks ?? 0} chunks gerados`,
+          { id: `reindex-${doc.id}` }
+        );
         router.refresh();
       }
       setReindexingId(null);
@@ -173,7 +177,7 @@ export function AiDocumentsTable({ documents }: { documents: AiDocument[] }) {
                         onClick={() => handleReindex(doc)}
                         disabled={reindexingId === doc.id}
                         className="rounded p-1.5 text-white/30 transition-colors hover:text-amber-400 disabled:opacity-40"
-                        title="Marcar para re-indexação"
+                        title="Re-indexar (chunk + embed + pgvector)"
                       >
                         <RefreshCw className={cn("h-3.5 w-3.5", reindexingId === doc.id && "animate-spin")} />
                       </button>

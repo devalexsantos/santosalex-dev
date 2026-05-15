@@ -87,8 +87,7 @@ export function Navbar() {
           <Button
             size="sm"
             className="hidden gap-1.5 bg-primary/90 text-white hover:bg-primary shadow-[0_0_20px_rgba(139,92,246,0.3)] hover:shadow-[0_0_28px_rgba(139,92,246,0.5)] transition-all duration-200 sm:flex"
-            disabled
-            aria-disabled="true"
+            onClick={() => window.dispatchEvent(new CustomEvent("portfolio-chat:open"))}
           >
             <Sparkles className="h-3.5 w-3.5" />
             {t("askAi")}
@@ -151,7 +150,10 @@ export function Navbar() {
                 <Button
                   size="sm"
                   className="w-full gap-1.5 bg-primary/90 text-white"
-                  disabled
+                  onClick={() => {
+                    setMobileOpen(false);
+                    window.dispatchEvent(new CustomEvent("portfolio-chat:open"));
+                  }}
                 >
                   <Sparkles className="h-3.5 w-3.5" />
                   {t("askAi")}

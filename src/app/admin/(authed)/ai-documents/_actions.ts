@@ -7,6 +7,7 @@ import { requireAdminSession } from "@/lib/auth/admin-session";
 import { prisma } from "@/lib/prisma";
 import { aiDocumentSchema, type AiDocumentFormValues } from "@/lib/validators/ai-document";
 import { syncAllAiDocuments } from "@/lib/ai/sync";
+import { indexAiDocument, indexAllPendingDocuments } from "@/lib/ai/indexing";
 
 // ---------------------------------------------------------------------------
 // saveAiDocument — create or update
@@ -14,8 +15,7 @@ import { syncAllAiDocuments } from "@/lib/ai/sync";
 // IMPORTANT: Every save sets `indexed = false`.
 // Rationale: any content change invalidates existing AiChunk embeddings.
 // The Phase 5 embedding pipeline checks `indexed === false` to know what
-// needs (re)processing. Even before Phase 5 is built, the flag must be
-// accurate so the queue is correct when the pipeline runs.
+// needs (re)processing. Admin must manually trigger re-index after editing.
 // ---------------------------------------------------------------------------
 
 export async function saveAiDocument(
@@ -33,7 +33,6 @@ export async function saveAiDocument(
   const sourceId = data.sourceId || null;
 
   // Parse metadata JSON string → Prisma InputJsonValue, or Prisma.JsonNull if empty.
-  // Prisma's nullable Json field requires Prisma.JsonNull (not native null) for SQL NULL.
   let metadata: Prisma.InputJsonValue | typeof Prisma.JsonNull = Prisma.JsonNull;
   if (data.metadata) {
     try {
@@ -55,7 +54,6 @@ export async function saveAiDocument(
           content: data.content,
           metadata,
           // Always reset to false — content changed, embeddings are stale.
-          // Phase 5 pipeline will re-chunk and re-embed when it sees indexed=false.
           indexed: false,
         },
       });
@@ -68,7 +66,7 @@ export async function saveAiDocument(
           locale: data.locale,
           content: data.content,
           metadata,
-          indexed: false, // New document — not yet embedded
+          indexed: false,
         },
       });
     }
@@ -101,62 +99,107 @@ export async function deleteAiDocument(documentId: string): Promise<{ error?: st
 }
 
 // ---------------------------------------------------------------------------
-// markForReindex — sets indexed=false for a single document
+// reindexDocument — real pipeline: chunk + embed + pgvector insert
 //
-// STUB: This is a Phase 5 preparation action. It only toggles the indexed flag.
-// It does NOT call OpenAI, does NOT write AiChunk rows, does NOT run any
-// embedding pipeline. The actual embedding pipeline will be implemented in
-// Phase 5 (RAG). Marking as false here ensures the document is in the
-// correct queue when Phase 5 runs.
+// Phase 5: calls the actual indexing pipeline (OpenAI embeddings + raw SQL
+// INSERT into AiChunk). Returns chunk count on success.
+//
+// Note: admin re-index is intentionally manual (trigger from UI). Automated
+// background re-index (e.g. cron/worker) is Phase 7 polish.
 // ---------------------------------------------------------------------------
 
-export async function markForReindex(documentId: string): Promise<{ error?: string }> {
+export async function reindexDocument(documentId: string): Promise<{
+  error?: string;
+  chunks?: number;
+  ok?: boolean;
+}> {
   await requireAdminSession();
 
-  try {
-    await prisma.aiDocument.update({
-      where: { id: documentId },
-      data: { indexed: false },
-    });
-    revalidatePath("/admin/ai-documents");
-  } catch (err) {
-    console.error("markForReindex error:", err);
-    return { error: "Erro ao marcar para re-indexação." };
+  const result = await indexAiDocument(documentId);
+  if (!result.ok) {
+    return { error: result.error };
   }
 
-  return {};
+  revalidatePath("/admin/ai-documents");
+  return { ok: true, chunks: result.chunks };
 }
 
 // ---------------------------------------------------------------------------
-// markAllForReindex — bulk version of markForReindex
-//
-// STUB: Same caveat as above — only flips the flag. No embedding calls.
+// markForReindex — legacy name kept for any existing callers.
+// Delegates to reindexDocument.
 // ---------------------------------------------------------------------------
 
-export async function markAllForReindex(): Promise<{ error?: string; count?: number }> {
+export async function markForReindex(documentId: string): Promise<{
+  error?: string;
+  chunks?: number;
+  ok?: boolean;
+}> {
+  return reindexDocument(documentId);
+}
+
+// ---------------------------------------------------------------------------
+// reindexAllPending — runs the full pipeline on every indexed=false document.
+// ---------------------------------------------------------------------------
+
+export async function reindexAllPending(): Promise<{
+  error?: string;
+  processed?: number;
+  failed?: number;
+  chunks?: number;
+}> {
   await requireAdminSession();
 
-  try {
-    const result = await prisma.aiDocument.updateMany({
-      where: { indexed: true },
-      data: { indexed: false },
-    });
-    revalidatePath("/admin/ai-documents");
-    return { count: result.count };
-  } catch (err) {
-    console.error("markAllForReindex error:", err);
-    return { error: "Erro ao marcar documentos para re-indexação." };
+  const result = await indexAllPendingDocuments();
+
+  revalidatePath("/admin/ai-documents");
+
+  if (result.failed > 0) {
+    return {
+      processed: result.processed,
+      failed: result.failed,
+      chunks: result.chunks,
+      error:
+        result.failed === result.processed + result.failed
+          ? `Todos os ${result.failed} documentos falharam ao indexar.`
+          : `${result.failed} documento(s) falharam. ${result.processed} indexados com sucesso.`,
+    };
   }
+
+  return {
+    processed: result.processed,
+    failed: 0,
+    chunks: result.chunks,
+  };
+}
+
+// ---------------------------------------------------------------------------
+// markAllForReindex — legacy name, delegates to reindexAllPending.
+// ---------------------------------------------------------------------------
+
+export async function markAllForReindex(): Promise<{
+  error?: string;
+  count?: number;
+  processed?: number;
+  failed?: number;
+  chunks?: number;
+}> {
+  await requireAdminSession();
+
+  // First mark all indexed=true docs as pending again, then run indexing
+  const updateResult = await prisma.aiDocument.updateMany({
+    where: { indexed: true },
+    data: { indexed: false },
+  });
+
+  if (updateResult.count === 0) {
+    // Nothing was indexed, just run all pending
+  }
+
+  return reindexAllPending();
 }
 
 // ---------------------------------------------------------------------------
 // syncFromEditorial — regenerates AiDocument rows from Project + published Post.
-//
-// Use case: after manual DB tweaks, after content imports, or as a one-shot
-// backfill. Idempotent — re-running is safe.
-//
-// Mirrors live automatically on every project/post save via syncProjectToAi
-// Documents / syncPostToAiDocument. This action is the manual backfill.
 // ---------------------------------------------------------------------------
 
 export async function syncFromEditorial(): Promise<{
