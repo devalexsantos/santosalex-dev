@@ -50,6 +50,10 @@ model Project {
   /// where each locale carries { fullDescription, problem, hypothesis,
   /// targetAudience, technicalDecisions, learnings, nextSteps }.
   content          Json?
+  /// Localized architecture overview. Shape: { "pt-BR": string, "en": string }
+  architecture     Json?
+  /// Localized challenges section. Shape: { "pt-BR": string, "en": string }
+  challenges       Json?
   coverImage       String?
   demoUrl          String?
   githubUrl        String?
@@ -72,8 +76,10 @@ model Project {
 model ProjectFeature {
   id          String  @id @default(cuid())
   projectId   String
-  title       String
-  description String
+  /// Bilingual title. Shape: { "pt-BR": string, "en": string }
+  title       Json
+  /// Bilingual description. Shape: { "pt-BR": string, "en": string }
+  description Json
   order       Int     @default(0)
 
   project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
@@ -84,9 +90,12 @@ model ProjectFeature {
 model ProjectDecision {
   id          String  @id @default(cuid())
   projectId   String
-  title       String
-  description String
-  reason      String
+  /// Bilingual title. Shape: { "pt-BR": string, "en": string }
+  title       Json
+  /// Bilingual description. Shape: { "pt-BR": string, "en": string }
+  description Json
+  /// Bilingual reason. Shape: { "pt-BR": string, "en": string }
+  reason      Json
   order       Int     @default(0)
 
   project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)

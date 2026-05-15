@@ -1,0 +1,98 @@
+import type { Metadata } from "next";
+import Link from "next/link";
+import { FolderKanban, FileText, Eye } from "lucide-react";
+import { requireAdminSession } from "@/lib/auth/admin-session";
+import { prisma } from "@/lib/prisma";
+
+export const metadata: Metadata = { title: "Dashboard" };
+
+export default async function AdminDashboardPage() {
+  await requireAdminSession();
+
+  const [projectCount, publishedPostCount, draftPostCount] = await Promise.all([
+    prisma.project.count(),
+    prisma.post.count({ where: { published: true } }),
+    prisma.post.count({ where: { published: false } }),
+  ]);
+
+  const stats = [
+    {
+      label: "Projetos",
+      value: projectCount,
+      href: "/admin/projects",
+      icon: FolderKanban,
+      color: "text-violet-400",
+      bg: "bg-violet-500/10",
+      border: "border-violet-500/20",
+    },
+    {
+      label: "Posts publicados",
+      value: publishedPostCount,
+      href: "/admin/posts",
+      icon: Eye,
+      color: "text-emerald-400",
+      bg: "bg-emerald-500/10",
+      border: "border-emerald-500/20",
+    },
+    {
+      label: "Rascunhos",
+      value: draftPostCount,
+      href: "/admin/posts",
+      icon: FileText,
+      color: "text-amber-400",
+      bg: "bg-amber-500/10",
+      border: "border-amber-500/20",
+    },
+  ];
+
+  return (
+    <div className="px-8 py-10">
+      <div className="mb-8">
+        <h1 className="text-2xl font-bold tracking-tight text-white">Dashboard</h1>
+        <p className="mt-1 text-sm text-white/40">Visão geral do portfólio</p>
+      </div>
+
+      {/* Stat cards */}
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+        {stats.map(({ label, value, href, icon: Icon, color, bg, border }) => (
+          <Link
+            key={label}
+            href={href}
+            className={`group rounded-xl border ${border} ${bg} p-5 transition-all hover:brightness-110`}
+          >
+            <div className="flex items-start justify-between">
+              <div>
+                <p className="text-xs font-medium uppercase tracking-wide text-white/40">{label}</p>
+                <p className={`mt-2 text-3xl font-bold ${color}`}>{value}</p>
+              </div>
+              <div className={`rounded-lg ${bg} p-2.5`}>
+                <Icon className={`h-5 w-5 ${color}`} />
+              </div>
+            </div>
+          </Link>
+        ))}
+      </div>
+
+      {/* Quick actions */}
+      <div className="mt-10">
+        <h2 className="mb-4 text-xs font-semibold uppercase tracking-widest text-white/30">
+          Ações rápidas
+        </h2>
+        <div className="flex flex-wrap gap-3">
+          <Link
+            href="/admin/projects/new"
+            className="rounded-lg border border-white/[0.07] bg-white/[0.03] px-4 py-2.5 text-sm font-medium text-white/70 transition-colors hover:border-violet-500/25 hover:bg-violet-500/5 hover:text-white"
+          >
+            + Novo projeto
+          </Link>
+          <Link
+            href="/admin/posts/new"
+            className="rounded-lg border border-white/[0.07] bg-white/[0.03] px-4 py-2.5 text-sm font-medium text-white/70 transition-colors hover:border-violet-500/25 hover:bg-violet-500/5 hover:text-white"
+          >
+            + Novo post
+          </Link>
+        </div>
+      </div>
+    </div>
+  );
+}

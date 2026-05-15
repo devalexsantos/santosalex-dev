@@ -58,6 +58,14 @@ const PROJECTS = [
     year: 2024,
     featured: true,
     order: 1,
+    architecture: {
+      "pt-BR": advlinkArchitecturePtBR(),
+      "en": advlinkArchitectureEn(),
+    },
+    challenges: {
+      "pt-BR": advlinkChallengesPtBR(),
+      "en": advlinkChallengesEn(),
+    },
     content: {
       "pt-BR": {
         problem: "Advogados precisam de presença digital profissional, rapida e acessivel.",
@@ -87,6 +95,14 @@ const PROJECTS = [
     year: 2025,
     featured: true,
     order: 2,
+    architecture: {
+      "pt-BR": zeroChatArchitecturePtBR(),
+      "en": zeroChatArchitectureEn(),
+    },
+    challenges: {
+      "pt-BR": zeroChatChallengesPtBR(),
+      "en": zeroChatChallengesEn(),
+    },
     content: {
       "pt-BR": {
         problem: "Empresas perdem leads por nao conseguir centralizar e responder rapidamente em multiplos canais de mensagens.",
@@ -698,80 +714,240 @@ const POSTS = [
 ] as const;
 
 // ---------------------------------------------------------------------------
-// ProjectFeature and ProjectDecision data (pt-BR only for now — the long-form
-// translated copy lives in Project.content JSON per plan section 5.4).
-// Translation of these shorter strings can be deferred to Phase 4 admin work.
+// Architecture and Challenges content helpers for AdvLink and ZeroChat
 // ---------------------------------------------------------------------------
 
-const PROJECT_FEATURES: Record<string, Array<{ title: string; description: string; order: number }>> = {
+function advlinkArchitecturePtBR(): string {
+  return [
+    "O AdvLink foi construído com arquitetura multi-tenant centralizada, onde um único servidor Next.js serve todos os clientes via detecção de subdomínio no middleware.",
+    "O middleware lê o header Host de cada requisição, resolve o tenantId correspondente no banco e injeta os dados do advogado no contexto — sem rotas separadas por cliente.",
+    "O Cloudflare gerencia um wildcard DNS (*.advlink.com.br), o Nginx repassa o header Host original para o Next.js, e o EasyPanel orquestra os containers. O Next.js nunca sabe que serve múltiplos domínios.",
+    "Cada página é um Server Component com SSR completo para garantir indexação correta pelo Google, com metadata dinâmica gerada por tenant incluindo cidade, especialidade e nome do advogado.",
+    "O schema do banco separa dados de tenant de dados de conteúdo, permitindo onboarding rápido sem provisioning de infra por cliente — o custo de adicionar um novo tenant é praticamente zero.",
+  ].join("\n\n");
+}
+
+function advlinkArchitectureEn(): string {
+  return [
+    "AdvLink was built with a centralized multi-tenant architecture where a single Next.js server handles all clients via subdomain detection in the middleware.",
+    "The middleware reads the Host header from each request, resolves the corresponding tenantId from the database, and injects the lawyer's data into the request context — no separate routes per client.",
+    "Cloudflare manages a wildcard DNS (*.advlink.com.br), Nginx forwards the original Host header to Next.js, and EasyPanel orchestrates the containers. Next.js never knows it is serving multiple domains.",
+    "Every page is a Server Component with full SSR to ensure correct Google indexing, with dynamic metadata generated per tenant including city, specialty and lawyer name.",
+    "The database schema separates tenant data from content data, enabling fast onboarding without per-client infra provisioning — the cost of adding a new tenant is effectively zero.",
+  ].join("\n\n");
+}
+
+function advlinkChallengesPtBR(): string {
+  return [
+    "O maior desafio técnico foi configurar subdominios dinâmicos sem depender da Vercel. A solução exigiu coordenar wildcard DNS no Cloudflare, Nginx como reverse proxy e parsing do header Host no middleware do Next.js.",
+    "O onboarding inicial tinha 12 passos — o maior obstáculo para conversão. Reduzir para 3 passos exigiu repensar quais dados eram realmente necessários no cadastro versus o que podia ser preenchido depois.",
+    "SEO local para múltiplos tenants com slugs únicos e metadata por cidade exigiu geração programática de sitemaps e schemas estruturados, sem sobrecarga de SSR por requisição.",
+    "A curva de aprendizado de infra foi real: gerenciar atualizações de segurança, monitorar uso de memória e configurar backups automáticos são responsabilidades que a Vercel abstracta mas que um VPS exige explicitamente.",
+  ].join("\n\n");
+}
+
+function advlinkChallengesEn(): string {
+  return [
+    "The biggest technical challenge was setting up dynamic subdomains without relying on Vercel. The solution required coordinating wildcard DNS on Cloudflare, Nginx as a reverse proxy, and parsing the Host header in Next.js middleware.",
+    "The initial onboarding had 12 steps — the biggest conversion obstacle. Reducing it to 3 steps required rethinking which data was truly necessary at signup versus what could be filled in later.",
+    "Local SEO for multiple tenants with unique slugs and per-city metadata required programmatic sitemap generation and structured schemas, without adding SSR overhead per request.",
+    "The infra learning curve was real: managing security updates, monitoring memory usage and configuring automatic backups are responsibilities that Vercel abstracts but a VPS requires you to handle explicitly.",
+  ].join("\n\n");
+}
+
+function zeroChatArchitecturePtBR(): string {
+  return [
+    "O ZeroChat usa uma arquitetura orientada a eventos com separação clara entre camada de ingestão, processamento e entrega. Cada canal externo (WhatsApp, Instagram, email) tem um adaptador independente que normaliza eventos para um formato interno unificado.",
+    "O Redis funciona como broker pub/sub para distribuição de mensagens em tempo real entre instâncias do servidor, garantindo que qualquer nó possa receber uma mensagem de entrada e notificar o frontend correto via WebSocket.",
+    "As filas BullMQ processam mensagens de forma assíncrona e resiliente — se um worker falha, a mensagem é recolocada na fila automaticamente. Isso evita perda de dados sob picos de carga ou falhas temporárias de API de terceiros.",
+    "O banco de dados PostgreSQL armazena o histórico completo de conversas com índices otimizados para busca por canal, agente e período. O Prisma gerencia as migrations e garante consistência do schema.",
+    "O frontend em Next.js usa Server Components para carregamento inicial rápido e Client Components apenas para a área de chat em tempo real, mantendo o bundle pequeno e a performance alta.",
+  ].join("\n\n");
+}
+
+function zeroChatArchitectureEn(): string {
+  return [
+    "ZeroChat uses an event-driven architecture with clear separation between the ingestion, processing and delivery layers. Each external channel (WhatsApp, Instagram, email) has an independent adapter that normalizes events into a unified internal format.",
+    "Redis acts as a pub/sub broker for real-time message distribution between server instances, ensuring any node can receive an incoming message and notify the correct frontend via WebSocket.",
+    "BullMQ queues process messages asynchronously and resiliently — if a worker fails, the message is automatically re-queued. This prevents data loss under load spikes or temporary third-party API failures.",
+    "PostgreSQL stores the complete conversation history with optimized indexes for queries by channel, agent and time period. Prisma manages migrations and ensures schema consistency.",
+    "The Next.js frontend uses Server Components for fast initial loading and Client Components only for the real-time chat area, keeping the bundle small and performance high.",
+  ].join("\n\n");
+}
+
+function zeroChatChallengesPtBR(): string {
+  return [
+    "Normalizar APIs de diferentes plataformas de mensagens foi subestimado. WhatsApp Business API, Instagram Graph API e IMAP/SMTP têm estruturas de dados, rate limits e webhooks completamente diferentes — criar uma abstração unificada levou mais tempo do que construir as features em si.",
+    "Garantir entrega exatamente uma vez em sistemas distribuídos é um problema clássico. A solução foi usar IDs de deduplicação por canal + transações no banco para garantir que a mesma mensagem nunca seja processada duas vezes mesmo sob retry.",
+    "A latência de WebSocket em conexões móveis instáveis exigiu implementar reconnect exponential backoff no cliente e um mecanismo de sync de estado ao reconectar — o usuário nunca perde mensagens enviadas durante desconexão.",
+    "Escalar horizontalmente com sessões stateful de WebSocket exigiu mover o gerenciamento de conexões para Redis, eliminando o acoplamento entre uma conexão de frontend e uma instância específica do servidor.",
+  ].join("\n\n");
+}
+
+function zeroChatChallengesEn(): string {
+  return [
+    "Normalizing APIs from different messaging platforms was underestimated. WhatsApp Business API, Instagram Graph API and IMAP/SMTP have completely different data structures, rate limits and webhook formats — building a unified abstraction took longer than building the features themselves.",
+    "Guaranteeing exactly-once delivery in distributed systems is a classic problem. The solution was to use per-channel deduplication IDs plus database transactions to ensure the same message is never processed twice even under retries.",
+    "WebSocket latency on unstable mobile connections required implementing exponential backoff reconnect on the client and a state sync mechanism on reconnection — the user never loses messages sent during disconnection.",
+    "Horizontal scaling with stateful WebSocket sessions required moving connection management to Redis, eliminating the coupling between a frontend connection and a specific server instance.",
+  ].join("\n\n");
+}
+
+// ---------------------------------------------------------------------------
+// ProjectFeature and ProjectDecision data — bilingual (pt-BR + en)
+// Shape: { "pt-BR": string, "en": string }
+// ---------------------------------------------------------------------------
+
+const PROJECT_FEATURES: Record<string, Array<{ title: Record<string, string>; description: Record<string, string>; order: number }>> = {
   advlink: [
     {
-      title: "Subdomínios multi-tenant dinâmicos",
-      description: "Cada advogado recebe um subdomínio dedicado (ex: joao.advlink.com.br) servido pelo mesmo servidor via middleware do Next.js e wildcard DNS no Cloudflare.",
+      title: {
+        "pt-BR": "Subdomínios multi-tenant dinâmicos",
+        "en": "Dynamic multi-tenant subdomains",
+      },
+      description: {
+        "pt-BR": "Cada advogado recebe um subdomínio dedicado (ex: joao.advlink.com.br) servido pelo mesmo servidor via middleware do Next.js e wildcard DNS no Cloudflare.",
+        "en": "Each lawyer gets a dedicated subdomain (e.g. joao.advlink.com.br) served by the same server via Next.js middleware and wildcard DNS on Cloudflare.",
+      },
       order: 1,
     },
     {
-      title: "SEO local automático",
-      description: "Metadata dinâmica gerada por tenant com cidade, especialidade e nome do advogado. Schema.org LocalBusiness + LegalService embutidos. Sitemap por tenant gerado programaticamente.",
+      title: {
+        "pt-BR": "SEO local automático",
+        "en": "Automatic local SEO",
+      },
+      description: {
+        "pt-BR": "Metadata dinâmica gerada por tenant com cidade, especialidade e nome do advogado. Schema.org LocalBusiness + LegalService embutidos. Sitemap por tenant gerado programaticamente.",
+        "en": "Dynamic metadata generated per tenant with city, specialty and lawyer name. Schema.org LocalBusiness + LegalService embedded. Sitemap generated programmatically per tenant.",
+      },
       order: 2,
     },
     {
-      title: "Analytics por escritório",
-      description: "Dashboard de métricas embutido no painel do advogado — visitas, cliques em contato, origem do tráfego — sem depender de integrações externas.",
+      title: {
+        "pt-BR": "Analytics por escritório",
+        "en": "Per-office analytics",
+      },
+      description: {
+        "pt-BR": "Dashboard de métricas embutido no painel do advogado — visitas, cliques em contato, origem do tráfego — sem depender de integrações externas.",
+        "en": "Metrics dashboard embedded in the lawyer's panel — visits, contact clicks, traffic source — without relying on external integrations.",
+      },
       order: 3,
     },
   ],
   zerochat: [
     {
-      title: "Inbox unificado multicanal",
-      description: "Centraliza conversas do WhatsApp, Instagram Direct e email em uma única interface. O agente alterna entre canais sem perder o contexto da conversa.",
+      title: {
+        "pt-BR": "Inbox unificado multicanal",
+        "en": "Unified multi-channel inbox",
+      },
+      description: {
+        "pt-BR": "Centraliza conversas do WhatsApp, Instagram Direct e email em uma única interface. O agente alterna entre canais sem perder o contexto da conversa.",
+        "en": "Centralizes conversations from WhatsApp, Instagram Direct and email in a single interface. The agent switches between channels without losing conversation context.",
+      },
       order: 1,
     },
     {
-      title: "Automações baseadas em IA",
-      description: "Fluxos configuráveis que classificam mensagens, sugerem respostas e escalam automaticamente para o agente certo com base no conteúdo e histórico.",
+      title: {
+        "pt-BR": "Automações baseadas em IA",
+        "en": "AI-driven automations",
+      },
+      description: {
+        "pt-BR": "Fluxos configuráveis que classificam mensagens, sugerem respostas e escalam automaticamente para o agente certo com base no conteúdo e histórico.",
+        "en": "Configurable flows that classify messages, suggest replies and automatically escalate to the right agent based on content and history.",
+      },
       order: 2,
     },
     {
-      title: "Filas e tempo real com Redis",
-      description: "Pub/sub com Redis para entregas instantâneas e BullMQ para filas de processamento resilientes — mensagens nunca se perdem mesmo sob alta carga.",
+      title: {
+        "pt-BR": "Filas e tempo real com Redis",
+        "en": "Queues and real-time with Redis",
+      },
+      description: {
+        "pt-BR": "Pub/sub com Redis para entregas instantâneas e BullMQ para filas de processamento resilientes — mensagens nunca se perdem mesmo sob alta carga.",
+        "en": "Redis pub/sub for instant delivery and BullMQ for resilient processing queues — messages are never lost even under high load.",
+      },
       order: 3,
     },
   ],
 };
 
-const PROJECT_DECISIONS: Record<string, Array<{ title: string; description: string; reason: string; order: number }>> = {
+const PROJECT_DECISIONS: Record<string, Array<{ title: Record<string, string>; description: Record<string, string>; reason: Record<string, string>; order: number }>> = {
   advlink: [
     {
-      title: "VPS sobre Vercel",
-      description: "O deploy é feito em VPS com EasyPanel e Docker em vez da Vercel. Um único servidor serve todos os tenants com custo fixo previsível.",
-      reason: "A Vercel não suporta subdominios dinâmicos de forma nativa e seu custo escala por request. Para um SaaS com N tenants, VPS tem custo 5-10x menor com controle total.",
+      title: {
+        "pt-BR": "VPS sobre Vercel",
+        "en": "VPS over Vercel",
+      },
+      description: {
+        "pt-BR": "O deploy é feito em VPS com EasyPanel e Docker em vez da Vercel. Um único servidor serve todos os tenants com custo fixo previsível.",
+        "en": "Deployment is done on VPS with EasyPanel and Docker instead of Vercel. A single server serves all tenants with predictable fixed cost.",
+      },
+      reason: {
+        "pt-BR": "A Vercel não suporta subdominios dinâmicos de forma nativa e seu custo escala por request. Para um SaaS com N tenants, VPS tem custo 5-10x menor com controle total.",
+        "en": "Vercel doesn't natively support dynamic subdomains and its cost scales per request. For a SaaS with N tenants, VPS costs 5-10x less with full control.",
+      },
       order: 1,
     },
     {
-      title: "Arquitetura multi-tenant via middleware",
-      description: "O Next.js middleware lê o header Host, resolve o tenantId e injeta no contexto da requisição — sem rotas separadas por tenant.",
-      reason: "Uma rota por tenant seria insustentável à medida que a base cresce. Middleware centraliza a lógica e mantém o código limpo independente do número de clientes.",
+      title: {
+        "pt-BR": "Arquitetura multi-tenant via middleware",
+        "en": "Multi-tenant architecture via middleware",
+      },
+      description: {
+        "pt-BR": "O Next.js middleware lê o header Host, resolve o tenantId e injeta no contexto da requisição — sem rotas separadas por tenant.",
+        "en": "Next.js middleware reads the Host header, resolves the tenantId and injects it into the request context — no separate routes per tenant.",
+      },
+      reason: {
+        "pt-BR": "Uma rota por tenant seria insustentável à medida que a base cresce. Middleware centraliza a lógica e mantém o código limpo independente do número de clientes.",
+        "en": "One route per tenant would be unsustainable as the client base grows. Middleware centralizes the logic and keeps the code clean regardless of the number of clients.",
+      },
       order: 2,
     },
     {
-      title: "Blog separado da aplicação principal",
-      description: "O blog de cada advogado é um domínio ou subpath separado, servido por uma instância Next.js independente com renderização estática.",
-      reason: "Separar o blog garante que atualizações de conteúdo frequentes não afetem a performance do site principal. ISR no blog mantém posts sempre frescos sem custo de SSR.",
+      title: {
+        "pt-BR": "Blog separado da aplicação principal",
+        "en": "Blog separated from main application",
+      },
+      description: {
+        "pt-BR": "O blog de cada advogado é um domínio ou subpath separado, servido por uma instância Next.js independente com renderização estática.",
+        "en": "Each lawyer's blog is a separate domain or subpath, served by an independent Next.js instance with static rendering.",
+      },
+      reason: {
+        "pt-BR": "Separar o blog garante que atualizações de conteúdo frequentes não afetem a performance do site principal. ISR no blog mantém posts sempre frescos sem custo de SSR.",
+        "en": "Separating the blog ensures frequent content updates don't affect main site performance. ISR on the blog keeps posts fresh without SSR cost.",
+      },
       order: 3,
     },
   ],
   zerochat: [
     {
-      title: "Websockets com Redis Pub/Sub",
-      description: "As mensagens em tempo real são distribuídas via Redis channels — qualquer instância do servidor pode receber uma mensagem de entrada e notificar o frontend correto.",
-      reason: "Next.js stateless não gerencia estado de conexão. Redis como broker desacopla a camada de transporte da aplicação, permitindo escalar horizontalmente sem perder mensagens.",
+      title: {
+        "pt-BR": "Websockets com Redis Pub/Sub",
+        "en": "WebSockets with Redis Pub/Sub",
+      },
+      description: {
+        "pt-BR": "As mensagens em tempo real são distribuídas via Redis channels — qualquer instância do servidor pode receber uma mensagem de entrada e notificar o frontend correto.",
+        "en": "Real-time messages are distributed via Redis channels — any server instance can receive an incoming message and notify the correct frontend.",
+      },
+      reason: {
+        "pt-BR": "Next.js stateless não gerencia estado de conexão. Redis como broker desacopla a camada de transporte da aplicação, permitindo escalar horizontalmente sem perder mensagens.",
+        "en": "Stateless Next.js doesn't manage connection state. Redis as a broker decouples the transport layer from the application, enabling horizontal scaling without losing messages.",
+      },
       order: 1,
     },
     {
-      title: "Arquitetura orientada a eventos com BullMQ",
-      description: "Cada canal de mensagem (WhatsApp, Instagram, email) publica eventos em filas BullMQ. Workers independentes processam, normalizam e persistem as mensagens.",
-      reason: "Integrar APIs de terceiros síncronamente causaria gargalos e timeouts sob picos. Eventos assíncronos garantem que nenhuma mensagem se perde e o sistema degrada graciosamente.",
+      title: {
+        "pt-BR": "Arquitetura orientada a eventos com BullMQ",
+        "en": "Event-driven architecture with BullMQ",
+      },
+      description: {
+        "pt-BR": "Cada canal de mensagem (WhatsApp, Instagram, email) publica eventos em filas BullMQ. Workers independentes processam, normalizam e persistem as mensagens.",
+        "en": "Each message channel (WhatsApp, Instagram, email) publishes events to BullMQ queues. Independent workers process, normalize and persist messages.",
+      },
+      reason: {
+        "pt-BR": "Integrar APIs de terceiros síncronamente causaria gargalos e timeouts sob picos. Eventos assíncronos garantem que nenhuma mensagem se perde e o sistema degrada graciosamente.",
+        "en": "Synchronously integrating third-party APIs would cause bottlenecks and timeouts under spikes. Async events ensure no message is lost and the system degrades gracefully.",
+      },
       order: 2,
     },
   ],
@@ -811,6 +987,10 @@ async function main() {
         featured: p.featured,
         order: p.order,
         content: p.content,
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        architecture: (p as any).architecture ?? null,
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        challenges: (p as any).challenges ?? null,
       },
       create: projectData,
     });

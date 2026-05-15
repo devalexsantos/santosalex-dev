@@ -44,6 +44,9 @@ interface LocaleContent {
   fullDescription?: string;
 }
 
+/** Bilingual JSON field shape: { "pt-BR": string, "en": string } */
+type BilingualJson = Record<string, string>;
+
 // ---------------------------------------------------------------------------
 // Static params
 // ---------------------------------------------------------------------------
@@ -326,32 +329,42 @@ export default async function ProjectDetailPage({
         )}
 
         {/* ── 7. Arquitetura ──────────────────────────────────────────────── */}
-        {/* NOTE: No dedicated `architecture` field in schema yet.
-            Using `technicalDecisions` content as architecture source.
-            Move to its own field in Phase 4 admin (CRUD for Project). */}
-        {c.technicalDecisions && (
-          <CaseSection title={t("sections.architecture")}>
-            <ProseText text={c.technicalDecisions} />
-          </CaseSection>
-        )}
+        {/* Architecture comes from Project.architecture[locale] — a dedicated
+            bilingual JSON field added in Phase 4 schema refactor.
+            Falls back to technicalDecisions content when architecture is empty. */}
+        {(() => {
+          const arch = (project.architecture as BilingualJson | null);
+          const archText = arch?.[locale] ?? arch?.["pt-BR"] ?? c.technicalDecisions ?? "";
+          return archText ? (
+            <CaseSection title={t("sections.architecture")}>
+              <ProseText text={archText} />
+            </CaseSection>
+          ) : null;
+        })()}
 
         {/* ── 8. Decisões técnicas ────────────────────────────────────────── */}
         {project.decisions.length > 0 && (
           <CaseSection title={t("sections.decisions")}>
             <div className="space-y-4">
-              {project.decisions.map((d) => (
-                <GlowCard key={d.id} noHover className="p-5">
-                  <h3 className="mb-1 text-sm font-semibold text-foreground">
-                    {d.title}
-                  </h3>
-                  <p className="mb-3 text-xs font-medium text-primary/80">
-                    {d.reason}
-                  </p>
-                  <p className="text-[13px] leading-relaxed text-muted-foreground">
-                    {d.description}
-                  </p>
-                </GlowCard>
-              ))}
+              {project.decisions.map((d) => {
+                // title, description, reason are bilingual JSON: { "pt-BR": string, "en": string }
+                const decTitle = (d.title as BilingualJson)[locale] ?? (d.title as BilingualJson)["pt-BR"] ?? "";
+                const decDesc  = (d.description as BilingualJson)[locale] ?? (d.description as BilingualJson)["pt-BR"] ?? "";
+                const decReason = (d.reason as BilingualJson)[locale] ?? (d.reason as BilingualJson)["pt-BR"] ?? "";
+                return (
+                  <GlowCard key={d.id} noHover className="p-5">
+                    <h3 className="mb-1 text-sm font-semibold text-foreground">
+                      {decTitle}
+                    </h3>
+                    <p className="mb-3 text-xs font-medium text-primary/80">
+                      {decReason}
+                    </p>
+                    <p className="text-[13px] leading-relaxed text-muted-foreground">
+                      {decDesc}
+                    </p>
+                  </GlowCard>
+                );
+              })}
             </div>
           </CaseSection>
         )}
@@ -360,32 +373,43 @@ export default async function ProjectDetailPage({
         {project.features.length > 0 && (
           <CaseSection title={t("sections.features")}>
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-              {project.features.map((f) => (
-                <div
-                  key={f.id}
-                  className="rounded-xl border border-white/[0.07] bg-white/[0.02] p-4 transition-colors hover:border-primary/20 hover:bg-primary/5"
-                >
-                  <div className="mb-2 flex h-7 w-7 items-center justify-center rounded-lg bg-primary/15 text-primary">
-                    <span className="text-xs font-bold">{f.order}</span>
+              {project.features.map((f) => {
+                // title and description are bilingual JSON: { "pt-BR": string, "en": string }
+                const featureTitle = (f.title as BilingualJson)[locale] ?? (f.title as BilingualJson)["pt-BR"] ?? "";
+                const featureDesc  = (f.description as BilingualJson)[locale] ?? (f.description as BilingualJson)["pt-BR"] ?? "";
+                return (
+                  <div
+                    key={f.id}
+                    className="rounded-xl border border-white/[0.07] bg-white/[0.02] p-4 transition-colors hover:border-primary/20 hover:bg-primary/5"
+                  >
+                    <div className="mb-2 flex h-7 w-7 items-center justify-center rounded-lg bg-primary/15 text-primary">
+                      <span className="text-xs font-bold">{f.order}</span>
+                    </div>
+                    <h3 className="mb-1.5 text-sm font-semibold leading-snug">
+                      {featureTitle}
+                    </h3>
+                    <p className="text-[12px] leading-relaxed text-muted-foreground">
+                      {featureDesc}
+                    </p>
                   </div>
-                  <h3 className="mb-1.5 text-sm font-semibold leading-snug">
-                    {f.title}
-                  </h3>
-                  <p className="text-[12px] leading-relaxed text-muted-foreground">
-                    {f.description}
-                  </p>
-                </div>
-              ))}
+                );
+              })}
             </div>
           </CaseSection>
         )}
 
         {/* ── 10. Desafios ────────────────────────────────────────────────── */}
-        {/* NOTE: No dedicated challenges field. The learnings field contains
-            challenges embedded in narrative form. Rendered here only when
-            the project has no dedicated `decisions` (to avoid double rendering
-            of very similar content). A Phase 4 admin can add a challenges field.
-            For now, skip this section silently — the content lives in learnings. */}
+        {/* Project.challenges is a bilingual JSON field: { "pt-BR": string, "en": string }
+            Added in Phase 4 schema refactor. Renders only when the field is populated. */}
+        {(() => {
+          const ch = (project.challenges as BilingualJson | null);
+          const chText = ch?.[locale] ?? ch?.["pt-BR"] ?? "";
+          return chText ? (
+            <CaseSection title={t("sections.challenges")}>
+              <ProseText text={chText} />
+            </CaseSection>
+          ) : null;
+        })()}
 
         {/* ── 11. Como a IA entra no projeto ──────────────────────────────── */}
         {showAiSection && c.technicalDecisions && (

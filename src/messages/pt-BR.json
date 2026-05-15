@@ -183,6 +183,123 @@
       "viewSource": "Ver código"
     }
   },
+  "admin": {
+    "nav": {
+      "dashboard": "Dashboard",
+      "projects": "Projetos",
+      "posts": "Posts",
+      "logout": "Sair"
+    },
+    "login": {
+      "title": "Admin",
+      "subtitle": "Acesso restrito",
+      "label": "Senha",
+      "placeholder": "••••••••••••",
+      "cta": "Entrar",
+      "error": "Senha incorreta.",
+      "forgotHint": "Esqueceu a senha? Verifique ADMIN_PASSWORD no .env"
+    },
+    "dashboard": {
+      "title": "Dashboard",
+      "projects": "Projetos",
+      "publishedPosts": "Posts publicados",
+      "draftPosts": "Rascunhos"
+    },
+    "projects": {
+      "title": "Projetos",
+      "new": "Novo projeto",
+      "edit": "Editar",
+      "delete": "Excluir",
+      "confirmDelete": "Tem certeza que deseja excluir este projeto? Todas as features, decisões e stack serão removidas.",
+      "confirmDeleteTitle": "Excluir projeto",
+      "cancel": "Cancelar",
+      "save": "Salvar",
+      "saving": "Salvando...",
+      "saveSuccess": "Projeto salvo com sucesso.",
+      "saveError": "Erro ao salvar projeto.",
+      "deleteSuccess": "Projeto excluído.",
+      "deleteError": "Erro ao excluir.",
+      "noProjects": "Nenhum projeto cadastrado.",
+      "tabs": {
+        "general": "Geral",
+        "ptBR": "PT-BR",
+        "en": "EN",
+        "stack": "Stack",
+        "features": "Funcionalidades",
+        "decisions": "Decisões"
+      },
+      "fields": {
+        "slug": "Slug",
+        "title": "Título",
+        "shortDescription": "Descrição curta",
+        "category": "Categoria",
+        "status": "Status",
+        "year": "Ano",
+        "featured": "Destaque",
+        "order": "Ordem",
+        "coverImage": "URL da capa",
+        "demoUrl": "URL da demo",
+        "githubUrl": "URL do GitHub",
+        "problem": "Problema",
+        "hypothesis": "Hipótese",
+        "targetAudience": "Público-alvo",
+        "technicalDecisions": "Decisões técnicas",
+        "learnings": "Aprendizados",
+        "nextSteps": "Próximos passos",
+        "architecture": "Arquitetura",
+        "challenges": "Desafios",
+        "featureTitle": "Título",
+        "featureDescription": "Descrição",
+        "decisionTitle": "Título",
+        "decisionDescription": "Descrição",
+        "decisionReason": "Motivo"
+      },
+      "translationStatus": {
+        "translated": "traduzido",
+        "pending": "pendente"
+      }
+    },
+    "posts": {
+      "title": "Posts",
+      "new": "Novo post",
+      "edit": "Editar",
+      "delete": "Excluir",
+      "confirmDelete": "Isso excluirá as versões em PT-BR e EN deste post.",
+      "confirmDeleteTitle": "Excluir post",
+      "cancel": "Cancelar",
+      "save": "Salvar",
+      "saving": "Salvando...",
+      "saveSuccess": "Post salvo com sucesso.",
+      "saveError": "Erro ao salvar post.",
+      "deleteSuccess": "Post excluído.",
+      "deleteError": "Erro ao excluir.",
+      "noPosts": "Nenhum post cadastrado.",
+      "tabs": {
+        "general": "Geral",
+        "ptBR": "PT-BR",
+        "en": "EN"
+      },
+      "fields": {
+        "translationGroupId": "ID do grupo (slug base)",
+        "category": "Categoria",
+        "tags": "Tags (separadas por vírgula)",
+        "published": "Publicado",
+        "publishedAt": "Data de publicação",
+        "readingTime": "Tempo de leitura (min)",
+        "coverImage": "URL da capa",
+        "slug": "Slug",
+        "title": "Título",
+        "excerpt": "Resumo",
+        "content": "Conteúdo (Markdown)",
+        "seoTitle": "SEO Title",
+        "seoDescription": "SEO Description"
+      },
+      "translationStatus": {
+        "translated": "traduzido",
+        "pending": "pendente"
+      }
+    }
+  },
   "buildNotes": {
     "eyebrow": "Build Notes",
     "title": "Notas de construção",
