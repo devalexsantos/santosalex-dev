@@ -19,9 +19,12 @@ import { useState, useTransition } from "react";
 import { useForm, useFieldArray } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
-import { Plus, Trash2, ChevronUp, ChevronDown, Loader2 } from "lucide-react";
+import { Plus, Trash2, ChevronUp, ChevronDown, Loader2, Sparkles } from "lucide-react";
 import { profileFormSchema, type ProfileFormValues } from "@/lib/validators/profile";
-import { saveProfile } from "@/app/admin/(authed)/profile/_actions";
+import {
+  saveProfile,
+  generateProfileEnDraft,
+} from "@/app/admin/(authed)/profile/_actions";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -159,6 +162,7 @@ interface ProfileFormProps {
 
 export function ProfileForm({ initialData }: ProfileFormProps) {
   const [isPending, startTransition] = useTransition();
+  const [isTranslating, setIsTranslating] = useState(false);
   const [activeTab, setActiveTab] = useState("general");
 
   const {
@@ -166,6 +170,8 @@ export function ProfileForm({ initialData }: ProfileFormProps) {
     handleSubmit,
     control,
     watch,
+    getValues,
+    setValue,
     formState: { errors: _errors },
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
   } = useForm<ProfileFormValues, any, ProfileFormValues>({
@@ -195,6 +201,86 @@ export function ProfileForm({ initialData }: ProfileFormProps) {
   } = useFieldArray({ control, name: "faqs" });
 
   const watchedValues = watch();
+
+  async function handleGenerateEnDraft() {
+    const v = getValues();
+
+    // Confirm overwrite if the EN side already has anything written
+    const hasExistingEn =
+      !!v.tagline.en?.trim() ||
+      !!v.bio.en?.trim() ||
+      !!v.approach.en?.trim() ||
+      v.roles.some((r) => r.title.en?.trim() || r.description.en?.trim()) ||
+      v.experiences.some((e) => e.role.en?.trim() || e.highlights.en?.trim()) ||
+      v.faqs.some((f) => f.question.en?.trim() || f.answer.en?.trim());
+
+    if (hasExistingEn) {
+      const ok = window.confirm(
+        "Já existe conteúdo na aba EN. A tradução vai sobrescrever os campos preenchidos. Continuar?",
+      );
+      if (!ok) return;
+    }
+
+    const hasPtSource =
+      !!v.tagline["pt-BR"]?.trim() ||
+      !!v.bio["pt-BR"]?.trim() ||
+      !!v.approach["pt-BR"]?.trim();
+
+    if (!hasPtSource) {
+      toast.error("Preencha pelo menos a tagline, bio ou abordagem em PT-BR antes de traduzir.");
+      return;
+    }
+
+    setIsTranslating(true);
+    try {
+      const result = await generateProfileEnDraft({
+        tagline: v.tagline["pt-BR"] ?? "",
+        bio: v.bio["pt-BR"] ?? "",
+        approach: v.approach["pt-BR"] ?? "",
+        roles: v.roles.map((r) => ({
+          title: r.title["pt-BR"] ?? "",
+          description: r.description["pt-BR"] ?? "",
+        })),
+        experiences: v.experiences.map((e) => ({
+          role: e.role["pt-BR"] ?? "",
+          highlights: e.highlights["pt-BR"] ?? "",
+        })),
+        faqs: v.faqs.map((f) => ({
+          question: f.question["pt-BR"] ?? "",
+          answer: f.answer["pt-BR"] ?? "",
+        })),
+      });
+
+      if (!result.ok) {
+        toast.error(result.error);
+        return;
+      }
+
+      // Apply EN values via setValue so the form state updates without rerender quirks
+      setValue("tagline.en", result.en.tagline, { shouldDirty: true });
+      setValue("bio.en", result.en.bio, { shouldDirty: true });
+      setValue("approach.en", result.en.approach, { shouldDirty: true });
+      result.en.roles.forEach((r, idx) => {
+        setValue(`roles.${idx}.title.en`, r.title, { shouldDirty: true });
+        setValue(`roles.${idx}.description.en`, r.description, { shouldDirty: true });
+      });
+      result.en.experiences.forEach((e, idx) => {
+        setValue(`experiences.${idx}.role.en`, e.role, { shouldDirty: true });
+        setValue(`experiences.${idx}.highlights.en`, e.highlights, { shouldDirty: true });
+      });
+      result.en.faqs.forEach((f, idx) => {
+        setValue(`faqs.${idx}.question.en`, f.question, { shouldDirty: true });
+        setValue(`faqs.${idx}.answer.en`, f.answer, { shouldDirty: true });
+      });
+
+      toast.success("Tradução gerada — revise e clique em Salvar para persistir.");
+    } catch (err) {
+      console.error("[generateProfileEnDraft] error:", err);
+      toast.error("Erro inesperado ao gerar tradução.");
+    } finally {
+      setIsTranslating(false);
+    }
+  }
 
   function onSubmit(values: ProfileFormValues) {
     startTransition(async () => {
@@ -547,11 +633,30 @@ export function ProfileForm({ initialData }: ProfileFormProps) {
             Mirror of PT-BR tab but for the English locale.
         ════════════════════════════════════════════════════════════════ */}
         <TabsContent value="en" className="space-y-8">
-          <div className="rounded-lg border border-violet-500/[0.12] bg-violet-500/[0.03] px-4 py-3">
+          <div className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-violet-500/[0.12] bg-violet-500/[0.03] px-4 py-3">
             <p className="text-[11px] text-white/40">
               English version. Mirror the PT-BR content and adapt naturally — do not translate
               word-for-word.
             </p>
+            <Button
+              type="button"
+              size="sm"
+              onClick={handleGenerateEnDraft}
+              disabled={isTranslating || isPending}
+              className="gap-1.5 bg-violet-600/90 text-white hover:bg-violet-600 disabled:opacity-60"
+            >
+              {isTranslating ? (
+                <>
+                  <Loader2 className="h-3 w-3 animate-spin" />
+                  Traduzindo…
+                </>
+              ) : (
+                <>
+                  <Sparkles className="h-3 w-3" />
+                  Gerar tradução de PT-BR
+                </>
+              )}
+            </Button>
           </div>
 
           {/* About (EN) */}
