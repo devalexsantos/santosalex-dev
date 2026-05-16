@@ -6,11 +6,9 @@
   "nav": {
     "projects": "Projects",
     "buildNotes": "Build Notes",
-    "experiments": "Experiments",
     "stack": "Stack",
     "howIBuild": "How I Build",
     "about": "About",
-    "playground": "Playground",
     "recruiterMode": "Recruiter Mode",
     "contact": "Contact",
     "askAi": "Ask the AI"
@@ -135,12 +133,6 @@
         "description": "After launch, I monitor metrics, collect feedback and iterate. A launched product that learns is worth far more than a perfect product that never ships."
       }
     }
-  },
-  "experiments": {
-    "eyebrow": "Lab",
-    "title": "Experiments",
-    "description": "Ideas, prototypes and technical explorations. Here I work without production pressure — the goal is to learn, test hypotheses and genuinely play with technology.",
-    "marker": "Experiment"
   },
   "contact": {
     "eyebrow": "Contact",
@@ -300,49 +292,5 @@
     "ctaDescription": "Open to freelance, contract and remote positions. Replies within 48 business hours.",
     "ctaPrimary": "Get in touch",
     "ctaSecondary": "Try Recruiter Mode"
-  },
-  "playground": {
-    "eyebrow": "Playground",
-    "title": "Interactive AI demos",
-    "description": "Play with the AI infrastructure powering this portfolio — start with the RAG Visualizer to see exactly which chunks feed the assistant.",
-    "rag": {
-      "title": "RAG Visualizer",
-      "subtitle": "See the chunks retrieved before the LLM is called.",
-      "placeholder": "Ask something… e.g. \"projects using AI\" or \"does Alex know Docker?\"",
-      "submit": "Search",
-      "noResults": "No chunks passed the threshold.",
-      "noResultsHint": "Try a different or more specific question about projects, profile or stack.",
-      "foundN": "{n} chunk(s) retrieved from pgvector",
-      "fallback": "locale fallback",
-      "error": "Search failed. Please try again.",
-      "suggestions": {
-        "1": "Which projects use AI?",
-        "2": "Postgres experience",
-        "3": "How does Alex deploy?",
-        "4": "SaaS projects"
-      }
-    },
-    "comingSoon": {
-      "title": "Coming soon",
-      "subtitle": "Next demos on the roadmap.",
-      "items": {
-        "1": {
-          "tag": "Generative",
-          "label": "AI wallpaper generator"
-        },
-        "2": {
-          "tag": "Vision",
-          "label": "Screenshot analysis with VLM"
-        },
-        "3": {
-          "tag": "Audio",
-          "label": "Podcast transcription and summary"
-        },
-        "4": {
-          "tag": "Embeddings",
-          "label": "Project similarity comparator"
-        }
-      }
-    }
   }
 }

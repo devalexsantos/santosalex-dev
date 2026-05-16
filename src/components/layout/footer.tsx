@@ -25,12 +25,11 @@ interface FooterLink {
 }
 
 const NAV_LINKS: FooterLink[] = [
-  { labelKey: "projects",     href: "/projects" },
-  { labelKey: "buildNotes",   href: "/build-notes" },
-  { labelKey: "experiments",  href: "/experiments" },
-  { labelKey: "stack",        href: "/stack" },
-  { labelKey: "howIBuild",    href: "/how-i-build" },
-  { labelKey: "contact",      href: "/contact" },
+  { labelKey: "projects",   href: "/projects" },
+  { labelKey: "buildNotes", href: "/build-notes" },
+  { labelKey: "stack",      href: "/stack" },
+  { labelKey: "howIBuild",  href: "/how-i-build" },
+  { labelKey: "contact",    href: "/contact" },
 ];
 
 const SOCIAL_LINKS = [

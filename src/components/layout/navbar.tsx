@@ -22,11 +22,9 @@ interface NavLink {
 const NAV_LINKS: NavLink[] = [
   { labelKey: "projects",      href: "/projects" },
   { labelKey: "buildNotes",    href: "/build-notes" },
-  { labelKey: "experiments",   href: "/experiments" },
   { labelKey: "stack",         href: "/stack" },
   { labelKey: "howIBuild",     href: "/how-i-build" },
   { labelKey: "about",         href: "/about" },
-  { labelKey: "playground",    href: "/playground" },
   { labelKey: "recruiterMode", href: "/recruiter" },
   { labelKey: "contact",       href: "/contact" },
 ];
