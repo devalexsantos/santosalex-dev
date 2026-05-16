@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import Link from "next/link";
-import { ChevronLeft } from "lucide-react";
+import { ChevronLeft, ThumbsUp, ThumbsDown } from "lucide-react";
 import { requireAdminSession } from "@/lib/auth/admin-session";
 import { prisma } from "@/lib/prisma";
 import { cn } from "@/lib/utils";
@@ -127,34 +127,37 @@ export default async function ChatSessionPage({
                 {msg.content}
               </div>
 
-              {/* Feedback rows (if any) */}
+              {/* Feedback rows (if any). Rating is 1 (👍) or -1 (👎). */}
               {msg.feedback.length > 0 && (
                 <div className="ml-1 mt-1 space-y-1.5">
-                  {msg.feedback.map((fb) => (
-                    <div
-                      key={fb.id}
-                      className="flex items-start gap-2 rounded-lg border border-white/[0.05] bg-white/[0.02] px-3 py-2"
-                    >
-                      <span
-                        className={cn(
-                          "shrink-0 rounded-full px-2 py-0.5 text-[10px] font-bold",
-                          fb.rating >= 4
-                            ? "bg-emerald-500/10 text-emerald-400"
-                            : fb.rating >= 2
-                            ? "bg-amber-500/10 text-amber-400"
-                            : "bg-red-500/10 text-red-400"
-                        )}
+                  {msg.feedback.map((fb) => {
+                    const positive = fb.rating > 0;
+                    const Icon = positive ? ThumbsUp : ThumbsDown;
+                    return (
+                      <div
+                        key={fb.id}
+                        className="flex items-start gap-2 rounded-lg border border-white/[0.05] bg-white/[0.02] px-3 py-2"
                       >
-                        {fb.rating}/5
-                      </span>
-                      {fb.comment && (
-                        <p className="text-[11px] text-white/40">{fb.comment}</p>
-                      )}
-                      <span className="ml-auto shrink-0 text-[10px] text-white/20">
-                        {formatDate(fb.createdAt)}
-                      </span>
-                    </div>
-                  ))}
+                        <span
+                          className={cn(
+                            "inline-flex shrink-0 items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-semibold",
+                            positive
+                              ? "bg-emerald-500/10 text-emerald-400"
+                              : "bg-rose-500/10 text-rose-400",
+                          )}
+                        >
+                          <Icon className="h-3 w-3" />
+                          {positive ? "útil" : "pouco útil"}
+                        </span>
+                        {fb.comment && (
+                          <p className="text-[11px] text-white/40">{fb.comment}</p>
+                        )}
+                        <span className="ml-auto shrink-0 text-[10px] text-white/20">
+                          {formatDate(fb.createdAt)}
+                        </span>
+                      </div>
+                    );
+                  })}
                 </div>
               )}
             </div>

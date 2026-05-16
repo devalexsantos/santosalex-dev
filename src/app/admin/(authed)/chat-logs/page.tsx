@@ -1,8 +1,17 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { MessageSquare, ChevronLeft, ChevronRight } from "lucide-react";
+import {
+  MessageSquare,
+  ChevronLeft,
+  ChevronRight,
+  ThumbsUp,
+  ThumbsDown,
+  Users,
+  TrendingUp,
+} from "lucide-react";
 import { requireAdminSession } from "@/lib/auth/admin-session";
 import { prisma } from "@/lib/prisma";
+import { cn } from "@/lib/utils";
 
 export const metadata: Metadata = { title: "Chat Logs" };
 
@@ -29,9 +38,8 @@ export default async function AdminChatLogsPage({
   const page = Math.max(1, parseInt(pageParam ?? "1", 10));
 
   // Aggregate sessions: group by sessionId
-  // We gather the distinct sessionIds with pagination by fetching all unique sessionIds
-  // ordered by the most recent message in each session.
-  const [sessionRows, totalSessionCount] = await Promise.all([
+  // Page rows + total count + portfolio-wide metrics fetched in parallel.
+  const [sessionRows, totalSessionCount, metrics, last7d] = await Promise.all([
     prisma.$queryRaw<
       Array<{
         sessionId: string;
@@ -39,7 +47,8 @@ export default async function AdminChatLogsPage({
         message_count: bigint;
         first_created: Date;
         last_created: Date;
-        feedback_count: bigint;
+        positive_count: bigint;
+        negative_count: bigint;
       }>
     >`
       SELECT
@@ -48,13 +57,17 @@ export default async function AdminChatLogsPage({
         COUNT(m.id)::bigint AS message_count,
         MIN(m."createdAt") AS first_created,
         MAX(m."createdAt") AS last_created,
-        COALESCE(SUM(feedback_counts.cnt), 0)::bigint AS feedback_count
+        COALESCE(SUM(feedback_split.pos), 0)::bigint AS positive_count,
+        COALESCE(SUM(feedback_split.neg), 0)::bigint AS negative_count
       FROM "AiChatMessage" m
       LEFT JOIN (
-        SELECT f."messageId", COUNT(f.id) AS cnt
+        SELECT
+          f."messageId",
+          SUM(CASE WHEN f.rating > 0 THEN 1 ELSE 0 END) AS pos,
+          SUM(CASE WHEN f.rating < 0 THEN 1 ELSE 0 END) AS neg
         FROM "AiFeedback" f
         GROUP BY f."messageId"
-      ) feedback_counts ON feedback_counts."messageId" = m.id
+      ) feedback_split ON feedback_split."messageId" = m.id
       GROUP BY m."sessionId"
       ORDER BY MAX(m."createdAt") DESC
       LIMIT ${PAGE_SIZE}
@@ -63,10 +76,34 @@ export default async function AdminChatLogsPage({
     prisma.$queryRaw<Array<{ count: bigint }>>`
       SELECT COUNT(DISTINCT "sessionId")::bigint AS count FROM "AiChatMessage"
     `,
+    prisma.$queryRaw<
+      Array<{ messages: bigint; positive: bigint; negative: bigint }>
+    >`
+      SELECT
+        (SELECT COUNT(*) FROM "AiChatMessage")::bigint AS messages,
+        COALESCE(SUM(CASE WHEN rating > 0 THEN 1 ELSE 0 END), 0)::bigint AS positive,
+        COALESCE(SUM(CASE WHEN rating < 0 THEN 1 ELSE 0 END), 0)::bigint AS negative
+      FROM "AiFeedback"
+    `,
+    prisma.$queryRaw<Array<{ count: bigint }>>`
+      SELECT COUNT(DISTINCT "sessionId")::bigint AS count
+      FROM "AiChatMessage"
+      WHERE "createdAt" >= NOW() - INTERVAL '7 days'
+    `,
   ]);
 
   const totalCount = Number(totalSessionCount[0]?.count ?? 0);
   const totalPages = Math.max(1, Math.ceil(totalCount / PAGE_SIZE));
+
+  const totalMessages = Number(metrics[0]?.messages ?? 0);
+  const totalPositive = Number(metrics[0]?.positive ?? 0);
+  const totalNegative = Number(metrics[0]?.negative ?? 0);
+  const totalFeedback = totalPositive + totalNegative;
+  const positiveRate =
+    totalFeedback > 0 ? Math.round((totalPositive / totalFeedback) * 100) : null;
+  const last7dCount = Number(last7d[0]?.count ?? 0);
+  const avgMsgsPerSession =
+    totalCount > 0 ? (totalMessages / totalCount).toFixed(1) : "0";
 
   // For each session, fetch the first user message preview
   const sessionIds = sessionRows.map((r) => r.sessionId);
@@ -111,6 +148,36 @@ export default async function AdminChatLogsPage({
             {totalCount} sessão{totalCount !== 1 ? "ões" : ""} registrada{totalCount !== 1 ? "s" : ""}
           </p>
         </div>
+      </div>
+
+      {/* Metrics row */}
+      <div className="mb-6 grid grid-cols-2 gap-3 md:grid-cols-4">
+        <MetricCard
+          icon={<Users className="h-3.5 w-3.5" />}
+          label="Sessões totais"
+          value={totalCount.toString()}
+          subtitle={`${last7dCount} nos últimos 7 dias`}
+        />
+        <MetricCard
+          icon={<MessageSquare className="h-3.5 w-3.5" />}
+          label="Mensagens"
+          value={totalMessages.toString()}
+          subtitle={`${avgMsgsPerSession} / sessão em média`}
+        />
+        <MetricCard
+          icon={<ThumbsUp className="h-3.5 w-3.5 text-emerald-400" />}
+          label="Feedback positivo"
+          value={totalPositive.toString()}
+          subtitle={
+            positiveRate !== null ? `${positiveRate}% de aprovação` : "sem dados ainda"
+          }
+        />
+        <MetricCard
+          icon={<TrendingUp className="h-3.5 w-3.5" />}
+          label="Feedback total"
+          value={totalFeedback.toString()}
+          subtitle={`${totalPositive} 👍 · ${totalNegative} 👎`}
+        />
       </div>
 
       <div className="rounded-xl border border-white/[0.06] bg-white/[0.02] overflow-hidden">
@@ -163,13 +230,29 @@ export default async function AdminChatLogsPage({
                     {formatDate(session.last_created)}
                   </td>
                   <td className="px-4 py-3">
-                    {Number(session.feedback_count) > 0 ? (
-                      <span className="inline-flex items-center rounded-full bg-violet-500/10 px-2 py-0.5 text-[10px] font-semibold text-violet-400">
-                        {String(session.feedback_count)}
-                      </span>
-                    ) : (
-                      <span className="text-[11px] text-white/20">—</span>
-                    )}
+                    {(() => {
+                      const pos = Number(session.positive_count);
+                      const neg = Number(session.negative_count);
+                      if (pos === 0 && neg === 0) {
+                        return <span className="text-[11px] text-white/20">—</span>;
+                      }
+                      return (
+                        <div className="flex items-center gap-1.5">
+                          {pos > 0 && (
+                            <span className="inline-flex items-center gap-0.5 rounded-full bg-emerald-500/10 px-1.5 py-0.5 text-[10px] font-semibold text-emerald-400">
+                              <ThumbsUp className="h-2.5 w-2.5" />
+                              {pos}
+                            </span>
+                          )}
+                          {neg > 0 && (
+                            <span className="inline-flex items-center gap-0.5 rounded-full bg-rose-500/10 px-1.5 py-0.5 text-[10px] font-semibold text-rose-400">
+                              <ThumbsDown className="h-2.5 w-2.5" />
+                              {neg}
+                            </span>
+                          )}
+                        </div>
+                      );
+                    })()}
                   </td>
                   <td className="px-4 py-3 text-right">
                     <Link
@@ -215,6 +298,31 @@ export default async function AdminChatLogsPage({
           </div>
         </div>
       )}
+    </div>
+  );
+}
+
+function MetricCard({
+  icon,
+  label,
+  value,
+  subtitle,
+}: {
+  icon: React.ReactNode;
+  label: string;
+  value: string;
+  subtitle: string;
+}) {
+  return (
+    <div className={cn(
+      "rounded-xl border border-white/[0.06] bg-white/[0.02] px-4 py-3.5",
+    )}>
+      <div className="mb-1 flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-widest text-white/30">
+        {icon}
+        {label}
+      </div>
+      <p className="text-xl font-bold tracking-tight text-white">{value}</p>
+      <p className="mt-0.5 text-[11px] text-white/35">{subtitle}</p>
     </div>
   );
 }
