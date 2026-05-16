@@ -60,10 +60,18 @@ type BilingualJson = Record<string, string>;
 // ---------------------------------------------------------------------------
 
 export async function generateStaticParams() {
-  const projects = await prisma.project.findMany({ select: { slug: true } });
-  return routing.locales.flatMap((locale) =>
-    projects.map((p) => ({ locale, slug: p.slug }))
-  );
+  // Build-time DB may be unreachable (no DATABASE_URL configured for the
+  // Docker builder, etc.). When that happens, return [] — Next.js will then
+  // render each slug on demand via ISR (revalidate = 600s above).
+  try {
+    const projects = await prisma.project.findMany({ select: { slug: true } });
+    return routing.locales.flatMap((locale) =>
+      projects.map((p) => ({ locale, slug: p.slug }))
+    );
+  } catch (err) {
+    console.warn("[projects/[slug]] generateStaticParams skipped:", err);
+    return [];
+  }
 }
 
 // ---------------------------------------------------------------------------

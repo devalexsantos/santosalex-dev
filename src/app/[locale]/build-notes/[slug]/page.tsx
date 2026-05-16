@@ -37,11 +37,17 @@ type PostCategory =
 // ---------------------------------------------------------------------------
 
 export async function generateStaticParams() {
-  const posts = await prisma.post.findMany({
-    where: { published: true },
-    select: { locale: true, slug: true },
-  });
-  return posts.map((p) => ({ locale: p.locale, slug: p.slug }));
+  // See projects/[slug] for rationale: build may run without a DB.
+  try {
+    const posts = await prisma.post.findMany({
+      where: { published: true },
+      select: { locale: true, slug: true },
+    });
+    return posts.map((p) => ({ locale: p.locale, slug: p.slug }));
+  } catch (err) {
+    console.warn("[build-notes/[slug]] generateStaticParams skipped:", err);
+    return [];
+  }
 }
 
 // ---------------------------------------------------------------------------

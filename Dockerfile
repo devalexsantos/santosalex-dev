@@ -12,6 +12,11 @@ WORKDIR /app
 RUN apk add --no-cache libc6-compat openssl
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
+# Prisma 7's prisma.config.ts resolves env() eagerly. We don't need a real DB
+# during `prisma generate` (it only emits TS types) so feed a placeholder.
+# `next build` ALSO doesn't talk to the real DB — it just compiles routes —
+# so the same placeholder is safe for that step too.
+ENV DATABASE_URL="postgresql://placeholder:placeholder@localhost:5432/placeholder"
 RUN npx prisma generate
 ENV NEXT_TELEMETRY_DISABLED=1
 RUN npm run build

@@ -40,14 +40,28 @@ export async function generateMetadata({
   };
 }
 
-async function getAboutData() {
-  const [profile, roles, experiences, faqs] = await Promise.all([
-    prisma.profile.findUnique({ where: { id: "singleton" } }),
-    prisma.profileRoleType.findMany({ orderBy: { order: "asc" } }),
-    prisma.profileExperience.findMany({ orderBy: { order: "asc" } }),
-    prisma.profileFaq.findMany({ orderBy: { order: "asc" } }),
-  ]);
-  return { profile, roles, experiences, faqs };
+type AboutData = {
+  profile: Awaited<ReturnType<typeof prisma.profile.findUnique>>;
+  roles: Awaited<ReturnType<typeof prisma.profileRoleType.findMany>>;
+  experiences: Awaited<ReturnType<typeof prisma.profileExperience.findMany>>;
+  faqs: Awaited<ReturnType<typeof prisma.profileFaq.findMany>>;
+};
+
+async function getAboutData(): Promise<AboutData> {
+  // Tolerate build-time DB unavailability: page renders an empty hero rather
+  // than failing the build. ISR refreshes on first real request.
+  try {
+    const [profile, roles, experiences, faqs] = await Promise.all([
+      prisma.profile.findUnique({ where: { id: "singleton" } }),
+      prisma.profileRoleType.findMany({ orderBy: { order: "asc" } }),
+      prisma.profileExperience.findMany({ orderBy: { order: "asc" } }),
+      prisma.profileFaq.findMany({ orderBy: { order: "asc" } }),
+    ]);
+    return { profile, roles, experiences, faqs };
+  } catch (err) {
+    console.warn("[about] getAboutData failed:", err);
+    return { profile: null, roles: [], experiences: [], faqs: [] };
+  }
 }
 
 export default async function AboutPage({
