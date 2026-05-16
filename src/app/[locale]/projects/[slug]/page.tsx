@@ -19,6 +19,10 @@ function GithubIcon({ className }: { className?: string }) {
 import { prisma } from "@/lib/prisma";
 import { routing } from "@/i18n/routing";
 import { Link } from "@/i18n/navigation";
+import {
+  jsonLdScriptProps,
+  softwareApplicationSchema,
+} from "@/lib/structured-data";
 import { SectionHeader } from "@/components/ui/section-header";
 import { GlowCard } from "@/components/ui/glow-card";
 import { StackBadge } from "@/components/ui/stack-badge";
@@ -221,8 +225,21 @@ export default async function ProjectDetailPage({
   const hasAiStack = project.stack.some((s) => s.technology.category === "ai");
   const showAiSection = project.category === "ai" || hasAiStack;
 
+  const ldData = softwareApplicationSchema({
+    name: project.title,
+    description: c.problem?.slice(0, 240) ?? project.shortDescription,
+    slug: project.slug,
+    locale,
+    category: project.category,
+    demoUrl: project.demoUrl,
+    githubUrl: project.githubUrl,
+    coverImage: project.coverImage,
+    year: project.year,
+  });
+
   return (
     <div className="mx-auto max-w-3xl px-4 py-16 sm:px-6 sm:py-24">
+      <script {...jsonLdScriptProps(ldData)} />
 
       {/* ── 1. Hero ──────────────────────────────────────────────────────── */}
       <header className="mb-16">

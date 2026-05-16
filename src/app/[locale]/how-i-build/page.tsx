@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { getTranslations, setRequestLocale } from "next-intl/server";
+import { routing } from "@/i18n/routing";
 import { SectionHeader } from "@/components/ui/section-header";
 import { GradientText } from "@/components/ui/gradient-text";
 import { Link } from "@/i18n/navigation";
@@ -23,6 +24,10 @@ export async function generateMetadata({
     openGraph: {
       title: `${t("title")} · ${tCommon("siteName")}`,
       description: t("description"),
+    },
+    alternates: {
+      canonical: `/${locale}/how-i-build`,
+      languages: Object.fromEntries(routing.locales.map((l) => [l, `/${l}/how-i-build`])),
     },
   };
 }

@@ -2,6 +2,7 @@ import { Suspense } from "react";
 import type { Metadata } from "next";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { prisma } from "@/lib/prisma";
+import { routing } from "@/i18n/routing";
 import { SectionHeader } from "@/components/ui/section-header";
 import { PostCard } from "@/components/blog/post-card";
 import { CategoryFilter } from "@/components/projects/category-filter";
@@ -24,6 +25,10 @@ export async function generateMetadata({
     openGraph: {
       title: `${t("title")} · ${tCommon("siteName")}`,
       description: t("description"),
+    },
+    alternates: {
+      canonical: `/${locale}/build-notes`,
+      languages: Object.fromEntries(routing.locales.map((l) => [l, `/${l}/build-notes`])),
     },
   };
 }

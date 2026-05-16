@@ -7,6 +7,7 @@ import { Clock, Calendar } from "lucide-react";
 import { prisma } from "@/lib/prisma";
 import { routing, type Locale } from "@/i18n/routing";
 import { Link } from "@/i18n/navigation";
+import { blogPostingSchema, jsonLdScriptProps } from "@/lib/structured-data";
 import { Badge } from "@/components/ui/badge";
 import { PostCard } from "@/components/blog/post-card";
 import { PostLocaleSwitcher } from "@/components/blog/post-locale-switcher";
@@ -300,8 +301,19 @@ export default async function PostDetailPage({
   // Sibling locale for the post-aware switcher
   const otherLocale = (routing.locales.find((l) => l !== locale) ?? "en") as Locale;
 
+  const ldData = blogPostingSchema({
+    title: post.title,
+    excerpt: post.excerpt,
+    slug: post.slug,
+    locale,
+    publishedAt: post.publishedAt,
+    updatedAt: post.updatedAt,
+    coverImage: post.coverImage,
+  });
+
   return (
     <div className="mx-auto max-w-2xl px-4 py-16 sm:px-6 sm:py-24">
+      <script {...jsonLdScriptProps(ldData)} />
 
       {/* ── Article header ────────────────────────────────────────────────── */}
       <header className="mb-12">

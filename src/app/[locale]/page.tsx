@@ -1,9 +1,34 @@
-import { setRequestLocale } from "next-intl/server";
+import type { Metadata } from "next";
+import { getTranslations, setRequestLocale } from "next-intl/server";
 import { prisma } from "@/lib/prisma";
+import { routing } from "@/i18n/routing";
 import { HeroSection } from "@/components/home/hero-section";
 import { BentoSection } from "@/components/home/bento-section";
 import { FeaturedProjectsSection } from "@/components/home/featured-projects-section";
 import { AnimatedGridBackgroundLazy } from "@/components/animations/animated-grid-background-lazy";
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}): Promise<Metadata> {
+  const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: "home" });
+  const tCommon = await getTranslations({ locale, namespace: "common" });
+  const title = `${t("title")} ${t("titleAccent")}`;
+  return {
+    title: { absolute: `${tCommon("siteName")} — ${t("eyebrow")}` },
+    description: t("subtitle"),
+    openGraph: {
+      title: tCommon("siteName"),
+      description: title,
+    },
+    alternates: {
+      canonical: `/${locale}`,
+      languages: Object.fromEntries(routing.locales.map((l) => [l, `/${l}`])),
+    },
+  };
+}
 
 type Bilingual = { "pt-BR"?: string; en?: string };
 

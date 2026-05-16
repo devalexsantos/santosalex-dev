@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { getTranslations, setRequestLocale } from "next-intl/server";
+import { routing } from "@/i18n/routing";
 import { SectionHeader } from "@/components/ui/section-header";
 import { RecruiterMode } from "@/components/recruiter/recruiter-mode";
 
@@ -18,6 +19,10 @@ export async function generateMetadata({
     openGraph: {
       title: `${title} · ${tCommon("siteName")}`,
       description: t("subtitle"),
+    },
+    alternates: {
+      canonical: `/${locale}/recruiter`,
+      languages: Object.fromEntries(routing.locales.map((l) => [l, `/${l}/recruiter`])),
     },
   };
 }
