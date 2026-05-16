@@ -1,5 +1,9 @@
 import type { Metadata } from "next";
 import { getTranslations, setRequestLocale } from "next-intl/server";
+
+// ISR: refresh home every 10 minutes (admin saves to Profile / Project already
+// trigger revalidatePath, so this is the upper bound for missed-revalidate cases).
+export const revalidate = 600;
 import { prisma } from "@/lib/prisma";
 import { routing } from "@/i18n/routing";
 import { HeroSection } from "@/components/home/hero-section";

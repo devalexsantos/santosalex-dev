@@ -2,6 +2,9 @@ import { Suspense } from "react";
 import type { Metadata } from "next";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { prisma } from "@/lib/prisma";
+
+// ISR: 10 minutes. Project saves call revalidatePath("/[locale]/projects").
+export const revalidate = 600;
 import { routing } from "@/i18n/routing";
 import { SectionHeader } from "@/components/ui/section-header";
 import { ProjectCard } from "@/components/ui/project-card";

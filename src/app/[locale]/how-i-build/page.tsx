@@ -1,6 +1,9 @@
 import type { Metadata } from "next";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { routing } from "@/i18n/routing";
+
+// Fully static content driven by i18n — revalidate once a day is plenty.
+export const revalidate = 86400;
 import { SectionHeader } from "@/components/ui/section-header";
 import { GradientText } from "@/components/ui/gradient-text";
 import { Link } from "@/i18n/navigation";

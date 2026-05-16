@@ -1,6 +1,9 @@
 import type { Metadata } from "next";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { prisma } from "@/lib/prisma";
+
+// ISR: 1 hour. Technology rows rarely change.
+export const revalidate = 3600;
 import { routing } from "@/i18n/routing";
 import { SectionHeader } from "@/components/ui/section-header";
 import { cn } from "@/lib/utils";

@@ -2,6 +2,9 @@ import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import ReactMarkdown from "react-markdown";
+
+// ISR: 1 hour. Posts change less frequently than projects.
+export const revalidate = 3600;
 import remarkGfm from "remark-gfm";
 import { Clock, Calendar } from "lucide-react";
 import { prisma } from "@/lib/prisma";

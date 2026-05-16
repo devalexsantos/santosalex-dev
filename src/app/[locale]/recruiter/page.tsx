@@ -1,6 +1,9 @@
 import type { Metadata } from "next";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { routing } from "@/i18n/routing";
+
+// Static shell — the real interactivity happens via /api/recruiter-summary.
+export const revalidate = 86400;
 import { SectionHeader } from "@/components/ui/section-header";
 import { RecruiterMode } from "@/components/recruiter/recruiter-mode";
 

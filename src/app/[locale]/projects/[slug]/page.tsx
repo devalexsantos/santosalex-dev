@@ -3,6 +3,9 @@ import type { Metadata } from "next";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { ExternalLink, Sparkles } from "lucide-react";
 
+// ISR: 10 minutes. Project saves call revalidatePath for this slug.
+export const revalidate = 600;
+
 // Inline SVG for GitHub — lucide-react v1 removed social icons
 function GithubIcon({ className }: { className?: string }) {
   return (

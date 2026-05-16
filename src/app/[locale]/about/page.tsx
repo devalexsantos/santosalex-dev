@@ -2,6 +2,9 @@ import type { Metadata } from "next";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { MapPin, Sparkles, ChevronDown } from "lucide-react";
 import { prisma } from "@/lib/prisma";
+
+// ISR: 10 minutes. Profile edits trigger revalidatePath on save.
+export const revalidate = 600;
 import { routing } from "@/i18n/routing";
 import { Link } from "@/i18n/navigation";
 import { SectionHeader } from "@/components/ui/section-header";
