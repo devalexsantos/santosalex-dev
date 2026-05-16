@@ -10,6 +10,7 @@
     "stack": "Stack",
     "howIBuild": "Como Construo",
     "about": "Sobre",
+    "playground": "Playground",
     "recruiterMode": "Modo Recrutador",
     "contact": "Contato",
     "askAi": "Perguntar à IA"
@@ -584,5 +585,49 @@
     "ctaDescription": "Disponível para freelance, contrato e posições remotas. Responda em até 48 horas úteis.",
     "ctaPrimary": "Entrar em contato",
     "ctaSecondary": "Ver Recruiter Mode"
+  },
+  "playground": {
+    "eyebrow": "Playground",
+    "title": "Demos interativas de IA",
+    "description": "Brinque com a infraestrutura de IA que move o portfólio — comece pelo RAG Visualizer e veja exatamente quais chunks alimentam o assistente.",
+    "rag": {
+      "title": "RAG Visualizer",
+      "subtitle": "Veja os chunks recuperados antes do LLM ser chamado.",
+      "placeholder": "Pergunte algo… ex: \"projetos com IA\" ou \"Alex sabe Docker?\"",
+      "submit": "Buscar",
+      "noResults": "Nenhum chunk passou no threshold.",
+      "noResultsHint": "Tente uma pergunta diferente ou mais específica sobre projetos, perfil ou stack.",
+      "foundN": "{n} chunk(s) recuperado(s) do pgvector",
+      "fallback": "fallback idioma",
+      "error": "Erro ao buscar. Tente novamente.",
+      "suggestions": {
+        "1": "Quais projetos usam IA?",
+        "2": "Experiência com Postgres",
+        "3": "Como o Alex faz deploy?",
+        "4": "Projetos SaaS"
+      }
+    },
+    "comingSoon": {
+      "title": "Em breve",
+      "subtitle": "Próximas demos no roadmap.",
+      "items": {
+        "1": {
+          "tag": "Generative",
+          "label": "Wallpaper generator com IA"
+        },
+        "2": {
+          "tag": "Vision",
+          "label": "Análise de prints com VLM"
+        },
+        "3": {
+          "tag": "Audio",
+          "label": "Transcrição e resumo de podcast"
+        },
+        "4": {
+          "tag": "Embeddings",
+          "label": "Comparador de similaridade entre projetos"
+        }
+      }
+    }
   }
 }
