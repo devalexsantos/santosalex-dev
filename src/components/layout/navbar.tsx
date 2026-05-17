@@ -61,7 +61,7 @@ export function Navbar() {
             AS
           </span>
           <span className="hidden text-sm font-semibold tracking-tight text-foreground/90 transition-colors group-hover:text-foreground sm:block">
-            alex santos
+            Alex Santos
           </span>
         </Link>
 
@@ -118,7 +118,7 @@ export function Navbar() {
                   <span className="flex h-7 w-7 items-center justify-center rounded-md bg-gradient-to-br from-primary to-secondary text-xs font-bold text-white">
                     AS
                   </span>
-                  <span className="text-sm font-semibold">alex santos</span>
+                  <span className="text-sm font-semibold">Alex Santos</span>
                 </Link>
                 <SheetClose
                   className="flex h-8 w-8 items-center justify-center rounded-lg text-muted-foreground hover:text-foreground"
