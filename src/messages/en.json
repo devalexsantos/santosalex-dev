@@ -33,9 +33,11 @@
       "buildNotesDesc": "Technical reasoning, architecture and product decisions.",
       "fullstack": "Fullstack",
       "fullstackDesc": "Frontend, backend, database, deploy — the full package.",
-      "openToWork": "Open to projects",
-      "openToWorkDesc": "Available for freelance, contract or full-time roles.",
-      "comingSoon": "Coming soon"
+      "comingSoon": "Coming soon",
+      "recruiterModeLabel": "Recruiter Mode",
+      "recruiterModeTitle": "Personalized summary per role",
+      "recruiterModeDesc": "Pick a role type and AI generates a tailored profile summary in seconds.",
+      "recruiterModeCta": "Try it"
     },
     "sections": {
       "featuredProjects": "Featured Projects",

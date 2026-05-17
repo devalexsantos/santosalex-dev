@@ -4,7 +4,7 @@ import {
   Code2,
   FileText,
   Layers,
-  BriefcaseBusiness,
+  Target,
   ArrowUpRight,
 } from "lucide-react";
 import { useTranslations } from "next-intl";
@@ -152,24 +152,40 @@ export function BentoSection({ featuredProject }: BentoSectionProps) {
           </div>
         </BentoCard>
 
-        {/* ── 5. Open to work — wide (2×1) ─────────── */}
-        <BentoCard size="wide" glowColor="accent">
-          <div className="absolute inset-0 bg-gradient-to-br from-emerald-500/8 to-transparent" />
+        {/* ── 5. Recruiter Mode — wide (2×1), clickable ──── */}
+        <BentoCard size="wide" glowColor="primary" className="group cursor-pointer">
+          <div className="absolute inset-0 bg-gradient-to-br from-primary/12 via-violet-500/6 to-transparent opacity-80 transition-opacity duration-300 group-hover:opacity-100" />
           <div className="relative flex h-full flex-col justify-between p-5">
-            <div className="flex items-center gap-2">
-              <span className="relative flex h-2 w-2">
-                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-70" />
-                <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-400" />
+            <div className="flex items-center justify-between">
+              <span className="text-xs font-semibold uppercase tracking-widest text-primary">
+                {t("recruiterModeLabel")}
               </span>
-              <span className="text-xs text-emerald-400 font-medium">{t("openToWork")}</span>
+              <span className="inline-flex items-center gap-1 text-[11px] font-medium text-primary/80 transition-all group-hover:text-primary group-hover:translate-x-0.5">
+                {t("recruiterModeCta")}
+                <ArrowUpRight className="h-3 w-3 transition-transform group-hover:-translate-y-0.5" />
+              </span>
             </div>
-            <div className="flex items-center gap-3">
-              <BriefcaseBusiness className="h-6 w-6 shrink-0 text-emerald-400/60" />
-              <p className="text-sm leading-relaxed text-muted-foreground">
-                {t("openToWorkDesc")}
-              </p>
+            <div className="flex items-start gap-3">
+              <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-primary/15 border border-primary/20 text-primary">
+                <Target className="h-4 w-4" />
+              </div>
+              <div className="min-w-0">
+                <h3 className="text-sm font-semibold leading-snug text-foreground transition-colors group-hover:text-primary">
+                  {t("recruiterModeTitle")}
+                </h3>
+                <p className="mt-0.5 text-xs leading-relaxed text-muted-foreground line-clamp-2">
+                  {t("recruiterModeDesc")}
+                </p>
+              </div>
             </div>
           </div>
+
+          {/* Full-card overlay link */}
+          <Link
+            href="/recruiter"
+            aria-label={t("recruiterModeLabel")}
+            className="absolute inset-0 z-10 rounded-2xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50"
+          />
         </BentoCard>
       </BentoGrid>
     </section>

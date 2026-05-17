@@ -33,9 +33,11 @@
       "buildNotesDesc": "Raciocínio técnico, arquitetura e decisões de produto.",
       "fullstack": "Fullstack",
       "fullstackDesc": "Frontend, backend, banco de dados, deploy — o pacote completo.",
-      "openToWork": "Aberto a projetos",
-      "openToWorkDesc": "Disponível para freelance, contrato ou posição fulltime.",
-      "comingSoon": "Em breve"
+      "comingSoon": "Em breve",
+      "recruiterModeLabel": "Recruiter Mode",
+      "recruiterModeTitle": "Resumo personalizado por vaga",
+      "recruiterModeDesc": "Recrutador escolhe o tipo de vaga e a IA gera um resumo do perfil em segundos.",
+      "recruiterModeCta": "Experimentar"
     },
     "sections": {
       "featuredProjects": "Projetos em Destaque",
