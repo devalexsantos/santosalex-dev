@@ -1,17 +1,13 @@
 "use client";
 
-import { motion } from "framer-motion";
 import {
-  Sparkles,
   Code2,
   FileText,
   Layers,
-  Zap,
   BriefcaseBusiness,
 } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { BentoGrid, BentoCard } from "@/components/ui/bento-grid";
-import { GradientText } from "@/components/ui/gradient-text";
 import { StackBadge } from "@/components/ui/stack-badge";
 import { Badge } from "@/components/ui/badge";
 
@@ -46,32 +42,8 @@ export function BentoSection({ featuredProject }: BentoSectionProps) {
   return (
     <section className="mx-auto max-w-6xl px-4 py-8 sm:px-6">
       <BentoGrid className="lg:auto-rows-[160px]">
-        {/* ── 1. AI Assistant — large (2×2) ────────── */}
-        <BentoCard size="lg" glowColor="accent" className="group cursor-pointer">
-          {/* Gradient background blob */}
-          <div className="absolute inset-0 bg-gradient-to-br from-cyan-500/10 via-violet-500/8 to-transparent opacity-60 transition-opacity duration-300 group-hover:opacity-100" />
-          <div className="relative flex h-full flex-col justify-between p-6">
-            <div className="flex items-start justify-between">
-              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-accent/15 border border-accent/20 text-accent">
-                <Sparkles className="h-5 w-5" />
-              </div>
-              <Badge variant="outline" className="border-accent/25 bg-accent/10 text-[10px] text-accent">
-                {t("comingSoon")}
-              </Badge>
-            </div>
-            <div>
-              <h3 className="mb-1.5 text-lg font-semibold tracking-tight">
-                <GradientText>{t("aiAssistant")}</GradientText>
-              </h3>
-              <p className="text-sm leading-relaxed text-muted-foreground">
-                {t("aiAssistantDesc")}
-              </p>
-            </div>
-          </div>
-        </BentoCard>
-
-        {/* ── 2. Featured Project — tall (1×2) ─────── */}
-        <BentoCard size="md" glowColor="primary" className="group">
+        {/* ── 1. Featured Project — tall (1×3) ─────── */}
+        <BentoCard size="tall" glowColor="primary" className="group">
           <div className="absolute inset-0 bg-gradient-to-b from-primary/8 to-transparent" />
           <div className="relative flex h-full flex-col justify-between p-5">
             <div className="flex items-center justify-between">
@@ -162,8 +134,8 @@ export function BentoSection({ featuredProject }: BentoSectionProps) {
           </div>
         </BentoCard>
 
-        {/* ── 6. Open to work — sm ─────────────────── */}
-        <BentoCard size="sm" glowColor="accent">
+        {/* ── 5. Open to work — wide (2×1) ─────────── */}
+        <BentoCard size="wide" glowColor="accent">
           <div className="absolute inset-0 bg-gradient-to-br from-emerald-500/8 to-transparent" />
           <div className="relative flex h-full flex-col justify-between p-5">
             <div className="flex items-center gap-2">
@@ -173,9 +145,9 @@ export function BentoSection({ featuredProject }: BentoSectionProps) {
               </span>
               <span className="text-xs text-emerald-400 font-medium">{t("openToWork")}</span>
             </div>
-            <div>
-              <BriefcaseBusiness className="mb-2 h-6 w-6 text-emerald-400/60" />
-              <p className="text-xs leading-relaxed text-muted-foreground line-clamp-2">
+            <div className="flex items-center gap-3">
+              <BriefcaseBusiness className="h-6 w-6 shrink-0 text-emerald-400/60" />
+              <p className="text-sm leading-relaxed text-muted-foreground">
                 {t("openToWorkDesc")}
               </p>
             </div>

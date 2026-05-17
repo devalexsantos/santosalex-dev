@@ -26,8 +26,6 @@
     "statusLabel": "Disponível para novos projetos",
     "statusDot": "Aberto a oportunidades",
     "bento": {
-      "aiAssistant": "AI Assistant",
-      "aiAssistantDesc": "Pergunte qualquer coisa sobre minha stack, projetos e forma de trabalho.",
       "featuredProject": "Projeto em Destaque",
       "stackSnapshot": "Stack Principal",
       "stackSnapshotDesc": "As tecnologias que uso no dia a dia para construir produtos reais.",
