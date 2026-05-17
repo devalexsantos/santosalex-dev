@@ -3,15 +3,23 @@
 import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
 
-/** Size variants for individual bento cards */
+/** Size variants for individual bento cards.
+ *
+ * Sizes only "kick in" once the grid actually has multiple columns. On mobile
+ * the grid collapses to 1 column and every card is 1×1 — otherwise a tall
+ * (1×3) card would render as a 540px-high mostly-empty box on phones.
+ *
+ * sm  breakpoint: grid becomes 2 cols → wide/lg take full row, md/tall add height
+ * lg  breakpoint: grid becomes 3 cols → tall card stretches full column (1×3)
+ */
 type BentoSize = "sm" | "md" | "lg" | "wide" | "tall";
 
 const sizeClasses: Record<BentoSize, string> = {
   sm:   "col-span-1 row-span-1",
-  md:   "col-span-1 row-span-2",
-  lg:   "col-span-2 row-span-2",
-  wide: "col-span-2 row-span-1",
-  tall: "col-span-1 row-span-3",
+  md:   "col-span-1 row-span-1 sm:row-span-2",
+  lg:   "col-span-1 row-span-1 sm:col-span-2 sm:row-span-2",
+  wide: "col-span-1 row-span-1 sm:col-span-2",
+  tall: "col-span-1 row-span-1 lg:row-span-3",
 };
 
 interface BentoGridProps {
