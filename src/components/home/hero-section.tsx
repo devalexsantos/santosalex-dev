@@ -234,10 +234,10 @@ function AvatarOrbit({ size, badge }: { size: number; badge: boolean }) {
           initial={{ opacity: 0, y: 8 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.6, duration: 0.5 }}
-          className="absolute -bottom-2 left-1/2 flex -translate-x-1/2 items-center gap-1.5 rounded-full border border-primary/30 bg-background/90 px-3.5 py-1.5 text-xs font-semibold text-foreground/90 backdrop-blur-sm shadow-[0_0_20px_rgba(139,92,246,0.45)]"
+          className="absolute -bottom-2 left-1/2 flex -translate-x-1/2 items-center gap-1.5 whitespace-nowrap rounded-full border border-primary/30 bg-background/90 px-3.5 py-1.5 text-xs font-semibold text-foreground/90 backdrop-blur-sm shadow-[0_0_20px_rgba(139,92,246,0.45)]"
         >
           <Sparkles className="h-3 w-3 text-primary" />
-          Fullstack Developer
+          Fullstack Dev
         </motion.div>
       )}
     </div>
