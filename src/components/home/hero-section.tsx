@@ -190,35 +190,33 @@ function AvatarOrbit({ size, badge }: { size: number; badge: boolean }) {
         className="absolute -inset-8 rounded-full bg-gradient-to-br from-primary/40 via-secondary/30 to-accent/30 blur-3xl"
       />
 
-      {/* Rotating conic-gradient ring */}
+      {/* Rotating conic-gradient ring (rotation isolated — only the ring spins) */}
       <motion.div
         aria-hidden
         animate={{ rotate: 360 }}
         transition={{ duration: 14, repeat: Infinity, ease: "linear" }}
-        className="relative rounded-full"
+        className="absolute inset-0 rounded-full"
         style={{
-          width: size,
-          height: size,
           background:
             "conic-gradient(from 0deg, #8b5cf6 0%, #22d3ee 25%, #a855f7 50%, #ec4899 75%, #8b5cf6 100%)",
         }}
+      />
+
+      {/* Static masked image — sibling of the ring so it doesn't inherit rotate */}
+      <div
+        className="absolute overflow-hidden rounded-full bg-background"
+        style={{ inset: 3, width: inner, height: inner }}
       >
-        {/* Inner masked image */}
-        <div
-          className="absolute overflow-hidden rounded-full bg-background"
-          style={{ inset: 3, width: inner, height: inner }}
-        >
-          <Image
-            src="/avatar.jpeg"
-            alt="Alex Santos"
-            width={inner}
-            height={inner}
-            priority
-            sizes={`${size}px`}
-            className="h-full w-full object-cover"
-          />
-        </div>
-      </motion.div>
+        <Image
+          src="/avatar.jpeg"
+          alt="Alex Santos"
+          width={inner}
+          height={inner}
+          priority
+          sizes={`${size}px`}
+          className="h-full w-full object-cover"
+        />
+      </div>
 
       {/* Small orbiting accent dot */}
       <motion.div
@@ -239,7 +237,7 @@ function AvatarOrbit({ size, badge }: { size: number; badge: boolean }) {
           className="absolute -bottom-2 left-1/2 flex -translate-x-1/2 items-center gap-1.5 rounded-full border border-primary/30 bg-background/90 px-3.5 py-1.5 text-xs font-semibold text-foreground/90 backdrop-blur-sm shadow-[0_0_20px_rgba(139,92,246,0.45)]"
         >
           <Sparkles className="h-3 w-3 text-primary" />
-          AI Engineer
+          Fullstack Developer
         </motion.div>
       )}
     </div>
