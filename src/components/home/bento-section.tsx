@@ -5,8 +5,10 @@ import {
   FileText,
   Layers,
   BriefcaseBusiness,
+  ArrowUpRight,
 } from "lucide-react";
 import { useTranslations } from "next-intl";
+import { Link } from "@/i18n/navigation";
 import { BentoGrid, BentoCard } from "@/components/ui/bento-grid";
 import { StackBadge } from "@/components/ui/stack-badge";
 import { Badge } from "@/components/ui/badge";
@@ -43,7 +45,11 @@ export function BentoSection({ featuredProject }: BentoSectionProps) {
     <section className="mx-auto max-w-6xl px-4 py-8 sm:px-6">
       <BentoGrid className="lg:auto-rows-[160px]">
         {/* ── 1. Featured Project — tall (1×3) ─────── */}
-        <BentoCard size="tall" glowColor="primary" className="group">
+        <BentoCard
+          size="tall"
+          glowColor="primary"
+          className={featuredProject ? "group cursor-pointer" : "group"}
+        >
           <div className="absolute inset-0 bg-gradient-to-b from-primary/8 to-transparent" />
           <div className="relative flex h-full flex-col justify-between p-5">
             <div className="flex items-center justify-between">
@@ -65,8 +71,9 @@ export function BentoSection({ featuredProject }: BentoSectionProps) {
                 <p className="text-xs uppercase tracking-widest text-muted-foreground/60 mb-1">
                   {featuredProject.category}
                 </p>
-                <h3 className="text-xl font-bold leading-tight tracking-tight mb-2">
+                <h3 className="text-xl font-bold leading-tight tracking-tight mb-2 flex items-start gap-1.5 group-hover:text-primary transition-colors">
                   {featuredProject.title}
+                  <ArrowUpRight className="h-4 w-4 shrink-0 mt-1 opacity-60 transition-all group-hover:opacity-100 group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
                 </h3>
                 <p className="text-xs leading-relaxed text-muted-foreground line-clamp-3">
                   {featuredProject.shortDescription}
@@ -80,6 +87,17 @@ export function BentoSection({ featuredProject }: BentoSectionProps) {
               <div className="h-full w-4/5 rounded-full bg-gradient-to-r from-primary/60 to-accent/60" />
             </div>
           </div>
+
+          {/* Full-card clickable overlay — sits above content but doesn't
+              interfere with hover-on-content because pointer events are on
+              the Link itself. Renders only when there is a project. */}
+          {featuredProject && (
+            <Link
+              href={`/projects/${featuredProject.slug}`}
+              aria-label={featuredProject.title}
+              className="absolute inset-0 z-10 rounded-2xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50"
+            />
+          )}
         </BentoCard>
 
         {/* ── 3. Stack Snapshot — wide (2×1) ────────── */}
