@@ -183,10 +183,13 @@ function MarkdownContent({ content }: { content: string }) {
       <ReactMarkdown
         remarkPlugins={[remarkGfm]}
         components={{
+          // The page already owns the only <h1> (the post title). Demote any
+          // `# heading` written in the post body to <h2> so the page keeps a
+          // single h1 (SEO + a11y).
           h1: ({ children }) => (
-            <h1 className="mb-6 mt-10 text-3xl font-black leading-tight tracking-tight text-foreground first:mt-0">
+            <h2 className="mb-4 mt-10 text-2xl font-bold leading-snug text-foreground first:mt-0">
               {children}
-            </h1>
+            </h2>
           ),
           h2: ({ children }) => (
             <h2 className="mb-4 mt-10 text-xl font-bold leading-snug text-foreground">

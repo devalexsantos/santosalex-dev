@@ -9,6 +9,9 @@ interface SectionHeaderProps {
   className?: string;
   /** Use gradient text for the title */
   titleGradient?: boolean;
+  /** Heading level for the title. Pass "h1" on the top-level header of a
+   *  page that lacks an explicit h1; defaults to "h2" for inner sections. */
+  as?: "h1" | "h2";
 }
 
 export function SectionHeader({
@@ -18,7 +21,9 @@ export function SectionHeader({
   align = "center",
   className,
   titleGradient = false,
+  as = "h2",
 }: SectionHeaderProps) {
+  const HeadingTag = as;
   return (
     <div
       className={cn(
@@ -33,9 +38,9 @@ export function SectionHeader({
           {eyebrow}
         </span>
       )}
-      <h2 className="text-3xl font-bold leading-tight tracking-tight sm:text-4xl lg:text-5xl">
+      <HeadingTag className="text-3xl font-bold leading-tight tracking-tight sm:text-4xl lg:text-5xl">
         {titleGradient ? <GradientText>{title}</GradientText> : title}
-      </h2>
+      </HeadingTag>
       {description && (
         <p
           className={cn(

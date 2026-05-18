@@ -510,7 +510,7 @@ export default async function ProjectDetailPage({
       {relatedProjects.length > 0 && (
         <aside className="mt-24 border-t border-white/[0.06] pt-16">
           <SectionHeader
-            eyebrow={t("sections.relatedProjects")}
+            eyebrow={t("sections.relatedProjectsEyebrow")}
             title={t("sections.relatedProjects")}
             align="start"
             className="mb-8"

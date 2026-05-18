@@ -41,8 +41,11 @@
     },
     "sections": {
       "featuredProjects": "Projetos em Destaque",
-      "featuredProjectsDesc": "Produtos reais que construí do zero — com stack moderna, arquitetura pensada e mentalidade de produto."
-    }
+      "featuredProjectsDesc": "Produtos reais que construí do zero — com stack moderna, arquitetura pensada e mentalidade de produto.",
+      "viewAll": "Ver todos",
+      "empty": "Projetos em breve"
+    },
+    "heroBadge": "Fullstack Dev"
   },
   "projects": {
     "eyebrow": "Portfolio",
@@ -175,7 +178,8 @@
       "askAiSoon": "Disponível na Fase 5",
       "relatedProjects": "Outros projetos",
       "viewDemo": "Ver demo",
-      "viewSource": "Ver código"
+      "viewSource": "Ver código",
+      "relatedProjectsEyebrow": "Relacionados"
     }
   },
   "admin": {

@@ -41,8 +41,11 @@
     },
     "sections": {
       "featuredProjects": "Featured Projects",
-      "featuredProjectsDesc": "Real products I built from scratch — modern stack, thoughtful architecture and product mindset."
-    }
+      "featuredProjectsDesc": "Real products I built from scratch — modern stack, thoughtful architecture and product mindset.",
+      "viewAll": "View all",
+      "empty": "Projects coming soon"
+    },
+    "heroBadge": "Fullstack Dev"
   },
   "projects": {
     "eyebrow": "Portfolio",
@@ -175,7 +178,8 @@
       "askAiSoon": "Available in Phase 5",
       "relatedProjects": "Other projects",
       "viewDemo": "View demo",
-      "viewSource": "View source"
+      "viewSource": "View source",
+      "relatedProjectsEyebrow": "Related"
     }
   },
   "chat": {

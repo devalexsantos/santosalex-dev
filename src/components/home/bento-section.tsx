@@ -121,20 +121,27 @@ export function BentoSection({ featuredProject }: BentoSectionProps) {
           </div>
         </BentoCard>
 
-        {/* ── 4. Build Notes — sm ───────────────────── */}
+        {/* ── 4. Build Notes — sm, clickable ────────── */}
         <BentoCard size="sm" glowColor="primary" className="group cursor-pointer">
           <div className="absolute inset-0 bg-gradient-to-br from-primary/6 to-transparent" />
           <div className="relative flex h-full flex-col justify-between p-5">
-            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary/15 text-primary">
+            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary/15 text-primary transition-transform group-hover:scale-105">
               <FileText className="h-4 w-4" />
             </div>
             <div>
-              <h3 className="mb-1 text-sm font-semibold">{t("buildNotes")}</h3>
+              <h3 className="mb-1 text-sm font-semibold transition-colors group-hover:text-primary">
+                {t("buildNotes")}
+              </h3>
               <p className="text-xs leading-relaxed text-muted-foreground line-clamp-2">
                 {t("buildNotesDesc")}
               </p>
             </div>
           </div>
+          <Link
+            href="/build-notes"
+            aria-label={t("buildNotes")}
+            className="absolute inset-0 z-10 rounded-2xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50"
+          />
         </BentoCard>
 
         {/* ── 5. Fullstack — sm ─────────────────────── */}

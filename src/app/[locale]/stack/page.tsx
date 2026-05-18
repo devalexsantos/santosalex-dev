@@ -163,6 +163,7 @@ export default async function StackPage({
     <div className="mx-auto max-w-6xl px-4 py-16 sm:px-6 sm:py-24">
       {/* Hero */}
       <SectionHeader
+        as="h1"
         eyebrow={t("eyebrow")}
         title={t("title")}
         description={t("description")}

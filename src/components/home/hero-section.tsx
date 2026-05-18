@@ -71,7 +71,7 @@ export function HeroSection({
             animate="visible"
             className="lg:hidden"
           >
-            <AvatarOrbit size={108} badge={false} />
+            <AvatarOrbit size={108} badgeLabel={null} />
           </motion.div>
 
           {/* Headline */}
@@ -138,12 +138,15 @@ export function HeroSection({
             </Link>
           </motion.div>
 
-          {/* Scroll hint — decorative, desktop-only (touch UI doesn't need it) */}
+          {/* Scroll hint — decorative, desktop-only (touch UI doesn't need it).
+              Text label is gone in favor of an aria-label so the cue stays
+              accessible without forcing an English string on pt-BR users. */}
           <motion.div
             custom={0.4}
             variants={fadeUp}
             initial="hidden"
             animate="visible"
+            aria-hidden
             className="mt-4 hidden items-center gap-3 text-xs text-muted-foreground/50 sm:flex"
           >
             <div className="flex h-5 w-3 items-start justify-center rounded-full border border-white/10 p-0.5">
@@ -153,7 +156,6 @@ export function HeroSection({
                 transition={{ duration: 1.6, repeat: Infinity, ease: "easeInOut" }}
               />
             </div>
-            <span>scroll</span>
           </motion.div>
         </div>
 
@@ -165,7 +167,7 @@ export function HeroSection({
           animate="visible"
           className="hidden lg:flex lg:justify-center"
         >
-          <AvatarOrbit size={288} badge />
+          <AvatarOrbit size={288} badgeLabel={t("heroBadge")} />
         </motion.div>
       </div>
     </section>
@@ -177,7 +179,14 @@ export function HeroSection({
  * a pulsing backdrop glow and a small orbiting accent dot. The effect reads
  * as "AI engineer" without being kitschy.
  */
-function AvatarOrbit({ size, badge }: { size: number; badge: boolean }) {
+function AvatarOrbit({
+  size,
+  badgeLabel,
+}: {
+  size: number;
+  /** When set, renders the floating badge under the avatar with this text. */
+  badgeLabel: string | null;
+}) {
   const inner = size - 6; // 3px ring on each side
 
   return (
@@ -228,8 +237,8 @@ function AvatarOrbit({ size, badge }: { size: number; badge: boolean }) {
         <div className="absolute left-1/2 -top-1 h-2 w-2 -translate-x-1/2 rounded-full bg-accent shadow-[0_0_14px_rgba(34,211,238,0.8)]" />
       </motion.div>
 
-      {/* Floating "AI Engineer" badge (only on the large desktop variant) */}
-      {badge && (
+      {/* Floating badge (only on the large desktop variant) */}
+      {badgeLabel && (
         <motion.div
           initial={{ opacity: 0, y: 8 }}
           animate={{ opacity: 1, y: 0 }}
@@ -237,7 +246,7 @@ function AvatarOrbit({ size, badge }: { size: number; badge: boolean }) {
           className="absolute -bottom-2 left-1/2 flex -translate-x-1/2 items-center gap-1.5 whitespace-nowrap rounded-full border border-primary/30 bg-background/90 px-3.5 py-1.5 text-xs font-semibold text-foreground/90 backdrop-blur-sm shadow-[0_0_20px_rgba(139,92,246,0.45)]"
         >
           <Sparkles className="h-3 w-3 text-primary" />
-          Fullstack Dev
+          {badgeLabel}
         </motion.div>
       )}
     </div>

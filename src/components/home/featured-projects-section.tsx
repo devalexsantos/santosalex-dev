@@ -66,14 +66,14 @@ export function FeaturedProjectsSection({ projects }: FeaturedProjectsSectionPro
           disabled
           aria-disabled="true"
         >
-          Ver todos
+          {t("viewAll")}
           <ArrowRight className="h-3.5 w-3.5" />
         </Button>
       </motion.div>
 
       {projects.length === 0 ? (
         <div className="flex h-40 items-center justify-center rounded-2xl border border-dashed border-white/[0.08] text-sm text-muted-foreground">
-          Projetos em breve
+          {t("empty")}
         </div>
       ) : (
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
