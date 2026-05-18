@@ -31,10 +31,10 @@ export function HeroSection({
   };
 
   return (
-    <section className="relative mx-auto max-w-6xl px-4 pb-20 pt-36 sm:px-6 sm:pt-44">
-      <div className="grid items-center gap-12 lg:grid-cols-[1fr_320px]">
+    <section className="relative mx-auto max-w-6xl px-4 pb-12 pt-24 sm:px-6 sm:pb-20 sm:pt-44">
+      <div className="grid items-center gap-8 sm:gap-12 lg:grid-cols-[1fr_320px]">
         {/* ── Left column: content ─────────────────────────────────── */}
-        <div className="flex flex-col items-start gap-7">
+        <div className="flex flex-col items-start gap-5 sm:gap-7">
           {/* Status pill */}
           <motion.div
             custom={0}
@@ -71,7 +71,7 @@ export function HeroSection({
             animate="visible"
             className="lg:hidden"
           >
-            <AvatarOrbit size={140} badge={false} />
+            <AvatarOrbit size={108} badge={false} />
           </motion.div>
 
           {/* Headline */}
@@ -80,7 +80,7 @@ export function HeroSection({
             variants={fadeUp}
             initial="hidden"
             animate="visible"
-            className="text-4xl font-bold leading-[1.12] tracking-tight sm:text-5xl lg:text-[3.25rem] xl:text-6xl"
+            className="text-3xl font-bold leading-[1.15] tracking-tight sm:text-5xl sm:leading-[1.12] lg:text-[3.25rem] xl:text-6xl"
           >
             {t("title")}{" "}
             <br className="hidden sm:block" />
@@ -93,7 +93,7 @@ export function HeroSection({
             variants={fadeUp}
             initial="hidden"
             animate="visible"
-            className="max-w-2xl text-base leading-relaxed text-muted-foreground sm:text-lg"
+            className="max-w-2xl text-sm leading-relaxed text-muted-foreground sm:text-lg"
           >
             {taglineOverride?.trim() || t("subtitle")}
           </motion.p>
@@ -138,13 +138,13 @@ export function HeroSection({
             </Link>
           </motion.div>
 
-          {/* Scroll hint — decorative */}
+          {/* Scroll hint — decorative, desktop-only (touch UI doesn't need it) */}
           <motion.div
             custom={0.4}
             variants={fadeUp}
             initial="hidden"
             animate="visible"
-            className="mt-4 flex items-center gap-3 text-xs text-muted-foreground/50"
+            className="mt-4 hidden items-center gap-3 text-xs text-muted-foreground/50 sm:flex"
           >
             <div className="flex h-5 w-3 items-start justify-center rounded-full border border-white/10 p-0.5">
               <motion.div
