@@ -457,7 +457,7 @@ function ChatPanel({
   );
   const [input, setInput] = useState("");
   const [isStreaming, setIsStreaming] = useState(false);
-  const bottomRef = useRef<HTMLDivElement>(null);
+  const messagesRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const abortRef = useRef<AbortController | null>(null);
   const sessionId = useRef(getOrCreateSessionId());
@@ -468,9 +468,17 @@ function ChatPanel({
     saveHistory(locale, stable);
   }, [messages, locale]);
 
-  // Auto-scroll to bottom
+  // Auto-scroll the message list container to its bottom. We scroll the
+  // container directly (scrollTop = scrollHeight) instead of using
+  // bottomRef.scrollIntoView — the latter walks every ancestor and ends up
+  // scrolling the whole page on the inline variant (Project Intelligence
+  // sits above "Related projects" in the case study). Skipping the effect
+  // when there are no real messages also prevents an initial-mount page jump.
   useEffect(() => {
-    bottomRef.current?.scrollIntoView({ behavior: "smooth" });
+    if (messages.length === 0) return;
+    const el = messagesRef.current;
+    if (!el) return;
+    el.scrollTop = el.scrollHeight;
   }, [messages]);
 
   const sendMessage = useCallback(
@@ -632,8 +640,9 @@ function ChatPanel({
         </div>
       )}
 
-      {/* Message list */}
-      <div className="flex-1 overflow-y-auto px-5 py-5">
+      {/* Message list — scrolled programmatically via messagesRef so chat
+          auto-scroll never bubbles up to the document. */}
+      <div ref={messagesRef} className="flex-1 overflow-y-auto px-5 py-5">
         {isEmpty ? (
           <div className="flex h-full flex-col items-center justify-center gap-4 text-center">
             <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-primary/30 to-secondary/20">
@@ -680,7 +689,6 @@ function ChatPanel({
             )}
           </div>
         )}
-        <div ref={bottomRef} />
       </div>
 
       {/* Composer */}
