@@ -118,19 +118,18 @@ CHAT_MINUTE_LIMIT="10"
 
 EasyPanel constrói o `Dockerfile`. O container final roda `node server.js` na porta `3000`. Aponte o domínio do EasyPanel para essa porta — o Caddy/Traefik dele resolve TLS automaticamente.
 
-### 4. Pós-deploy (uma vez)
+### 4. Migrations e seed
 
-Dentro do container `app`:
+**Migrations: automáticas.** O entrypoint do container roda `prisma migrate deploy` a cada startup (idempotente — Prisma ignora migrations já aplicadas). Cada redeploy aplica novas migrations antes de aceitar tráfego.
+
+**Seed inicial (opcional, uma vez):** se quiser popular o site com os projetos de exemplo + tecnologias + 2 build notes, rode do seu laptop apontando pro DB de produção:
 
 ```bash
-# 4.1 migrar o schema
-npx prisma migrate deploy
-
-# 4.2 (opcional) seed inicial com projetos / tecnologias
-npx prisma db seed
+DATABASE_URL="postgresql://portfolio:senha-forte@db-host:5432/portfolio" \
+  npx prisma db seed
 ```
 
-O seed (`prisma/seed.ts`) cria projetos de exemplo, tecnologias e 2 build notes. Depois é só logar em `/admin/login` com `ADMIN_PASSWORD`, editar Profile / Projects, e o RAG é re-indexado automaticamente em cada save.
+Depois é só logar em `/admin/login` com `ADMIN_PASSWORD`, editar Profile / Projects, e o RAG é re-indexado automaticamente em cada save.
 
 ### 5. Healthcheck (recomendado no EasyPanel)
 
