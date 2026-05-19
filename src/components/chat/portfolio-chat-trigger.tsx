@@ -46,7 +46,13 @@ export function PortfolioChatTrigger() {
         type="button"
         onClick={() => setOpen(true)}
         aria-label={t("title")}
-        className="fixed bottom-6 right-6 z-40 flex items-center gap-2 rounded-2xl bg-gradient-to-br from-primary to-secondary px-4 py-3 text-sm font-semibold text-white shadow-[0_0_30px_rgba(139,92,246,0.4)] transition-all duration-300 hover:shadow-[0_0_40px_rgba(139,92,246,0.6)] hover:scale-105 active:scale-95 sm:bottom-8 sm:right-8"
+        // bottom uses env(safe-area-inset-bottom) so iOS Safari's bottom bar
+        // doesn't overlap the FAB on phones.
+        style={{
+          bottom: "calc(1.5rem + env(safe-area-inset-bottom, 0px))",
+          right: "calc(1.5rem + env(safe-area-inset-right, 0px))",
+        }}
+        className="fixed z-40 flex items-center gap-2 rounded-2xl bg-gradient-to-br from-primary to-secondary px-4 py-3 text-sm font-semibold text-white shadow-[0_0_30px_rgba(139,92,246,0.4)] transition-all duration-300 hover:shadow-[0_0_40px_rgba(139,92,246,0.6)] hover:scale-105 active:scale-95"
       >
         <Sparkles className="h-4 w-4" />
         <span className="hidden sm:block">{t("title")}</span>

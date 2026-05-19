@@ -1,5 +1,6 @@
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
+import Image from "next/image";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { ExternalLink, Sparkles } from "lucide-react";
 
@@ -255,15 +256,19 @@ export default async function ProjectDetailPage({
       {/* ── 1. Hero ──────────────────────────────────────────────────────── */}
       <header className="mb-16">
         {/* Cover placeholder — gradient block with initials when no coverImage */}
-        <div className="mb-8 overflow-hidden rounded-2xl border border-white/[0.07]">
-          {project.coverImage ? (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img
+        {project.coverImage ? (
+          <div className="relative mb-8 h-56 overflow-hidden rounded-2xl border border-white/[0.07] sm:h-72">
+            <Image
               src={project.coverImage}
               alt={project.title}
-              className="h-56 w-full object-cover sm:h-72"
+              fill
+              sizes="(min-width: 768px) 768px, 100vw"
+              priority
+              className="object-cover"
             />
-          ) : (
+          </div>
+        ) : (
+          <div className="mb-8 overflow-hidden rounded-2xl border border-white/[0.07]">
             <div className="flex h-48 items-center justify-center bg-gradient-to-br from-primary/20 via-secondary/10 to-accent/10 sm:h-64">
               <span className="text-5xl font-black tracking-tight text-white/20 select-none">
                 {project.title
@@ -274,8 +279,8 @@ export default async function ProjectDetailPage({
                   .toUpperCase()}
               </span>
             </div>
-          )}
-        </div>
+          </div>
+        )}
 
         {/* Badges */}
         <div className="mb-4 flex flex-wrap items-center gap-2">

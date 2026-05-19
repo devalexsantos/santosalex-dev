@@ -194,7 +194,7 @@ export default async function HowIBuildPage({
               <GradientText>{t("cta")}</GradientText>
             </p>
             <p className="mb-6 text-sm text-muted-foreground">
-              {t("description")}
+              {t("ctaBody")}
             </p>
             <Link
               href="/contact"

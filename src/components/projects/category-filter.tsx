@@ -33,9 +33,17 @@ export function CategoryFilter({ options, paramName = "category" }: CategoryFilt
 
   return (
     <div
-      className="flex flex-wrap gap-2"
       role="group"
       aria-label="Filter by category"
+      className={cn(
+        // Mobile: single-row horizontal scroll, edge-to-edge via -mx-4 trick.
+        // The page container has px-4, so undoing it here lets the chips scroll
+        // flush with the viewport edge without revealing a cropped first chip.
+        "-mx-4 flex gap-2 overflow-x-auto px-4 pb-2",
+        "[scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden",
+        // sm+: wrap as before (no scroll, no negative margin).
+        "sm:mx-0 sm:flex-wrap sm:px-0 sm:pb-0",
+      )}
     >
       {options.map(({ value, label }) => {
         const isActive = current === value || (value === "all" && current === "all");
@@ -44,7 +52,7 @@ export function CategoryFilter({ options, paramName = "category" }: CategoryFilt
             key={value}
             onClick={() => handleSelect(value)}
             className={cn(
-              "rounded-full border px-4 py-1.5 text-sm font-medium transition-all duration-200",
+              "shrink-0 rounded-full border px-4 py-1.5 text-sm font-medium transition-all duration-200",
               "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50",
               isActive
                 ? "border-primary/50 bg-primary/15 text-primary shadow-[0_0_12px_rgba(139,92,246,0.2)]"

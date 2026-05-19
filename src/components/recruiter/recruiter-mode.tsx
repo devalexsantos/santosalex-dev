@@ -206,6 +206,7 @@ export function RecruiterMode() {
                   "group relative overflow-hidden rounded-2xl border border-white/[0.07] bg-white/[0.025] p-5 text-left",
                   "transition-all duration-300 hover:border-primary/30 hover:bg-primary/[0.04]",
                   "hover:shadow-[0_0_0_1px_rgba(139,92,246,0.20),0_0_25px_rgba(139,92,246,0.10)]",
+                  "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 focus-visible:ring-offset-2 focus-visible:ring-offset-background",
                   "disabled:cursor-not-allowed disabled:opacity-50",
                 )}
               >
