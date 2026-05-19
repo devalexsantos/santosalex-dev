@@ -89,7 +89,7 @@ export function ProjectCard({
       <div className="h-px w-full bg-gradient-to-r from-transparent via-primary/40 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
 
       <div className="flex flex-1 flex-col gap-4 p-6">
-        {/* Header */}
+        {/* Header (decorative — single tab stop is the overlay link below) */}
         <div className="flex items-start justify-between gap-3">
           <div className="flex flex-wrap items-center gap-2">
             <Badge
@@ -108,22 +108,19 @@ export function ProjectCard({
               <span className="text-xs text-muted-foreground">{year}</span>
             )}
           </div>
-          <Link
-            href={`/projects/${slug}`}
-            className="shrink-0 rounded-lg p-1.5 text-muted-foreground opacity-0 transition-all duration-200 hover:bg-white/8 hover:text-foreground group-hover:opacity-100"
-            aria-label={`View ${title}`}
+          <span
+            aria-hidden
+            className="shrink-0 rounded-lg p-1.5 text-muted-foreground opacity-0 transition-all duration-200 group-hover:opacity-100 group-hover:text-foreground"
           >
             <ArrowUpRight className="h-4 w-4" />
-          </Link>
+          </span>
         </div>
 
         {/* Content */}
         <div className="flex-1">
-          <Link href={`/projects/${slug}`} className="block">
-            <h3 className="mb-2 text-lg font-semibold leading-snug tracking-tight transition-colors group-hover:text-primary">
-              {title}
-            </h3>
-          </Link>
+          <h3 className="mb-2 text-lg font-semibold leading-snug tracking-tight transition-colors group-hover:text-primary">
+            {title}
+          </h3>
           <p className="text-sm leading-relaxed text-muted-foreground line-clamp-3">
             {shortDescription}
           </p>
@@ -147,15 +144,16 @@ export function ProjectCard({
           </div>
         )}
 
-        {/* Footer links */}
+        {/* Footer links — sit ABOVE the overlay (z-20) so demo/github clicks
+            beat the case-study navigation. */}
         {(demoUrl || githubUrl) && (
-          <div className="flex items-center gap-3 border-t border-white/[0.06] pt-4">
+          <div className="relative z-20 flex items-center gap-3 border-t border-white/[0.06] pt-4">
             {demoUrl && (
               <a
                 href={demoUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex items-center gap-1.5 text-xs text-muted-foreground transition-colors hover:text-foreground"
+                className="flex items-center gap-1.5 rounded-md text-xs text-muted-foreground transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50"
               >
                 <ExternalLink className="h-3.5 w-3.5" />
                 Demo
@@ -166,7 +164,7 @@ export function ProjectCard({
                 href={githubUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex items-center gap-1.5 text-xs text-muted-foreground transition-colors hover:text-foreground"
+                className="flex items-center gap-1.5 rounded-md text-xs text-muted-foreground transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50"
               >
                 <GitFork className="h-3.5 w-3.5" />
                 GitHub
@@ -175,6 +173,14 @@ export function ProjectCard({
           </div>
         )}
       </div>
+
+      {/* Full-card overlay link — single tab stop covering the whole card.
+          Lower z than the demo/github footer so external links still work. */}
+      <Link
+        href={`/projects/${slug}`}
+        aria-label={title}
+        className="absolute inset-0 z-10 rounded-2xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50"
+      />
     </motion.article>
   );
 }

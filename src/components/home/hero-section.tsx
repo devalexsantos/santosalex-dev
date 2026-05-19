@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { motion } from "framer-motion";
+import { motion, useReducedMotion } from "framer-motion";
 import { Sparkles, ArrowRight, BookOpen } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
@@ -20,6 +20,7 @@ export function HeroSection({
   availabilityOverride,
 }: HeroSectionProps = {}) {
   const t = useTranslations("home");
+  const prefersReducedMotion = useReducedMotion();
 
   const fadeUp = {
     hidden: { opacity: 0, y: 20 },
@@ -152,8 +153,12 @@ export function HeroSection({
             <div className="flex h-5 w-3 items-start justify-center rounded-full border border-white/10 p-0.5">
               <motion.div
                 className="h-1 w-0.5 rounded-full bg-muted-foreground/40"
-                animate={{ y: [0, 6, 0] }}
-                transition={{ duration: 1.6, repeat: Infinity, ease: "easeInOut" }}
+                animate={prefersReducedMotion ? undefined : { y: [0, 6, 0] }}
+                transition={
+                  prefersReducedMotion
+                    ? undefined
+                    : { duration: 1.6, repeat: Infinity, ease: "easeInOut" }
+                }
               />
             </div>
           </motion.div>

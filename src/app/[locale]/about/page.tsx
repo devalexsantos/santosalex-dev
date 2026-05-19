@@ -183,7 +183,7 @@ export default async function AboutPage({
             align="start"
             className="mb-8"
           />
-          <ol className="relative ml-3 space-y-8 border-l border-white/[0.08] pl-8">
+          <ol className="relative ml-4 space-y-8 border-l border-white/[0.08] pl-9">
             {experiences.map((exp) => (
               <li key={exp.id} className="relative">
                 <span

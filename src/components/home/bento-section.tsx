@@ -6,6 +6,7 @@ import {
   Layers,
   Target,
   ArrowUpRight,
+  FolderGit2,
 } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
@@ -40,33 +41,29 @@ interface BentoSectionProps {
 
 export function BentoSection({ featuredProject }: BentoSectionProps) {
   const t = useTranslations("home.bento");
+  const tSections = useTranslations("home.sections");
 
   return (
     <section className="mx-auto max-w-6xl px-4 py-8 sm:px-6">
       <BentoGrid className="lg:auto-rows-[160px]">
         {/* ── 1. Featured Project — tall (1×3) ─────── */}
-        <BentoCard
-          size="tall"
-          glowColor="primary"
-          className={featuredProject ? "group cursor-pointer" : "group"}
-        >
+        <BentoCard size="tall" glowColor="primary" className="group cursor-pointer">
           <div className="absolute inset-0 bg-gradient-to-b from-primary/8 to-transparent" />
-          <div className="relative flex h-full flex-col justify-between p-5">
-            <div className="flex items-center justify-between">
-              <span className="text-xs font-semibold uppercase tracking-widest text-primary">
-                {t("featuredProject")}
-              </span>
-              {featuredProject && (
+
+          {featuredProject ? (
+            <div className="relative flex h-full flex-col justify-between p-5">
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-semibold uppercase tracking-widest text-primary">
+                  {t("featuredProject")}
+                </span>
                 <Badge
                   variant="outline"
                   className="border-emerald-500/30 bg-emerald-500/10 text-[10px] text-emerald-400"
                 >
                   {featuredProject.status === "shipped" ? "Shipped" : featuredProject.status}
                 </Badge>
-              )}
-            </div>
+              </div>
 
-            {featuredProject ? (
               <div>
                 <p className="text-xs uppercase tracking-widest text-muted-foreground/60 mb-1">
                   {featuredProject.category}
@@ -79,25 +76,38 @@ export function BentoSection({ featuredProject }: BentoSectionProps) {
                   {featuredProject.shortDescription}
                 </p>
               </div>
-            ) : (
-              <div className="text-sm text-muted-foreground">{t("comingSoon")}</div>
-            )}
 
-            <div className="h-1 w-full overflow-hidden rounded-full bg-white/5">
-              <div className="h-full w-4/5 rounded-full bg-gradient-to-r from-primary/60 to-accent/60" />
+              <div className="h-1 w-full overflow-hidden rounded-full bg-white/5">
+                <div className="h-full w-4/5 rounded-full bg-gradient-to-r from-primary/60 to-accent/60" />
+              </div>
             </div>
-          </div>
-
-          {/* Full-card clickable overlay — sits above content but doesn't
-              interfere with hover-on-content because pointer events are on
-              the Link itself. Renders only when there is a project. */}
-          {featuredProject && (
-            <Link
-              href={`/projects/${featuredProject.slug}`}
-              aria-label={featuredProject.title}
-              className="absolute inset-0 z-10 rounded-2xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50"
-            />
+          ) : (
+            // Empty state — fills the tall card height with a centered icon
+            // + CTA so the 480px column doesn't read as broken when no
+            // featuredProject is set yet.
+            <div className="relative flex h-full flex-col items-center justify-center gap-4 p-5 text-center">
+              <span className="self-start text-xs font-semibold uppercase tracking-widest text-primary">
+                {t("featuredProject")}
+              </span>
+              <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-primary/15 text-primary">
+                <FolderGit2 className="h-6 w-6" />
+              </div>
+              <p className="text-sm font-medium text-foreground/80">{t("comingSoon")}</p>
+              <span className="inline-flex items-center gap-1 text-xs text-primary/80 transition-all group-hover:text-primary group-hover:translate-x-0.5">
+                {tSections("viewAll")}
+                <ArrowUpRight className="h-3 w-3 transition-transform group-hover:-translate-y-0.5" />
+              </span>
+            </div>
           )}
+
+          {/* Full-card clickable overlay — when there is a featured project
+              it goes to that case study; otherwise it sends the user to the
+              full project list (so the card still serves a purpose when empty). */}
+          <Link
+            href={featuredProject ? `/projects/${featuredProject.slug}` : "/projects"}
+            aria-label={featuredProject ? featuredProject.title : tSections("viewAll")}
+            className="absolute inset-0 z-10 rounded-2xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50"
+          />
         </BentoCard>
 
         {/* ── 3. Stack Snapshot — wide (2×1) ────────── */}

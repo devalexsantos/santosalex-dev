@@ -124,17 +124,21 @@ async function getSiblingPost(
 async function getRelatedPosts(
   category: PostCategory,
   currentId: string,
-  translationGroupId: string,
+  translationGroupId: string | null | undefined,
   locale: string
 ) {
+  // Guard: a bypassed/empty translationGroupId (e.g. "") would otherwise
+  // become `{ not: "" }`, matching every post in the category. Only apply
+  // the sibling-group exclusion when we actually have a non-empty id.
+  const hasGroup = !!translationGroupId && translationGroupId.length > 0;
+
   return prisma.post.findMany({
     where: {
       locale,
       category,
       published: true,
       id: { not: currentId },
-      // Exclude both locale versions of the same translationGroup
-      translationGroupId: { not: translationGroupId },
+      ...(hasGroup ? { translationGroupId: { not: translationGroupId } } : {}),
     },
     orderBy: { publishedAt: "desc" },
     take: 3,
