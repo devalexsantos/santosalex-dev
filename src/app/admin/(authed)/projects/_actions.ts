@@ -106,7 +106,7 @@ export async function saveProject(
             slug: data.slug,
             title: data.title,
             shortDescription: data.shortDescription,
-            category: data.category,
+            categories: data.categories,
             status: data.status,
             translationStatus,
             year: data.year ?? null,
@@ -181,7 +181,7 @@ export async function saveProject(
             slug: data.slug,
             title: data.title,
             shortDescription: data.shortDescription,
-            category: data.category,
+            categories: data.categories,
             status: data.status,
             translationStatus: "draft", // always draft on creation
             year: data.year ?? null,

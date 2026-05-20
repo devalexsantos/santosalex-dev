@@ -974,14 +974,14 @@ async function main() {
   // ── Projects ─────────────────────────────────────────────────────────────
   console.log("Upserting projects...");
   for (const p of PROJECTS) {
-    const { techSlugs, ...projectData } = p;
+    const { techSlugs, category, ...projectData } = p;
 
     const project = await prisma.project.upsert({
       where: { slug: p.slug },
       update: {
         title: p.title,
         shortDescription: p.shortDescription,
-        category: p.category,
+        categories: [category],
         status: p.status,
         year: p.year,
         featured: p.featured,
@@ -992,7 +992,7 @@ async function main() {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         challenges: (p as any).challenges ?? null,
       },
-      create: projectData,
+      create: { ...projectData, categories: [category] },
     });
 
     // Upsert ProjectStack entries

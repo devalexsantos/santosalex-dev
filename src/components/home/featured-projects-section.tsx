@@ -28,7 +28,7 @@ interface ProjectData {
   title: string;
   shortDescription: string;
   status: ProjectStatus;
-  category: ProjectCategory;
+  categories: ProjectCategory[];
   year: number | null;
   coverImage: string | null;
   demoUrl: string | null;
@@ -90,7 +90,7 @@ export function FeaturedProjectsSection({ projects }: FeaturedProjectsSectionPro
                 title={project.title}
                 shortDescription={project.shortDescription}
                 status={project.status}
-                category={project.category}
+                categories={project.categories}
                 year={project.year}
                 coverImage={project.coverImage}
                 demoUrl={project.demoUrl}

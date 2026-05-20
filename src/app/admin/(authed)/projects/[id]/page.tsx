@@ -70,7 +70,7 @@ export default async function EditProjectPage({
     slug: project.slug,
     title: project.title,
     shortDescription: project.shortDescription,
-    category: project.category as ProjectFormValues["category"],
+    categories: project.categories as ProjectFormValues["categories"],
     status: project.status as ProjectFormValues["status"],
     translationStatus: project.translationStatus as ProjectFormValues["translationStatus"],
     markReviewed: false,

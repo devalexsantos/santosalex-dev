@@ -45,7 +45,9 @@ export const projectSchema = z.object({
     .regex(/^[a-z0-9-]+$/, "Apenas letras minúsculas, números e hífens"),
   title: z.string().min(1, "Título obrigatório"),
   shortDescription: z.string().min(1, "Descrição curta obrigatória"),
-  category: z.enum(["saas", "ai", "frontend", "fullstack", "automation", "infra", "experiment"]),
+  categories: z
+    .array(z.enum(["saas", "ai", "frontend", "fullstack", "automation", "infra", "experiment"]))
+    .min(1, "Selecione ao menos uma categoria"),
   status: z.enum(["draft", "in_progress", "shipped", "archived"]),
   year: z.number().int().min(2000).max(2100).nullable().optional(),
   featured: z.boolean().default(false),

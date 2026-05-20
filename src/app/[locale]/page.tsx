@@ -94,7 +94,7 @@ export default async function HomePage({
                 title: firstFeatured.title,
                 shortDescription: firstFeatured.shortDescription,
                 slug: firstFeatured.slug,
-                category: firstFeatured.category,
+                category: firstFeatured.categories[0] ?? "",
                 status: firstFeatured.status,
               }
             : null
@@ -131,7 +131,7 @@ async function getFeaturedProjects() {
     title: p.title,
     shortDescription: p.shortDescription,
     status: p.status as "draft" | "in_progress" | "shipped" | "archived",
-    category: p.category as "saas" | "ai" | "frontend" | "fullstack" | "automation" | "infra" | "experiment",
+    categories: p.categories as ("saas" | "ai" | "frontend" | "fullstack" | "automation" | "infra" | "experiment")[],
     year: p.year,
     coverImage: p.coverImage,
     demoUrl: p.demoUrl,

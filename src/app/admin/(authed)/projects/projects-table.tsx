@@ -31,7 +31,7 @@ type Project = {
   id: string;
   slug: string;
   title: string;
-  category: string;
+  categories: string[];
   status: string;
   translationStatus: TranslationStatus;
   year: number | null;
@@ -105,9 +105,16 @@ export function ProjectsTable({ projects }: { projects: Project[] }) {
                     </div>
                   </TableCell>
                   <TableCell>
-                    <span className="rounded-full bg-white/[0.05] px-2 py-0.5 text-[10px] font-medium uppercase text-white/40">
-                      {project.category}
-                    </span>
+                    <div className="flex flex-wrap gap-1">
+                      {project.categories.map((c) => (
+                        <span
+                          key={c}
+                          className="rounded-full bg-white/[0.05] px-2 py-0.5 text-[10px] font-medium uppercase text-white/40"
+                        >
+                          {c}
+                        </span>
+                      ))}
+                    </div>
                   </TableCell>
                   <TableCell>
                     <span className={cn("rounded-full px-2 py-0.5 text-[10px] font-medium", status.className)}>

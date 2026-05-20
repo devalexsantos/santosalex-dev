@@ -232,20 +232,20 @@ export default async function ProjectDetailPage({
   const c: LocaleContent = content[locale] ?? content["pt-BR"] ?? {};
 
   const statusStyle = statusConfig[project.status as ProjectStatus];
-  const categoryLabel = categoryLabels[project.category as ProjectCategory] ?? project.category;
+  const projectCategories = project.categories as ProjectCategory[];
 
   // Determine if we should render AI section:
-  // - project.category is "ai", OR
+  // - project is tagged "ai", OR
   // - project has any tech with category "ai"
   const hasAiStack = project.stack.some((s) => s.technology.category === "ai");
-  const showAiSection = project.category === "ai" || hasAiStack;
+  const showAiSection = projectCategories.includes("ai") || hasAiStack;
 
   const ldData = softwareApplicationSchema({
     name: project.title,
     description: c.problem?.slice(0, 240) ?? project.shortDescription,
     slug: project.slug,
     locale,
-    category: project.category,
+    category: projectCategories[0] ?? "",
     demoUrl: project.demoUrl,
     githubUrl: project.githubUrl,
     coverImage: project.coverImage,
@@ -293,12 +293,15 @@ export default async function ProjectDetailPage({
           >
             {statusStyle.label}
           </Badge>
-          <Badge
-            variant="outline"
-            className="border-primary/20 bg-primary/8 text-[10px] font-semibold uppercase tracking-wide text-primary"
-          >
-            {categoryLabel}
-          </Badge>
+          {projectCategories.map((cat) => (
+            <Badge
+              key={cat}
+              variant="outline"
+              className="border-primary/20 bg-primary/8 text-[10px] font-semibold uppercase tracking-wide text-primary"
+            >
+              {categoryLabels[cat] ?? cat}
+            </Badge>
+          ))}
           {project.year && (
             <span className="text-xs text-muted-foreground">{project.year}</span>
           )}
@@ -548,7 +551,7 @@ export default async function ProjectDetailPage({
                 title={p.title}
                 shortDescription={p.shortDescription}
                 status={p.status as ProjectStatus}
-                category={p.category as ProjectCategory}
+                categories={p.categories as ProjectCategory[]}
                 year={p.year}
                 demoUrl={p.demoUrl}
                 githubUrl={p.githubUrl}

@@ -103,7 +103,7 @@ export function ProjectForm({
       slug: "",
       title: "",
       shortDescription: "",
-      category: "saas",
+      categories: ["saas"],
       status: "draft",
       year: null,
       featured: false,
@@ -165,6 +165,7 @@ export function ProjectForm({
 
   const watchedCover = watch("coverImage");
   const watchedImages = watch("images");
+  const watchedCategories = watch("categories");
   const watchedTechSlugs = watch("techSlugs");
   const watchedPtContent = watch("content.pt-BR");
   const watchedArch = watch("architecture");
@@ -175,6 +176,29 @@ export function ProjectForm({
   const ptHasContent = !!watchedPtContent?.problem?.trim();
   // AI translate button is only active when editing a saved project
   const canTranslate = !!projectId && ptHasContent;
+
+  const CATEGORY_OPTIONS = [
+    "saas",
+    "ai",
+    "frontend",
+    "fullstack",
+    "automation",
+    "infra",
+    "experiment",
+  ] as const;
+
+  function toggleCategory(cat: (typeof CATEGORY_OPTIONS)[number]) {
+    const current = watchedCategories ?? [];
+    if (current.includes(cat)) {
+      setValue(
+        "categories",
+        current.filter((c) => c !== cat),
+        { shouldDirty: true }
+      );
+    } else {
+      setValue("categories", [...current, cat], { shouldDirty: true });
+    }
+  }
 
   function toggleTech(slug: string) {
     const current = watchedTechSlugs ?? [];
@@ -301,35 +325,33 @@ export function ProjectForm({
             />
           </FieldRow>
 
+          <FieldRow label="Categorias" required>
+            <div className="flex flex-wrap gap-2">
+              {CATEGORY_OPTIONS.map((cat) => {
+                const selected = (watchedCategories ?? []).includes(cat);
+                return (
+                  <button
+                    key={cat}
+                    type="button"
+                    onClick={() => toggleCategory(cat)}
+                    className={cn(
+                      "rounded-lg border px-3 py-1.5 text-xs font-medium transition-colors",
+                      selected
+                        ? "border-violet-500/40 bg-violet-500/15 text-violet-300"
+                        : "border-white/[0.08] bg-white/[0.03] text-white/50 hover:border-white/[0.15] hover:text-white/70"
+                    )}
+                  >
+                    {cat}
+                  </button>
+                );
+              })}
+            </div>
+            {errors.categories && (
+              <p className="text-xs text-red-400">{errors.categories.message}</p>
+            )}
+          </FieldRow>
+
           <div className="grid grid-cols-2 gap-4">
-            <FieldRow label="Categoria" required>
-              <Controller
-                control={control}
-                name="category"
-                render={({ field }) => (
-                  <Select value={field.value} onValueChange={field.onChange}>
-                    <SelectTrigger className={inputClass}>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent className="border-white/[0.08] bg-[#111118] text-white">
-                      {[
-                        "saas",
-                        "ai",
-                        "frontend",
-                        "fullstack",
-                        "automation",
-                        "infra",
-                        "experiment",
-                      ].map((v) => (
-                        <SelectItem key={v} value={v}>
-                          {v}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                )}
-              />
-            </FieldRow>
             <FieldRow label="Status" required>
               <Controller
                 control={control}

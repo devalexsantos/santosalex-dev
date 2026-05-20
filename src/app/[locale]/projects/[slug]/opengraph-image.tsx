@@ -37,17 +37,18 @@ export default async function Image({
     select: {
       title: true,
       shortDescription: true,
-      category: true,
+      categories: true,
       year: true,
     },
   });
 
   const title = project?.title ?? "Project";
   const description = project?.shortDescription ?? "";
+  const firstCategory = project?.categories[0] ?? "";
   const category =
     (locale === "pt-BR" ? CATEGORY_LABELS_PT : CATEGORY_LABELS_EN)[
-      project?.category ?? ""
-    ] ?? project?.category ?? "";
+      firstCategory
+    ] ?? firstCategory;
   const year = project?.year;
 
   return new ImageResponse(

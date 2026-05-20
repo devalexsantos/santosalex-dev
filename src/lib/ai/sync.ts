@@ -181,7 +181,7 @@ export async function syncProjectToAiDocuments(projectId: string): Promise<void>
 
     const metadata = {
       slug: project.slug,
-      category: project.category,
+      categories: project.categories,
       status: project.status,
       year: project.year,
       featured: project.featured,

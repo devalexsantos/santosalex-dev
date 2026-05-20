@@ -27,7 +27,7 @@ interface ProjectCardProps {
   title: string;
   shortDescription: string;
   status: ProjectStatus;
-  category: ProjectCategory;
+  categories: ProjectCategory[];
   year?: number | null;
   coverImage?: string | null;
   demoUrl?: string | null;
@@ -59,7 +59,7 @@ export function ProjectCard({
   title,
   shortDescription,
   status,
-  category,
+  categories,
   year,
   demoUrl,
   githubUrl,
@@ -98,12 +98,15 @@ export function ProjectCard({
             >
               {statusStyle.label}
             </Badge>
-            <Badge
-              variant="outline"
-              className="border-primary/20 bg-primary/8 text-[10px] font-semibold uppercase tracking-wide text-primary"
-            >
-              {categoryLabels[category]}
-            </Badge>
+            {categories.map((category) => (
+              <Badge
+                key={category}
+                variant="outline"
+                className="border-primary/20 bg-primary/8 text-[10px] font-semibold uppercase tracking-wide text-primary"
+              >
+                {categoryLabels[category]}
+              </Badge>
+            ))}
             {year && (
               <span className="text-xs text-muted-foreground">{year}</span>
             )}

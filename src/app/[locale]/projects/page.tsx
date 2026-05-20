@@ -65,7 +65,7 @@ async function getAllProjects() {
     title: p.title,
     shortDescription: p.shortDescription,
     status: p.status as ProjectStatus,
-    category: p.category as ProjectCategory,
+    categories: p.categories as ProjectCategory[],
     year: p.year,
     coverImage: p.coverImage,
     demoUrl: p.demoUrl,
@@ -119,7 +119,7 @@ export default async function ProjectsPage({
   const filtered = (() => {
     if (activeFilter === "all" || !FILTER_KEYS.includes(activeFilter)) return projects;
     if (activeFilter === "featured") return projects.filter((p) => p.featured);
-    return projects.filter((p) => p.category === activeFilter);
+    return projects.filter((p) => p.categories.includes(activeFilter as ProjectCategory));
   })();
 
   return (

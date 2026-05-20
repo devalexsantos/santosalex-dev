@@ -67,7 +67,7 @@ export async function upsertProjectFromPayload(p: ProjectPayload): Promise<{
     slug: p.slug,
     title: p.title,
     shortDescription: p.shortDescription,
-    category: p.category,
+    categories: [p.category],
     status: p.status,
     year: p.year ?? null,
     featured: p.featured ?? false,

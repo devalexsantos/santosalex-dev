@@ -16,7 +16,7 @@ export default async function AdminProjectsPage() {
       id: true,
       slug: true,
       title: true,
-      category: true,
+      categories: true,
       status: true,
       translationStatus: true,
       year: true,

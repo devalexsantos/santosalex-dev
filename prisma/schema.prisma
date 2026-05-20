@@ -72,7 +72,9 @@ model Project {
   /// draft = EN never touched; needs_translation = PT was edited after last AI pass;
   /// translated = AI drafted EN, awaiting human review; reviewed = human confirmed.
   translationStatus TranslationStatus @default(draft)
-  category         ProjectCategory
+  /// A project can belong to multiple categories so it surfaces in several
+  /// filters on the public projects page.
+  categories       ProjectCategory[]
   year             Int?
   featured         Boolean         @default(false)
   order            Int             @default(0)
@@ -85,7 +87,6 @@ model Project {
   images    ProjectImage[]
 
   @@index([featured, order])
-  @@index([category])
 }
 
 model ProjectImage {
