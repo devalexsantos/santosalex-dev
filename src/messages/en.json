@@ -162,6 +162,7 @@
     "notFound": "Project not found.",
     "sections": {
       "overview": "Overview",
+      "gallery": "Gallery",
       "problem": "Problem",
       "hypothesis": "Hypothesis",
       "targetAudience": "Target audience",
@@ -170,6 +171,7 @@
       "decisions": "Technical decisions",
       "features": "Key features",
       "challenges": "Challenges",
+      "readme": "README / Technical deep dive",
       "aiRole": "How AI fits in",
       "demos": "Demo & source code",
       "learnings": "Results & learnings",

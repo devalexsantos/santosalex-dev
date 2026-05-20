@@ -33,6 +33,8 @@ import { StackBadge } from "@/components/ui/stack-badge";
 import { Badge } from "@/components/ui/badge";
 import { ProjectCard } from "@/components/ui/project-card";
 import { ProjectIntelligence } from "@/components/projects/project-intelligence";
+import { ProjectReadme } from "@/components/projects/project-readme";
+import { ProjectGallery } from "@/components/projects/project-gallery";
 import { cn } from "@/lib/utils";
 
 // ---------------------------------------------------------------------------
@@ -119,6 +121,7 @@ async function getProject(slug: string) {
       stack: { include: { technology: true } },
       features: { orderBy: { order: "asc" } },
       decisions: { orderBy: { order: "asc" } },
+      images: { orderBy: { order: "asc" } },
     },
   });
 }
@@ -322,6 +325,13 @@ export default async function ProjectDetailPage({
           </CaseSection>
         )}
 
+        {/* ── Galeria ─────────────────────────────────────────────────────── */}
+        {project.images.length > 0 && (
+          <CaseSection title={t("sections.gallery")}>
+            <ProjectGallery images={project.images} projectTitle={project.title} />
+          </CaseSection>
+        )}
+
         {/* ── 3. Problema ─────────────────────────────────────────────────── */}
         {c.problem && (
           <CaseSection title={t("sections.problem")}>
@@ -441,6 +451,17 @@ export default async function ProjectDetailPage({
           return chText ? (
             <CaseSection title={t("sections.challenges")}>
               <ProseText text={chText} />
+            </CaseSection>
+          ) : null;
+        })()}
+
+        {/* ── 10b. README / Detalhamento técnico ──────────────────────────── */}
+        {(() => {
+          const rd = project.readme as BilingualJson | null;
+          const rdText = rd?.[locale] ?? rd?.["pt-BR"] ?? "";
+          return rdText ? (
+            <CaseSection title={t("sections.readme")}>
+              <ProjectReadme markdown={rdText} />
             </CaseSection>
           ) : null;
         })()}

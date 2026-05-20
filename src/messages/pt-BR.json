@@ -162,6 +162,7 @@
     "notFound": "Projeto não encontrado.",
     "sections": {
       "overview": "Visão geral",
+      "gallery": "Galeria",
       "problem": "Problema",
       "hypothesis": "Hipótese",
       "targetAudience": "Público-alvo",
@@ -170,6 +171,7 @@
       "decisions": "Decisões técnicas",
       "features": "Principais funcionalidades",
       "challenges": "Desafios encontrados",
+      "readme": "README / Detalhamento técnico",
       "aiRole": "Como a IA entra no projeto",
       "demos": "Demo e código-fonte",
       "learnings": "Resultados e aprendizados",

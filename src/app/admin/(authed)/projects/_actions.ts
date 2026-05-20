@@ -30,6 +30,15 @@ export async function saveProject(
   const demoUrl = data.demoUrl || null;
   const githubUrl = data.githubUrl || null;
 
+  // Drop gallery rows with no uploaded image; re-sequence order from position.
+  const images = data.images
+    .filter((img) => img.url)
+    .map((img, idx) => ({
+      url: img.url,
+      caption: img.caption || null,
+      order: idx + 1,
+    }));
+
   // ── Determine the translation status to persist ──
   // Priority order:
   // 1. If markReviewed is true → reviewed (user explicitly confirmed)
@@ -48,6 +57,7 @@ export async function saveProject(
         content: true,
         architecture: true,
         challenges: true,
+        readme: true,
         translationStatus: true,
       },
     });
@@ -61,17 +71,20 @@ export async function saveProject(
         const prevContent = existing.content as RawContent | null;
         const prevArch = existing.architecture as { "pt-BR"?: string } | null;
         const prevChallenges = existing.challenges as { "pt-BR"?: string } | null;
+        const prevReadme = existing.readme as { "pt-BR"?: string } | null;
 
         const ptPrev = JSON.stringify({
           ...prevContent?.["pt-BR"],
           architecture: prevArch?.["pt-BR"] ?? "",
           challenges: prevChallenges?.["pt-BR"] ?? "",
+          readme: prevReadme?.["pt-BR"] ?? "",
         });
 
         const ptNew = JSON.stringify({
           ...data.content["pt-BR"],
           architecture: data.architecture["pt-BR"],
           challenges: data.challenges["pt-BR"],
+          readme: data.readme["pt-BR"],
         });
 
         if (ptPrev !== ptNew) {
@@ -105,6 +118,7 @@ export async function saveProject(
             content: data.content,
             architecture: data.architecture,
             challenges: data.challenges,
+            readme: data.readme,
           },
         });
 
@@ -146,6 +160,18 @@ export async function saveProject(
             })),
           });
         }
+
+        await tx.projectImage.deleteMany({ where: { projectId } });
+        if (images.length > 0) {
+          await tx.projectImage.createMany({
+            data: images.map((img) => ({
+              projectId: projectId!,
+              url: img.url,
+              caption: img.caption,
+              order: img.order,
+            })),
+          });
+        }
       });
     } else {
       // --- CREATE ---
@@ -167,6 +193,7 @@ export async function saveProject(
             content: data.content,
             architecture: data.architecture,
             challenges: data.challenges,
+            readme: data.readme,
           },
         });
 
@@ -200,6 +227,17 @@ export async function saveProject(
               description: d.description,
               reason: d.reason,
               order: d.order,
+            })),
+          });
+        }
+
+        if (images.length > 0) {
+          await tx.projectImage.createMany({
+            data: images.map((img) => ({
+              projectId: project.id,
+              url: img.url,
+              caption: img.caption,
+              order: img.order,
             })),
           });
         }

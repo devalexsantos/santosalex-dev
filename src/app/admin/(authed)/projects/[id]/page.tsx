@@ -25,6 +25,7 @@ export default async function EditProjectPage({
         stack: { include: { technology: { select: { slug: true } } } },
         features: { orderBy: { order: "asc" } },
         decisions: { orderBy: { order: "asc" } },
+        images: { orderBy: { order: "asc" } },
       },
     }),
     prisma.technology.findMany({
@@ -85,6 +86,7 @@ export default async function EditProjectPage({
     },
     architecture: normalizeBilingual(project.architecture as BilingualJson | null),
     challenges: normalizeBilingual(project.challenges as BilingualJson | null),
+    readme: normalizeBilingual(project.readme as BilingualJson | null),
     techSlugs: project.stack.map((s) => s.technology.slug),
     features: project.features.map((f) => ({
       title: normalizeBilingual(f.title as BilingualJson),
@@ -96,6 +98,11 @@ export default async function EditProjectPage({
       description: normalizeBilingual(d.description as BilingualJson),
       reason: normalizeBilingual(d.reason as BilingualJson),
       order: d.order,
+    })),
+    images: project.images.map((img) => ({
+      url: img.url,
+      caption: img.caption ?? "",
+      order: img.order,
     })),
   };
 

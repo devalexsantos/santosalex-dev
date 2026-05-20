@@ -61,6 +61,9 @@ model Project {
   architecture     Json?
   /// Localized challenges section. Shape: { "pt-BR": string, "en": string }
   challenges       Json?
+  /// Localized README / deep technical dive. Markdown with optional ```mermaid blocks.
+  /// Shape: { "pt-BR": string, "en": string }
+  readme           Json?
   coverImage       String?
   demoUrl          String?
   githubUrl        String?
@@ -79,9 +82,24 @@ model Project {
   features  ProjectFeature[]
   decisions ProjectDecision[]
   stack     ProjectStack[]
+  images    ProjectImage[]
 
   @@index([featured, order])
   @@index([category])
+}
+
+model ProjectImage {
+  id        String  @id @default(cuid())
+  projectId String
+  /// Public S3 URL of the uploaded image.
+  url       String
+  /// Optional caption shown beneath the image in the public gallery.
+  caption   String?
+  order     Int     @default(0)
+
+  project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  @@index([projectId, order])
 }
 
 model ProjectFeature {

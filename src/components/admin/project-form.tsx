@@ -22,6 +22,7 @@ import {
 } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
 import { TranslationStatusBadge, type TranslationStatus } from "./translation-status-badge";
+import { ImageUpload } from "./image-upload";
 
 // ---------------------------------------------------------------------------
 // Types
@@ -132,9 +133,11 @@ export function ProjectForm({
       },
       architecture: { "pt-BR": "", en: "" },
       challenges: { "pt-BR": "", en: "" },
+      readme: { "pt-BR": "", en: "" },
       techSlugs: [],
       features: [],
       decisions: [],
+      images: [],
       ...defaultValues,
     },
   });
@@ -153,6 +156,15 @@ export function ProjectForm({
     move: moveDecision,
   } = useFieldArray({ control, name: "decisions" });
 
+  const {
+    fields: imageFields,
+    append: appendImage,
+    remove: removeImage,
+    move: moveImage,
+  } = useFieldArray({ control, name: "images" });
+
+  const watchedCover = watch("coverImage");
+  const watchedImages = watch("images");
   const watchedTechSlugs = watch("techSlugs");
   const watchedPtContent = watch("content.pt-BR");
   const watchedArch = watch("architecture");
@@ -244,6 +256,7 @@ export function ProjectForm({
             { value: "stack", label: "Stack" },
             { value: "features", label: "Funcionalidades" },
             { value: "decisions", label: "Decisões" },
+            { value: "images", label: "Imagens" },
           ].map(({ value, label }) => (
             <TabsTrigger
               key={value}
@@ -374,11 +387,12 @@ export function ProjectForm({
             </FieldRow>
           </div>
 
-          <FieldRow label="URL da capa">
-            <Input
-              className={inputClass}
-              placeholder="https://..."
-              {...register("coverImage")}
+          <FieldRow label="Capa">
+            <ImageUpload
+              value={watchedCover}
+              onChange={(url) =>
+                setValue("coverImage", url ?? "", { shouldDirty: true })
+              }
             />
           </FieldRow>
           <div className="grid grid-cols-2 gap-4">
@@ -425,6 +439,16 @@ export function ProjectForm({
               placeholder="Descreva os desafios encontrados..."
               {...register("challenges.pt-BR")}
             />
+          </FieldRow>
+          <FieldRow label="README / Detalhamento técnico">
+            <Textarea
+              className={cn(textareaClass, "min-h-[280px] font-mono text-xs")}
+              placeholder={"# Visão geral\n\nMarkdown completo. Suporta blocos ```mermaid para diagramas:\n\n```mermaid\nflowchart LR\n  A --> B\n```"}
+              {...register("readme.pt-BR")}
+            />
+            <p className="text-[10px] text-white/30">
+              Markdown completo. Use blocos <code className="text-violet-400/80">```mermaid</code> para diagramas de arquitetura, fluxos ou sequências.
+            </p>
           </FieldRow>
         </TabsContent>
 
@@ -522,6 +546,16 @@ export function ProjectForm({
               placeholder="Describe the challenges encountered..."
               {...register("challenges.en")}
             />
+          </FieldRow>
+          <FieldRow label="README / Technical deep dive">
+            <Textarea
+              className={cn(textareaClass, "min-h-[280px] font-mono text-xs")}
+              placeholder={"# Overview\n\nFull markdown. Supports ```mermaid blocks for diagrams:\n\n```mermaid\nflowchart LR\n  A --> B\n```"}
+              {...register("readme.en")}
+            />
+            <p className="text-[10px] text-white/30">
+              Full markdown. Use <code className="text-violet-400/80">```mermaid</code> blocks for architecture, flow or sequence diagrams.
+            </p>
           </FieldRow>
         </TabsContent>
 
@@ -754,6 +788,89 @@ export function ProjectForm({
           >
             <Plus className="mr-1.5 h-3.5 w-3.5" />
             Adicionar decisão
+          </Button>
+        </TabsContent>
+
+        {/* ── TAB: IMAGENS ── */}
+        <TabsContent value="images" className="space-y-4">
+          <p className="text-xs text-white/40">
+            Galeria de imagens exibida na página pública do projeto. A primeira
+            é mostrada no topo.
+          </p>
+          {imageFields.map((field, idx) => (
+            <div
+              key={field.id}
+              className="rounded-xl border border-white/[0.07] bg-white/[0.02] p-4"
+            >
+              <div className="mb-3 flex items-center justify-between">
+                <span className="text-xs font-semibold text-white/40">
+                  Imagem #{idx + 1}
+                </span>
+                <div className="flex items-center gap-1">
+                  <button
+                    type="button"
+                    onClick={() => idx > 0 && moveImage(idx, idx - 1)}
+                    className="rounded p-1 text-white/30 hover:text-white/60 disabled:opacity-20"
+                    disabled={idx === 0}
+                  >
+                    <ChevronUp className="h-3.5 w-3.5" />
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() =>
+                      idx < imageFields.length - 1 && moveImage(idx, idx + 1)
+                    }
+                    className="rounded p-1 text-white/30 hover:text-white/60 disabled:opacity-20"
+                    disabled={idx === imageFields.length - 1}
+                  >
+                    <ChevronDown className="h-3.5 w-3.5" />
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => removeImage(idx)}
+                    className="rounded p-1 text-red-400/60 hover:text-red-400"
+                  >
+                    <Trash2 className="h-3.5 w-3.5" />
+                  </button>
+                </div>
+              </div>
+              <ImageUpload
+                value={watchedImages?.[idx]?.url}
+                onChange={(url) => {
+                  if (url) {
+                    setValue(`images.${idx}.url`, url, { shouldDirty: true });
+                  } else {
+                    removeImage(idx);
+                  }
+                }}
+              />
+              <div className="mt-3">
+                <FieldRow label="Legenda (opcional)">
+                  <Input
+                    className={inputClass}
+                    placeholder="Descrição da imagem"
+                    {...register(`images.${idx}.caption`)}
+                  />
+                </FieldRow>
+              </div>
+              <input
+                type="hidden"
+                {...register(`images.${idx}.order`, { valueAsNumber: true })}
+                value={idx + 1}
+              />
+            </div>
+          ))}
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            onClick={() =>
+              appendImage({ url: "", caption: "", order: imageFields.length + 1 })
+            }
+            className="border-white/[0.08] bg-transparent text-white/50 hover:border-violet-500/30 hover:text-violet-300"
+          >
+            <Plus className="mr-1.5 h-3.5 w-3.5" />
+            Adicionar imagem
           </Button>
         </TabsContent>
       </Tabs>

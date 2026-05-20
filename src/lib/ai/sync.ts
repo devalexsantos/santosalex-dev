@@ -34,6 +34,7 @@ function buildProjectContent(
     content: unknown;
     architecture: unknown;
     challenges: unknown;
+    readme: unknown;
     features: { title: unknown; description: unknown; order: number }[];
     decisions: { title: unknown; description: unknown; reason: unknown; order: number }[];
     stack: { technology: { name: string; category: string } }[];
@@ -44,6 +45,7 @@ function buildProjectContent(
   const c = content[locale] ?? {};
   const arch = pickLocale(project.architecture, locale);
   const challenges = pickLocale(project.challenges, locale);
+  const readme = pickLocale(project.readme, locale);
 
   const lines: string[] = [];
 
@@ -110,6 +112,12 @@ function buildProjectContent(
   if (project.stack.length > 0) {
     lines.push(locale === "pt-BR" ? "## Stack" : "## Stack");
     lines.push(project.stack.map((s) => s.technology.name).join(", "));
+    lines.push("");
+  }
+
+  if (readme) {
+    lines.push(locale === "pt-BR" ? "## README — detalhamento técnico" : "## README — technical deep dive");
+    lines.push(readme);
     lines.push("");
   }
 

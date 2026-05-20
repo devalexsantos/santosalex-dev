@@ -18,6 +18,13 @@ export const decisionSchema = z.object({
   order: z.number().int().min(0),
 });
 
+export const projectImageSchema = z.object({
+  // Empty allowed for freshly-added rows pending upload; filtered out on save.
+  url: z.string().url("URL inválida").or(z.literal("")),
+  caption: z.string().default(""),
+  order: z.number().int().min(0),
+});
+
 export const translationStatusSchema = z.enum([
   "draft",
   "needs_translation",
@@ -77,6 +84,8 @@ export const projectSchema = z.object({
   // Dedicated architecture and challenges bilingual fields
   architecture: bilingualField,
   challenges: bilingualField,
+  // Deep technical README (markdown, supports ```mermaid blocks)
+  readme: bilingualField,
 
   // Stack
   techSlugs: z.array(z.string()).default([]),
@@ -86,6 +95,9 @@ export const projectSchema = z.object({
 
   // Decisions
   decisions: z.array(decisionSchema).default([]),
+
+  // Gallery images (uploaded to S3)
+  images: z.array(projectImageSchema).default([]),
 });
 
 export type ProjectFormValues = z.infer<typeof projectSchema>;
