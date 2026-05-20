@@ -313,6 +313,34 @@ export default async function ProjectDetailPage({
         <p className="text-lg leading-relaxed text-muted-foreground">
           {project.shortDescription}
         </p>
+
+        {/* Quick links — demo / source */}
+        {(project.demoUrl || project.githubUrl) && (
+          <div className="mt-6 flex flex-wrap gap-3">
+            {project.demoUrl && (
+              <a
+                href={project.demoUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-2 rounded-xl border border-primary/25 bg-primary/10 px-5 py-2.5 text-sm font-semibold text-primary transition-colors hover:bg-primary/20"
+              >
+                <ExternalLink className="h-4 w-4" />
+                {t("sections.viewDemo")}
+              </a>
+            )}
+            {project.githubUrl && (
+              <a
+                href={project.githubUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-2 rounded-xl border border-white/15 bg-white/[0.04] px-5 py-2.5 text-sm font-semibold text-foreground transition-colors hover:bg-white/[0.08]"
+              >
+                <GithubIcon className="h-4 w-4" />
+                {t("sections.viewSource")}
+              </a>
+            )}
+          </div>
+        )}
       </header>
 
       {/* ── Article body ─────────────────────────────────────────────────── */}
@@ -478,35 +506,6 @@ export default async function ProjectDetailPage({
           </CaseSection>
         )}
 
-        {/* ── 12. Demos ───────────────────────────────────────────────────── */}
-        {(project.demoUrl || project.githubUrl) && (
-          <CaseSection title={t("sections.demos")}>
-            <div className="flex flex-wrap gap-3">
-              {project.demoUrl && (
-                <a
-                  href={project.demoUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center gap-2 rounded-xl border border-primary/25 bg-primary/10 px-5 py-2.5 text-sm font-semibold text-primary transition-colors hover:bg-primary/20"
-                >
-                  <ExternalLink className="h-4 w-4" />
-                  {t("sections.viewDemo")}
-                </a>
-              )}
-              {project.githubUrl && (
-                <a
-                  href={project.githubUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center gap-2 rounded-xl border border-white/15 bg-white/[0.04] px-5 py-2.5 text-sm font-semibold text-foreground transition-colors hover:bg-white/[0.08]"
-                >
-                  <GithubIcon className="h-4 w-4" />
-                  {t("sections.viewSource")}
-                </a>
-              )}
-            </div>
-          </CaseSection>
-        )}
 
         {/* ── 13. Resultados e aprendizados ───────────────────────────────── */}
         {c.learnings && (
