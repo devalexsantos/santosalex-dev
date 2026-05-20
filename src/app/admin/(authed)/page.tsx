@@ -3,6 +3,7 @@ import Link from "next/link";
 import { FolderKanban, FileText, Eye, Cpu, Database, MessagesSquare, UserCircle } from "lucide-react";
 import { requireAdminSession } from "@/lib/auth/admin-session";
 import { prisma } from "@/lib/prisma";
+import { RevalidateButton } from "./revalidate-button";
 
 export const metadata: Metadata = { title: "Dashboard" };
 
@@ -172,6 +173,7 @@ export default async function AdminDashboardPage() {
           >
             + Novo AI Document
           </Link>
+          <RevalidateButton />
         </div>
       </div>
     </div>
