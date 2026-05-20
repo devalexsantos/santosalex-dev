@@ -29,10 +29,12 @@ function createClient(): S3Client {
   });
 }
 
-export const s3 = globalForS3.s3 ?? createClient();
-
-if (process.env.NODE_ENV !== "production") {
-  globalForS3.s3 = s3;
+// Lazy: the client is built on first use (request time), never at module load.
+// This keeps `next build` from evaluating AWS env vars, which aren't present
+// during the Docker build (they're injected at runtime by the host).
+function getS3(): S3Client {
+  globalForS3.s3 ??= createClient();
+  return globalForS3.s3;
 }
 
 // Allowed image MIME types → file extension. The extension is derived from the
@@ -59,7 +61,7 @@ export async function uploadToS3(
   const bucket = getBucket();
   const region = getRegion();
 
-  await s3.send(
+  await getS3().send(
     new PutObjectCommand({
       Bucket: bucket,
       Key: key,
